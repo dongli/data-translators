@@ -1,0 +1,153 @@
+! AMDAR: Aircraft Meteorological Data Relay
+
+program decode_bufr_amdar
+
+  use cli_mod
+  use amdar_mod
+  use datetime_mod
+  use timedelta_mod
+  use hash_table_mod
+  use linked_list_mod
+  use params_mod
+  use utils_mod
+  use eccodes
+  use odbql_wrappers
+
+  implicit none
+
+  type(hash_table_type)  flights
+  type(linked_list_type) records
+
+  call decode(cli_get_file_path(), flights, records)
+  call write_odb(flights, records)
+
+contains
+
+  subroutine decode(file_path, flights, records)
+
+    character(*), intent(in) :: file_path
+    type(hash_table_type), intent(out) :: flights
+    type(linked_list_type), intent(out) :: records
+
+    integer file_id, bufr_id, ret, subset_id
+    integer(4) num_subset
+    character(10) flight_name
+    integer year, month, day, hour, minute, second
+    type(amdar_flight_type), pointer :: flight
+    type(amdar_record_type), pointer :: record
+
+    flights = hash_table(chunk_size=50000, max_load_factor=0.9)
+    call records%clear()
+
+    call codes_open_file(file_id, file_path, 'r')
+
+    call codes_bufr_new_from_file(file_id, bufr_id, ret)
+
+    do while (ret /= CODES_END_OF_FILE)
+      call codes_set(bufr_id, 'unpack', 1)
+      call codes_get(bufr_id, 'numberOfSubsets', num_subset)
+
+      do subset_id = 1, num_subset
+        call bufr_value(bufr_id, subset_id, 'aircraftFlightNumber', flight_name)
+
+        if (flights%hashed(flight_name)) then
+          select type (value => flights%value(flight_name))
+          type is (amdar_flight_type)
+            flight => value
+          end select
+        else
+          allocate(flight)
+          flight%name = flight_name
+          call flights%insert(flight_name, flight)
+        end if
+        allocate(record)
+        record%flight => flight
+
+        call bufr_value(bufr_id, subset_id, 'year', year)
+        call bufr_value(bufr_id, subset_id, 'month', month)
+        call bufr_value(bufr_id, subset_id, 'day', day)
+        call bufr_value(bufr_id, subset_id, 'hour', hour)
+        call bufr_value(bufr_id, subset_id, 'minute', minute)
+        call bufr_value(bufr_id, subset_id, 'second', second)
+        record%time = datetime(year, month, day, hour, minute, second)
+        if (record%lon == real_missing_value) call bufr_value(bufr_id, subset_id, 'longitude',           record%lon)
+        if (record%lat == real_missing_value) call bufr_value(bufr_id, subset_id, 'latitude',            record%lat)
+        if (record%z   == real_missing_value) call bufr_value(bufr_id, subset_id, 'flightLevel',         record%z)
+        if (record%T   == real_missing_value) call bufr_value(bufr_id, subset_id, 'airTemperature',      record%T)
+        if (record%WS  == real_missing_value) call bufr_value(bufr_id, subset_id, 'windSpeed',           record%WS)
+        if (record%WD  == real_missing_value) call bufr_value(bufr_id, subset_id, 'windDirection',       record%WD)
+        if (record%TD  == real_missing_value) call bufr_value(bufr_id, subset_id, 'dewpointTemperature', record%TD)
+        if (record%SH  == real_missing_value) call bufr_value(bufr_id, subset_id, 'mixingRatio',         record%SH)
+        if (record%RH  == real_missing_value) call bufr_value(bufr_id, subset_id, 'relativeHumidity',    record%RH)
+
+        ! Convert units.
+        if (record%T /= real_missing_value) record%T = record%T - 273.15
+
+        call records%insert(flight_name // '@' // record%time%isoformat(), record)
+      end do
+
+      call codes_release(bufr_id)
+
+      call codes_bufr_new_from_file(file_id, bufr_id, ret)
+    end do
+
+    call codes_close_file(file_id)
+
+  end subroutine decode
+
+  subroutine write_odb(flights, records)
+
+    type(hash_table_type), intent(in) :: flights
+    type(linked_list_type), intent(in) :: records
+
+    ! ODB variables
+    type(odbql) odb_db
+    type(odbql_stmt) odb_stmt
+    type(odbql_value) odb_value
+    character(100) odb_unparsed_sql
+    character(50) odb_file_name
+
+    character(30) time_str
+    type(linked_list_iterator_type) record_iterator
+
+    odb_file_name = 'amdar.odb'
+
+    ! Write ODB file.
+    call odbql_open('', odb_db)
+    call odbql_prepare_v2(odb_db, 'CREATE TABLE amdar AS (' // &
+      'flight_name STRING, lon REAL, lat REAL, z REAL, time STRING, T REAL, WS REAL, WD REAL, SH REAL) ON "' // trim(odb_file_name) // '";', &
+      -1, odb_stmt, odb_unparsed_sql)
+    call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
+      'flight_name, lon, lat, z, time, T, WS, WD, SH) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', &
+      -1, odb_stmt, odb_unparsed_sql)
+
+    record_iterator = linked_list_iterator(records)
+    do while (.not. record_iterator%ended())
+      select type (record => record_iterator%value)
+      type is (amdar_record_type)
+        call odbql_bind_text(odb_stmt, 1, record%flight%name, len_trim(record%flight%name))
+        call odbql_bind_double(odb_stmt, 2, dble(record%lon))
+        call odbql_bind_double(odb_stmt, 3, dble(record%lat))
+        call odbql_bind_double(odb_stmt, 4, dble(record%z))
+        time_str = record%time%format('%Y%m%d%H%M')
+        time_str = 'N/A'
+        call odbql_bind_text(odb_stmt, 5, time_str, len_trim(time_str))
+        call odbql_bind_double(odb_stmt, 6, dble(record%T))
+        call odbql_bind_double(odb_stmt, 7, dble(record%WS))
+        call odbql_bind_double(odb_stmt, 8, dble(record%WD))
+        call odbql_bind_double(odb_stmt, 9, dble(record%SH))
+        call odbql_step(odb_stmt)
+      class default
+        write(*, *) '[Error]: Unknown record in the list!'
+        stop 1
+      end select
+      call record_iterator%next()
+    end do
+
+    call odbql_finalize(odb_stmt)
+    call odbql_close(odb_db)
+    write(*, *) '[Notice]: ODB file is written.'
+
+  end subroutine write_odb
+
+end program decode_bufr_amdar
