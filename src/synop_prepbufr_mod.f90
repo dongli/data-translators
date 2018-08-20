@@ -1,6 +1,5 @@
-program decode_prepbufr_synop
+module synop_prepbufr_mod
 
-  use cli_mod
   use synop_mod
   use datetime_mod
   use timedelta_mod
@@ -12,6 +11,11 @@ program decode_prepbufr_synop
 
   implicit none
 
+  private
+
+  public synop_prepbufr_decode
+  public synop_prepbufr_write_odb
+
   integer, parameter :: max_num_var = 35
   integer, parameter :: max_num_lev = 250
   integer, parameter :: max_num_event = 10
@@ -19,18 +23,11 @@ program decode_prepbufr_synop
   type(hash_table_type) stations
   type(linked_list_type) records
 
-  type(linked_list_iterator_type) record_iterator
-
-  call decode(cli_get_file_path(), stations, records)
-  call write_odb(stations, records)
-
 contains
 
-  subroutine decode(file_path, stations, records)
+  subroutine synop_prepbufr_decode(file_path)
 
     character(*), intent(in) :: file_path
-    type(hash_table_type), intent(out) :: stations
-    type(linked_list_type), intent(out) :: records
 
     character(8) subset, station_name
     integer idate, iret, i
@@ -123,12 +120,9 @@ contains
     end do
     call closbf(10)
 
-  end subroutine decode
+  end subroutine synop_prepbufr_decode
 
-  subroutine write_odb(stations, records)
-
-    type(hash_table_type), intent(in) :: stations
-    type(linked_list_type), intent(in) :: records
+  subroutine synop_prepbufr_write_odb()
 
     ! ODB variables
     type(odbql) odb_db
@@ -189,6 +183,6 @@ contains
     call odbql_close(odb_db)
     write(*, *) '[Notice]: ODB file is written.'
 
-  end subroutine write_odb
+  end subroutine synop_prepbufr_write_odb
 
-end program decode_prepbufr_synop
+end module synop_prepbufr_mod

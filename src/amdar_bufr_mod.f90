@@ -1,8 +1,7 @@
 ! AMDAR: Aircraft Meteorological Data Relay
 
-program decode_bufr_amdar
+module amdar_bufr_mod
 
-  use cli_mod
   use amdar_mod
   use datetime_mod
   use timedelta_mod
@@ -15,19 +14,19 @@ program decode_bufr_amdar
 
   implicit none
 
+  private
+
+  public amdar_bufr_decode
+  public amdar_bufr_write_odb
+
   type(hash_table_type)  flights
   type(linked_list_type) records
 
-  call decode(cli_get_file_path(), flights, records)
-  call write_odb(flights, records)
-
 contains
 
-  subroutine decode(file_path, flights, records)
+  subroutine amdar_bufr_decode(file_path)
 
     character(*), intent(in) :: file_path
-    type(hash_table_type), intent(out) :: flights
-    type(linked_list_type), intent(out) :: records
 
     integer file_id, bufr_id, ret, subset_id
     integer(4) num_subset
@@ -93,12 +92,9 @@ contains
 
     call codes_close_file(file_id)
 
-  end subroutine decode
+  end subroutine amdar_bufr_decode
 
-  subroutine write_odb(flights, records)
-
-    type(hash_table_type), intent(in) :: flights
-    type(linked_list_type), intent(in) :: records
+  subroutine amdar_bufr_write_odb()
 
     ! ODB variables
     type(odbql) odb_db
@@ -156,6 +152,6 @@ contains
     call odbql_close(odb_db)
     write(*, *) '[Notice]: ODB file is written.'
 
-  end subroutine write_odb
+  end subroutine amdar_bufr_write_odb
 
-end program decode_bufr_amdar
+end module amdar_bufr_mod

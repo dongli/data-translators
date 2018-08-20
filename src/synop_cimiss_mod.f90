@@ -1,0 +1,43 @@
+module synop_cimiss_mod
+
+  use synop_mod
+  use hash_table_mod
+  use linked_list_mod
+  use string_mod
+
+  implicit none
+
+  type(hash_table_type) stations
+  type(linked_list_type) records
+
+contains
+
+  subroutine synop_cimiss_decode(file_path)
+
+    character(*), intent(in) :: file_path
+
+    integer i
+    character(1024) line
+
+    open(10, file=file_path, status='old')
+    read(10, '(A)') line
+    if (line(3:5) /= 'xml') then
+      write(*, *) '[Error]: Input data is not a CIMISS XML file!'
+      stop 1
+    end if
+    read(10, '(A)') line
+    if (line(2:3) /= 'DS') then
+      write(*, *) '[Error]: Unexpected second line in the CIMISS XML file!'
+      write(*, *) '=> ', trim(line)
+      stop 1
+    end if
+    print *, trim(line)
+    close(10)
+
+  end subroutine synop_cimiss_decode
+
+  subroutine synop_cimiss_write_laps_netcdf()
+
+  end subroutine synop_cimiss_write_laps_netcdf
+
+end module synop_cimiss_mod

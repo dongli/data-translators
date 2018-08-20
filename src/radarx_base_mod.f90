@@ -1,13 +1,10 @@
-program decode_radar_x
+module radarx_base_mod
 
-  use cli_mod
   use radar_mod
   use string_mod
   use netcdf
 
   implicit none
-
-  character(256) file_path
 
   integer, parameter :: max_num_radial = 1000
   integer, parameter :: max_num_radial_data = 10000
@@ -15,18 +12,11 @@ program decode_radar_x
   type(radar_station_type) radar_station
   type(radar_record_type) radar_record
 
-  file_path = cli_get_file_path()
-
-  call decode(file_path, radar_station, radar_record)
-  call write_laps_netcdf(radar_station, radar_record)
-
 contains
 
-  subroutine decode(file_path, radar_station, radar_record)
+  subroutine radarx_base_decode(file_path)
 
     character(*), intent(in) :: file_path
-    type(radar_station_type), intent(out) :: radar_station
-    type(radar_record_type), intent(out) :: radar_record
 
     ! Common header fields
     integer(4) magic_number                       ! 01
@@ -350,9 +340,9 @@ contains
 
     close(10)
 
-  end subroutine decode
+  end subroutine radarx_base_decode
 
-  subroutine write_laps_netcdf(radar_station, radar_record)
+  subroutine radarx_base_write_laps_netcdf(radar_station, radar_record)
 
     type(radar_station_type), intent(in) :: radar_station
     type(radar_record_type), intent(in) :: radar_record
@@ -529,6 +519,6 @@ contains
       err = nf90_close(ncid)
     end do
 
-  end subroutine write_laps_netcdf
+  end subroutine radarx_base_write_laps_netcdf
 
-end program decode_radar_x
+end module radarx_base_mod
