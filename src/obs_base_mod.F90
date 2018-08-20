@@ -23,11 +23,13 @@ module obs_base_mod
   type, abstract :: obs_static_record_base_type
     integer :: seq_id = 0
     type(datetime_type) time
+    character(10) :: source = str_missing_value
   end type obs_static_record_base_type
 
   type, extends(obs_site_base_type), abstract :: obs_drift_record_base_type
     integer :: seq_id = 0
     type(datetime_type) time
+    character(10) :: source = str_missing_value
   end type obs_drift_record_base_type
 
 end module obs_base_mod

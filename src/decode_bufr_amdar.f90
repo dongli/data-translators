@@ -70,18 +70,18 @@ contains
         call bufr_value(bufr_id, subset_id, 'minute', minute)
         call bufr_value(bufr_id, subset_id, 'second', second)
         record%time = datetime(year, month, day, hour, minute, second)
-        if (record%lon == real_missing_value) call bufr_value(bufr_id, subset_id, 'longitude',           record%lon)
-        if (record%lat == real_missing_value) call bufr_value(bufr_id, subset_id, 'latitude',            record%lat)
-        if (record%z   == real_missing_value) call bufr_value(bufr_id, subset_id, 'flightLevel',         record%z)
-        if (record%T   == real_missing_value) call bufr_value(bufr_id, subset_id, 'airTemperature',      record%T)
-        if (record%WS  == real_missing_value) call bufr_value(bufr_id, subset_id, 'windSpeed',           record%WS)
-        if (record%WD  == real_missing_value) call bufr_value(bufr_id, subset_id, 'windDirection',       record%WD)
-        if (record%TD  == real_missing_value) call bufr_value(bufr_id, subset_id, 'dewpointTemperature', record%TD)
-        if (record%SH  == real_missing_value) call bufr_value(bufr_id, subset_id, 'mixingRatio',         record%SH)
-        if (record%RH  == real_missing_value) call bufr_value(bufr_id, subset_id, 'relativeHumidity',    record%RH)
+        if (record%lon                     == real_missing_value) call bufr_value(bufr_id, subset_id, 'longitude',           record%lon)
+        if (record%lat                     == real_missing_value) call bufr_value(bufr_id, subset_id, 'latitude',            record%lat)
+        if (record%z                       == real_missing_value) call bufr_value(bufr_id, subset_id, 'flightLevel',         record%z)
+        if (record%amdar_temperature       == real_missing_value) call bufr_value(bufr_id, subset_id, 'airTemperature',      record%amdar_temperature)
+        if (record%amdar_wind_speed        == real_missing_value) call bufr_value(bufr_id, subset_id, 'windSpeed',           record%amdar_wind_speed)
+        if (record%amdar_wind_direction    == real_missing_value) call bufr_value(bufr_id, subset_id, 'windDirection',       record%amdar_wind_direction)
+        if (record%amdar_dewpoint          == real_missing_value) call bufr_value(bufr_id, subset_id, 'dewpointTemperature', record%amdar_dewpoint)
+        if (record%amdar_specific_humidity == real_missing_value) call bufr_value(bufr_id, subset_id, 'mixingRatio',         record%amdar_specific_humidity)
+        if (record%amdar_relative_humidity == real_missing_value) call bufr_value(bufr_id, subset_id, 'relativeHumidity',    record%amdar_relative_humidity)
 
         ! Convert units.
-        if (record%T /= real_missing_value) record%T = record%T - 273.15
+        if (record%amdar_temperature /= real_missing_value) record%amdar_temperature = record%amdar_temperature - 273.15
 
         call records%insert(flight_name // '@' // record%time%isoformat(), record)
       end do
@@ -115,27 +115,35 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE amdar AS (' // &
-      'flight_name STRING, lon REAL, lat REAL, z REAL, time STRING, T REAL, WS REAL, WD REAL, SH REAL) ON "' // trim(odb_file_name) // '";', &
-      -1, odb_stmt, odb_unparsed_sql)
+      'flight_name STRING, lon REAL, lat REAL, z REAL, time STRING, ' // &
+      'amdar_temperature REAL, ' // &
+      'amdar_wind_speed REAL, ' // &
+      'amdar_wind_direction REAL, ' // &
+      'amdar_specific_humidity REAL) ON "' // &
+      trim(odb_file_name) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
-      'flight_name, lon, lat, z, time, T, WS, WD, SH) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', &
-      -1, odb_stmt, odb_unparsed_sql)
+      'flight_name, lon, lat, z, time, ' // &
+      'amdar_temperature, ' // &
+      'amdar_wind_speed, ' // &
+      'amdar_wind_direction, ' // &
+      'amdar_specific_humidity' // &
+      ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (amdar_record_type)
-        call odbql_bind_text(odb_stmt, 1, record%flight%name, len_trim(record%flight%name))
+        call odbql_bind_text  (odb_stmt, 1, record%flight%name, len_trim(record%flight%name))
         call odbql_bind_double(odb_stmt, 2, dble(record%lon))
         call odbql_bind_double(odb_stmt, 3, dble(record%lat))
         call odbql_bind_double(odb_stmt, 4, dble(record%z))
         time_str = record%time%format('%Y%m%d%H%M')
         time_str = 'N/A'
-        call odbql_bind_text(odb_stmt, 5, time_str, len_trim(time_str))
-        call odbql_bind_double(odb_stmt, 6, dble(record%T))
-        call odbql_bind_double(odb_stmt, 7, dble(record%WS))
-        call odbql_bind_double(odb_stmt, 8, dble(record%WD))
-        call odbql_bind_double(odb_stmt, 9, dble(record%SH))
+        call odbql_bind_text  (odb_stmt, 5, time_str, len_trim(time_str))
+        call odbql_bind_double(odb_stmt, 6, dble(record%amdar_temperature))
+        call odbql_bind_double(odb_stmt, 7, dble(record%amdar_wind_speed))
+        call odbql_bind_double(odb_stmt, 8, dble(record%amdar_wind_direction))
+        call odbql_bind_double(odb_stmt, 9, dble(record%amdar_specific_humidity))
         call odbql_step(odb_stmt)
       class default
         write(*, *) '[Error]: Unknown record in the list!'
