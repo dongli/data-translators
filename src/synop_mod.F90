@@ -2,6 +2,8 @@ module synop_mod
 
   use obs_base_mod
   use params_mod
+  use hash_table_mod
+  use linked_list_mod
 
   implicit none
 
@@ -23,5 +25,8 @@ module synop_mod
     real :: sfc_rain_24h         = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: sfc_cloud_amount     = real_missing_value ! Cloud amount (???)
   end type synop_record_type
+
+  type(hash_table_type) stations
+  type(linked_list_type) records
 
 end module synop_mod
