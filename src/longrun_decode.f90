@@ -3,6 +3,7 @@ program longrun_decode
   use synop_prepbufr_mod
   use synop_odb_mod
   use amdar_bufr_mod
+  use amdar_prepbufr_mod
   use amdar_odb_mod
   use cli_mod
 
@@ -18,6 +19,9 @@ program longrun_decode
     call synop_odb_write()
   case ('amdar_bufr')
     call amdar_bufr_decode(file_path)
+    call amdar_odb_write()
+  case ('amdar_prepbufr')
+    call amdar_prepbufr_decode(file_path)
     call amdar_odb_write()
   case default
     write(*, *) '[Error]: Unknown decoder type!'
