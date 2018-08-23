@@ -23,6 +23,8 @@ add_library(decoders
   src/amdar_bufr_mod.f90
   src/amdar_prepbufr_mod.f90
   src/amdar_odb_mod.f90
+  src/raob_mod.f90
+  src/raob_prepbufr_mod.f90
   src/synop_mod.f90
   src/synop_prepbufr_mod.f90
   src/synop_odb_mod.f90

@@ -1,14 +1,19 @@
 module synop_cimiss_mod
 
   use synop_mod
+  use datetime_mod
+  use timedelta_mod
   use hash_table_mod
   use linked_list_mod
   use string_mod
+  use params_mod
+  use utils_mod
 
   implicit none
 
-  type(hash_table_type) stations
-  type(linked_list_type) records
+  private
+
+  public synop_cimiss_decode
 
 contains
 
