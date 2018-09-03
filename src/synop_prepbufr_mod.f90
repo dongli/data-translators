@@ -93,14 +93,30 @@ contains
           new_record = .true.
         end if
 
-        if (record%sfc_pressure    == real_missing_value) record%sfc_pressure     = prepbufr_raw(obs(1,1,:), pc(1,1,:))
-        if (record%sfc_temperature == real_missing_value) record%sfc_temperature  = prepbufr_raw(obs(2,1,:), pc(2,1,:))
-        if (record%sfc_dewpoint    == real_missing_value) record%sfc_dewpoint     = prepbufr_raw(obs(3,1,:))
+        if (record%sfc_pressure == real_missing_value) then
+          record%sfc_pressure = prepbufr_raw(obs(1,1,:), qc(1,1,:), pc(1,1,:))
+          record%sfc_pressure_stack(:max_num_event) = obs(1,1,:max_num_event)
+          record%sfc_pressure_qc(:max_num_event) = prepbufr_codes(qc(1,1,:max_num_event))
+          record%sfc_pressure_pc(:max_num_event) = prepbufr_codes(pc(1,1,:max_num_event))
+        end if
+        if (record%sfc_temperature == real_missing_value) then
+          record%sfc_temperature = prepbufr_raw(obs(2,1,:), qc(2,1,:), pc(2,1,:))
+          record%sfc_temperature_stack(:max_num_event) = obs(2,1,:max_num_event)
+          record%sfc_temperature_qc(:max_num_event) = prepbufr_codes(qc(2,1,:max_num_event))
+          record%sfc_temperature_pc(:max_num_event) = prepbufr_codes(pc(2,1,:max_num_event))
+        end if
+        if (record%sfc_dewpoint == real_missing_value) then
+          record%sfc_dewpoint = prepbufr_raw(obs(3,1,:))
+        end if
         if (record%sfc_wind_speed  == real_missing_value) then
-          u = prepbufr_raw(obs(4,1,:), pc(4,1,:))
-          v = prepbufr_raw(obs(5,1,:), pc(4,1,:))
+          u = prepbufr_raw(obs(4,1,:), qc(4,1,:), pc(4,1,:))
+          v = prepbufr_raw(obs(5,1,:), qc(4,1,:), pc(4,1,:))
           record%sfc_wind_speed     = merge(real_missing_value, sqrt(u**2 + v**2), u == real_missing_value)
           record%sfc_wind_direction = merge(real_missing_value, wind_direction(u, v), u == real_missing_value)
+          record%sfc_wind_u_stack(:max_num_event) = obs(4,1,:max_num_event)
+          record%sfc_wind_v_stack(:max_num_event) = obs(5,1,:max_num_event)
+          record%sfc_wind_qc(:max_num_event) = prepbufr_codes(qc(4,1,:max_num_event))
+          record%sfc_wind_pc(:max_num_event) = prepbufr_codes(pc(4,1,:max_num_event))
         end if
         if (record%sfc_rain_01h == real_missing_value) record%sfc_rain_01h = prepbufr_raw(obs(6,1,:))
         if (record%sfc_rain_03h == real_missing_value) record%sfc_rain_03h = prepbufr_raw(obs(7,1,:))

@@ -10,6 +10,8 @@ module synop_mod
   type, extends(obs_station_type) :: synop_station_type
   end type synop_station_type
 
+  integer, parameter :: max_stack = 255
+
   type, extends(obs_static_record_base_type) :: synop_record_type
     type(synop_station_type), pointer :: station
     real :: sfc_temperature      = real_missing_value ! Temperature (degC)
@@ -24,6 +26,19 @@ module synop_mod
     real :: sfc_rain_12h         = real_missing_value ! 12h accumulated total precipitation (mm)
     real :: sfc_rain_24h         = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: sfc_cloud_amount     = real_missing_value ! Cloud amount (???)
+
+    real :: sfc_temperature_stack(max_stack) = real_missing_value
+    integer :: sfc_temperature_qc(max_stack) = int_missing_value
+    integer :: sfc_temperature_pc(max_stack) = int_missing_value
+
+    real :: sfc_pressure_stack(max_stack) = real_missing_value
+    integer :: sfc_pressure_qc(max_stack) = int_missing_value
+    integer :: sfc_pressure_pc(max_stack) = int_missing_value
+
+    real :: sfc_wind_u_stack(max_stack) = real_missing_value
+    real :: sfc_wind_v_stack(max_stack) = real_missing_value
+    integer :: sfc_wind_qc(max_stack) = int_missing_value
+    integer :: sfc_wind_pc(max_stack) = int_missing_value
   end type synop_record_type
 
   type(hash_table_type) stations

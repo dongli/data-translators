@@ -30,7 +30,7 @@ if len(cur.fetchall()) == 0:
 	cur.execute(f'create schema {schema_name};')
 
 # Use PostGIS extension.
-cur.execute('create extension postgis;')
+cur.execute('create extension if not exists postgis;')
 
 cur.execute(f'''
 	select table_name from information_schema.tables

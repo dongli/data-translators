@@ -39,15 +39,23 @@ contains
 
   end function wind_v_component
 
-  real function prepbufr_raw(stack, pc) result(res)
+  real function prepbufr_raw(stack, qc, pc) result(res)
 
     real(8), intent(in) :: stack(:)
+    real(8), intent(in), optional :: qc(:)
     real(8), intent(in), optional :: pc(:)
 
     integer i
 
     res = real_missing_value
-    if (present(pc)) then
+    if (present(qc)) then
+      do i = 1, size(stack)
+        if (qc(i) <= 2) then
+          res = stack(i)
+          exit
+        end if
+      end do
+    else if (present(pc)) then
       do i = 1, size(stack)
         if (pc(i) == 1) then
           res = stack(i)
@@ -66,6 +74,22 @@ contains
     end if
 
   end function prepbufr_raw
+
+  function prepbufr_codes(codes) result(res)
+
+    real(8), intent(in) :: codes(:)
+    integer res(size(codes))
+
+    integer i
+
+    res(:) = codes(:)
+    do i = 1, size(codes)
+      if (res(i) < 0) then
+        res(i) = int_missing_value
+      end if
+    end do
+
+  end function prepbufr_codes
 
   subroutine bufr_value(bufr_id, subset_id, var_name, value)
 
