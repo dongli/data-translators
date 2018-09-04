@@ -3,8 +3,7 @@
 module amdar_bufr_mod
 
   use amdar_mod
-  use datetime_mod
-  use timedelta_mod
+  use datetime
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -63,7 +62,7 @@ contains
         call bufr_value(bufr_id, subset_id, 'hour', hour)
         call bufr_value(bufr_id, subset_id, 'minute', minute)
         call bufr_value(bufr_id, subset_id, 'second', second)
-        record%time = datetime(year, month, day, hour, minute, second)
+        record%time = create_datetime(year, month, day, hour, minute, second)
         if (record%lon                     == real_missing_value) call bufr_value(bufr_id, subset_id, 'longitude',           record%lon)
         if (record%lat                     == real_missing_value) call bufr_value(bufr_id, subset_id, 'latitude',            record%lat)
         if (record%z                       == real_missing_value) call bufr_value(bufr_id, subset_id, 'flightLevel',         record%z)

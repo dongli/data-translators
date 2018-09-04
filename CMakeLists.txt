@@ -12,29 +12,38 @@ add_subdirectory(lib/datetime)
 add_subdirectory(lib/container)
 include_directories(${CMAKE_BINARY_DIR}/fortran_container)
 
+add_subdirectory (lib/unit-test)
+include_directories (${UNIT_TEST_INCLUDE_DIR})
+
 include_directories("/opt/software/gnu/include")
 link_directories("/opt/software/gnu/lib")
 
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/.mods")
 
 add_library(decoders
-  src/obs_base_mod.f90
-  src/amdar_mod.f90
-  src/amdar_bufr_mod.f90
-  src/amdar_prepbufr_mod.f90
-  src/amdar_odb_mod.f90
-  src/raob_mod.f90
-  src/raob_prepbufr_mod.f90
-  src/synop_mod.f90
-  src/synop_prepbufr_mod.f90
-  src/synop_odb_mod.f90
-  src/radar_mod.f90
-  src/string_mod.f90
-  src/cli_mod.f90
-  src/params_mod.f90
-  src/utils_mod.f90
+  src/obs_base_mod.F90
+  src/amdar_mod.F90
+  src/amdar_bufr_mod.F90
+  src/amdar_prepbufr_mod.F90
+  src/amdar_odb_mod.F90
+  src/raob_mod.F90
+  src/raob_prepbufr_mod.F90
+  src/synop_mod.F90
+  src/synop_prepbufr_mod.F90
+  src/synop_odb_mod.F90
+  src/metar_mod.F90
+  src/metar_prepbufr_mod.F90
+  src/metar_odb_mod.F90
+  src/radar_mod.F90
+  src/string_mod.F90
+  src/cli_mod.F90
+  src/params_mod.F90
+  src/utils_mod.F90
 )
-target_link_libraries(decoders fortran_datetime fortran_container eccodes_f90 bufr Odb_fortran)
+target_link_libraries(decoders fortran_datetime fortran_container eccodes_F90 bufr Odb_fortran)
 
-add_executable(longrun-decode.exe src/longrun_decode.f90)
+add_executable(longrun-decode.exe src/longrun_decode.F90)
 target_link_libraries(longrun-decode.exe decoders)
+
+add_executable(decoder-test.exe src/decoder_test.F90)
+target_link_libraries(decoder-test.exe decoders fortran_unit_test)

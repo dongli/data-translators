@@ -2,6 +2,8 @@ program longrun_decode
 
   use synop_prepbufr_mod
   use synop_odb_mod
+  use metar_prepbufr_mod
+  use metar_odb_mod
   use amdar_bufr_mod
   use amdar_prepbufr_mod
   use amdar_odb_mod
@@ -18,6 +20,9 @@ program longrun_decode
   case ('synop_prepbufr')
     call synop_prepbufr_decode(file_path)
     call synop_odb_write()
+  case ('metar_prepbufr')
+    call metar_prepbufr_decode(file_path)
+    call metar_odb_write()
   case ('amdar_bufr')
     call amdar_bufr_decode(file_path)
     call amdar_odb_write()

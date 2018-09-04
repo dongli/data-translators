@@ -4,3 +4,6 @@
 [submodule "lib/container"]
 	path = lib/container
 	url = https://github.com/dongli/fortran-container
+[submodule "lib/unit-test"]
+	path = lib/unit-test
+	url = https://github.com/dongli/fortran-unit-test

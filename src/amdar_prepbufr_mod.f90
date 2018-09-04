@@ -1,8 +1,7 @@
 module amdar_prepbufr_mod
 
   use amdar_mod
-  use datetime_mod
-  use timedelta_mod
+  use datetime
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -51,7 +50,7 @@ contains
       msg_count = msg_count + 1
       if (subset /= 'AIRCFT') cycle
       write(sdate, "(I10)") idate
-      time = datetime(sdate, '%Y%m%d%H')
+      time = create_datetime(sdate, '%Y%m%d%H')
       write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
@@ -60,13 +59,14 @@ contains
         !           <W___INFO>  <DRFTINFO>  [W1_EVENT]  <ACFT_SEQ>
         !           <TURB1SEQ>  <TURB2SEQ>  {TURB3SEQ}  {PREWXSEQ}
         !           {CLOUDSEQ}  {AFIC_SEQ}   NRLQMS
-        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID DHR XOB YOB ELV TYP')
-        !                                                                    1   2    3    4    5   6   7   8   9   10  11   12   13
+        !                                                                    1   2   3   4   5   6   7   8
+        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
+        !                                                                    1   2    3    4    5   6   7   8   9   10  11  12
         call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'RCT ROLF MSTQ IALR CAT POB TOB QOB DDO FFO TDO TRBX')
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret,                        'PQM TQM QQM DFQ NUL')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret,                        'PPC TPC QPC DFP NUL')
         flight_name = transfer(hdr(1), flight_name)
-        time = time + timedelta(hours=int(hdr(2)))
+        time = time + timedelta(hours=int(hdr(6)))
         if (flights%hashed(flight_name)) then
           select type (value => flights%value(flight_name))
           type is (amdar_flight_type)
@@ -96,9 +96,9 @@ contains
         end if
 
         record%time = time
-        if (record%lon                     == real_missing_value) record%lon = hdr(3)
-        if (record%lat                     == real_missing_value) record%lat = hdr(4)
-        if (record%z                       == real_missing_value) record%z   = hdr(5)
+        if (record%lon                     == real_missing_value) record%lon = hdr(2)
+        if (record%lat                     == real_missing_value) record%lat = hdr(3)
+        if (record%z                       == real_missing_value) record%z   = hdr(4)
         if (record%amdar_temperature       == real_missing_value) record%amdar_temperature       = prepbufr_raw(obs(7,1,:), pc(2,1,:))
         if (record%amdar_wind_speed        == real_missing_value) record%amdar_wind_speed        = prepbufr_raw(obs(10,1,:), pc(4,1,:))
         if (record%amdar_wind_direction    == real_missing_value) record%amdar_wind_direction    = prepbufr_raw(obs(9,1,:), pc(4,1,:))

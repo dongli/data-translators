@@ -1,8 +1,7 @@
-module synop_prepbufr_mod
+module metar_prepbufr_mod
 
-  use synop_mod
-  use datetime_mod
-  use timedelta_mod
+  use metar_mod
+  use datetime
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -12,7 +11,7 @@ module synop_prepbufr_mod
 
   private
 
-  public synop_prepbufr_decode
+  public metar_prepbufr_decode
 
   integer, parameter :: max_num_var = 35
   integer, parameter :: max_num_lev = 250
@@ -20,7 +19,9 @@ module synop_prepbufr_mod
 
 contains
 
-  subroutine synop_prepbufr_decode(file_path)
+  ! Report types include: 181, 183, 187, 281, 284, 287
+
+  subroutine metar_prepbufr_decode(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -35,8 +36,8 @@ contains
     real u, v
     type(datetime_type) time
     logical new_record
-    type(synop_station_type), pointer :: station
-    type(synop_record_type), pointer :: record
+    type(metar_station_type), pointer :: station
+    type(metar_record_type), pointer :: record
 
     ! BUFRLIB functions
     integer ireadmg, ireadsb
@@ -51,33 +52,36 @@ contains
       msg_count = msg_count + 1
       if (subset /= 'ADPSFC') cycle
       write(sdate, "(I10)") idate
-      time = datetime(sdate, '%Y%m%d%H')
+      time = create_datetime(sdate, '%Y%m%d%H')
       write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
-        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID DHR XOB YOB ELV TYP') ! The forth argument 1 means there is only one repetition of the mnemonics.
+        !                                                                    1   2   3   4   5   6   7   8
+        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
+        !                                                                    1   2   3   4   5   6    7    8    9    10
         call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'POB TOB TDO UOB VOB TP01 TP03 TP06 TP12 TP24')
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM NUL WQM')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC NUL WPC')
         station_name = transfer(hdr(1), station_name)
-        time = time + timedelta(hours=int(hdr(2)))
+        if (len_trim(station_name) /= 4) cycle
+        time = time + timedelta(hours=int(hdr(6)))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
-          type is (synop_station_type)
+          type is (metar_station_type)
             station => value
           end select
         else
           allocate(station)
           station%name = station_name
-          station%lon = hdr(3)
+          station%lon = hdr(2)
           if (station%lon > 180) station%lon = station%lon - 360
-          station%lat = hdr(4)
-          station%z = hdr(5)
+          station%lat = hdr(3)
+          station%z = hdr(4)
           call stations%insert(station_name, station)
         end if
         nullify(record)
         select type (value => records%last_value())
-        type is (synop_record_type)
+        type is (metar_record_type)
           ! Since recode may be split into two subsets, we need to check if previous record exists with the same time.
           record => value
           if (record%station%name == station_name .and. record%time == time) then
@@ -126,11 +130,15 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
+          ! print *, '--'
+          ! print *, record%sfc_temperature_stack(:4)
+          ! print *, record%sfc_temperature_qc(:4)
+          ! print *, record%sfc_temperature_pc(:4)
         end if
       end do
     end do
     call closbf(10)
 
-  end subroutine synop_prepbufr_decode
+  end subroutine metar_prepbufr_decode
 
-end module synop_prepbufr_mod
+end module metar_prepbufr_mod

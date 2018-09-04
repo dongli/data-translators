@@ -91,6 +91,39 @@ contains
 
   end function prepbufr_codes
 
+  function prepbufr_stack(stack) result(res)
+
+    real(8), intent(in) :: stack(:)
+    real(8) res(size(stack))
+
+    integer i
+
+    do i = 1, size(stack)
+      if (stack(i) == missing_value_in_prepbufr) then
+        res(i) = real_missing_value
+      else
+        res(i) = stack(i)
+      end if
+    end do
+
+  end function prepbufr_stack
+
+  integer function prepbufr_value_count(stack) result(res)
+
+    real(8), intent(in) :: stack(:)
+
+    integer i
+
+    res = 0
+    do i = 1, size(stack)
+      if (stack(i) == missing_value_in_prepbufr) then
+        return
+      end if
+      res = res + 1
+    end do
+
+  end function prepbufr_value_count
+
   subroutine bufr_value(bufr_id, subset_id, var_name, value)
 
     integer, intent(in) :: bufr_id

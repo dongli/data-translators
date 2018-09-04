@@ -1,8 +1,7 @@
 module raob_prepbufr_mod
 
   use raob_mod
-  use datetime_mod
-  use timedelta_mod
+  use datetime
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -51,19 +50,23 @@ contains
       msg_count = msg_count + 1
       if (subset /= 'ADPUPA') cycle
       write(sdate, "(I10)") idate
-      time = datetime(sdate, '%Y%m%d%H')
+      time = create_datetime(sdate, '%Y%m%d%H')
       write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
-        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID DHR XOB YOB ELV TYP')
-        !                                                                    1   2    3    4    5   6   7   8   9   10  11   12   13
-        call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'RCT ROLF MSTQ IALR CAT POB TOB QOB DDO FFO TDO TRBX')
-        call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret,                        'PQM TQM QQM DFQ NUL')
-        call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret,                        'PPC TPC QPC DFP NUL')
+        !                                                                    1   2   3   4   5   6   7   8
+        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
+        !                                                                    1   2   3   4   5   6   7
+        call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'CAT POB TOB QOB DDO FFO TDO')
+        call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret,     'PQM TQM QQM DFQ NUL')
+        call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret,     'PPC TPC QPC DFP NUL')
         station_name = transfer(hdr(1), station_name)
-        print *, station_name, hdr(3), hdr(4), hdr(5)
+        ! Filter out non-RAOB observations.
+        if (.not. (hdr(5) == 120 .or. hdr(5) == 220) .or. len_trim(station_name) /= 5) cycle
+        ! print *, station_name, int(obs(1,:prepbufr_value_count(obs(1,:,1)),1))
+        print *, station_name, hdr(6), hdr(7), hdr(8)
         cycle
-        time = time + timedelta(hours=int(hdr(2)))
+        time = time + timedelta(hours=int(hdr(6)))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (raob_station_type)

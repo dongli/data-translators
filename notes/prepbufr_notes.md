@@ -1,5 +1,29 @@
 # Code table
 
+## Report types
+
+Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/table_2.htm).
+- 111: SYNDAT - SYNTHETIC (BOGUS) TROPICAL CYCLONE STORM CENTER (generated in SYNDAT_SYNDATA) - q, Pstn.
+- 112: N/A    - PSEUDO MEAN SEA-LEVEL PRESSURE AT TROPICAL CYCLONE STORM CENTER (generated in GSI, does not appear in pre-analysis PREPBUFR files) - Pstn.
+- 120: ADPUPA - RAWINSONDE - Tv, q, Pstn, sst.
+- 122: ADPUPA - CLASS SOUNDING - Tv, q, Pstn.
+- 126: RASSDA - RASS [FROM NOAA PROFILER NETWORK (NPN) OR MULTI-AGENCY PROFILER (MAP) NETWORK]  - Tv.
+- 130: AIRCFT - AIREP AND PIREP AIRCRAFT - Ts.
+- 131: AIRCFT - AMDAR AIRCRAFT - Ts, q (E-AMDAR only).
+- 132: ADPUPA - FLIGHT-LEVEL RECONNAISSANCE AND PROFILE DROPSONDE - Tv, q, Pstn.
+- 133: AIRCAR - MDCRS ACARS AIRCRAFT - Ts, q.
+- 134: AIRCFT - TAMDAR AIRCRAFT - Ts, q.
+- 135: AIRCFT - CANADIAN AMDAR AIRCRAFT - Ts.
+- 150: SPSSMI - SSM/I SUPEROBED (1 DEGREE LAT/LON) FNMOC (OPERATIONAL) RAIN RATE (DMSP) - rr.
+- 151: GOESND - NESDIS 1x1 F-O-V CLOUD TOP PRESSURE, TEMPERATURE; CLOUD AMOUNT (GOES).
+- 152: SPSSMI - SSM/I SUPEROBED (1 DEGREE LAT/LON) NEURAL NET-3 PRECIPITABLE WATER OVER OCEAN (DMSP) - PWt.
+- 153: GPSIPW - GPS-INTEGRATED PRECIPITABLE WATER (GPS-IPW) - PWt.
+- 180: SFCSHP - SURFACE MARINE WITH REPORTED STATION PRESSURE (SHIP, BUOY, C-MAN, TIDE GAUGE) - Tv, q, Pstn, sst.
+- 181: ADPSFC - SURFACE LAND [SYNOPTIC (fixed and mobile), METAR] WITH REPORTED STATION PRESSURE - Tv, q, Pstn, sst.
+- 182: SFCSHP - SPLASH-LEVEL DROPSONDE OVER OCEAN - Tv, q, Pstn.
+- 183: ADPSFC/SFCSHP - SURFACE MARINE (SHIP, BUOY, C-MAN, TIDE GAUGE) OR LAND [SYNOPTIC (fixed and mobile), METAR] WITH MISSING STATION PRESSURE - Tv, q, Pstn, sst.
+- 187: ADPSFC - SURFACE LAND (METAR) WITH MISSING STATION PRESSURE - Tv, q, Pstn, sst.
+
 ## CAT
 
 - 0: Surface level (mass reports only)
@@ -42,7 +66,7 @@
 - 7: Step OIQC:  An observation with pre-existing quality marker 3 (suspect) is
   flagged.  Applies to pressure, height, wind, temperature, specific humidity
   and precipitable water.
-- 8: Refer [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/table_7.htm).
+- 8: Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/table_7.htm).
 - 9: Step PREVENT: An observation error is missing (does not apply for RUC
   network).  Applies to surface pressure, height, wind, temperature, specific
   humidity and precipitable water.  (Note: If  surface pressure observation
