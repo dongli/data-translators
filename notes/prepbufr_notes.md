@@ -32,6 +32,7 @@ Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/t
 - 2: Significant temperature and winds-by-pressure level (future combined mass
   and wind upper-air profile reports)
 - 3: Winds-by-pressure level (upper-air profile reports)
+- 4: Winds-by-height level (upper-air profile reports)
 - 5: Tropopause level (upper-air profile reports)
 - 6: Single level report, or report not on any of the levels denoted by values
   0-5 or 9 (e.g., aircraft, satellite wind, surface wind, precipitable water
@@ -73,6 +74,7 @@ Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/t
   error is missing, this quality marker is set on all other data on surface
   level - i.e., height, wind, temperature and specific humidity - regardless of
   whether or not its observation error is missing.)
+- 15: Step PREPRO: An observation is flagged for non-use by the analysis.  Applies to pressure, height, wind, temperature, specific humidity, rainfall rate, precipitable water and cloud top pressure.
   
   Step PREVENT: A moisture observation is above 300 mb.  Applies to moisture.
 

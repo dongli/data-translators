@@ -5,6 +5,14 @@ module utils_mod
 
   implicit none
 
+  interface resize_array
+    module procedure resize_real4_array
+  end interface resize_array
+
+  interface unique_element_count
+    module procedure unique_real4_element_count
+  end interface unique_element_count
+
 contains
 
   real function wind_direction(u, v) result(wd)
@@ -50,7 +58,7 @@ contains
     res = real_missing_value
     if (present(qc)) then
       do i = 1, size(stack)
-        if (qc(i) <= 2) then
+        if (qc(i) /= 3 .and. qc(i) /= 7) then
           res = stack(i)
           exit
         end if
@@ -72,6 +80,7 @@ contains
         end if
       end do
     end if
+    if (res == missing_value_in_prepbufr) res = real_missing_value
 
   end function prepbufr_raw
 
@@ -176,5 +185,38 @@ contains
     end if
 
   end subroutine bufr_value
+
+  subroutine resize_real4_array(array, target_size)
+
+    real(4), intent(inout), allocatable :: array(:)
+    integer, intent(in) :: target_size
+
+    real(4) buffer(target_size)
+
+    buffer(:size(array)) = array(:)
+    buffer(size(array)+1:) = real_missing_value
+    deallocate(array)
+    allocate(array(target_size))
+    array(:) = buffer(:)
+
+  end subroutine resize_real4_array
+
+  integer function unique_real4_element_count(array1, array2) result(res)
+
+    real(4), intent(in) :: array1(:)
+    real(4), intent(in) :: array2(:)
+
+    integer i, j
+
+    res = size(array1) + size(array2)
+    do i = 1, size(array1)
+      do j = 1, size(array2)
+        if (array1(i) == array2(j)) then
+          res = res - 1
+        end if
+      end do
+    end do
+
+  end function unique_real4_element_count
 
 end module utils_mod
