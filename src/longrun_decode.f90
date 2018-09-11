@@ -8,6 +8,7 @@ program longrun_decode
   use amdar_prepbufr_mod
   use amdar_odb_mod
   use raob_prepbufr_mod
+  use profiler_prepbufr_mod
   use cli_mod
 
   implicit none
@@ -31,6 +32,8 @@ program longrun_decode
     call amdar_odb_write()
   case ('raob_prepbufr')
     call raob_prepbufr_decode(file_path)
+  case ('profiler_prepbufr')
+    call profiler_prepbufr_decode(file_path)
   case default
     write(*, *) '[Error]: Unknown decoder type!'
     stop 1

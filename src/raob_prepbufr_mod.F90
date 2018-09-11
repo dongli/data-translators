@@ -150,7 +150,7 @@ contains
             if (.not. record%snd_sig_wind_speed%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_wind_speed%insert(key, value)
             end if
-          case (3)
+          case (3, 4)
             value = prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:))
             if (.not. record%snd_wnd_pressure%hashed(key) .or. value /= real_missing_value) then
               call record%snd_wnd_pressure%insert(key, value)
@@ -214,6 +214,7 @@ contains
 
     print *, 'Station ', record%station%name
     print *, '- Mandatory levels:'
+    write(*, '(6A15)') 'P', 'T', 'SH', 'TD', 'WD', 'WS'
     record_iterator = hash_table_iterator(record%snd_man_pressure)
     do while (.not. record_iterator%ended())
       select type (value => record_iterator%value)
@@ -244,6 +245,7 @@ contains
       call record_iterator%next()
     end do
     print *, '- Significant levels:'
+    write(*, '(6A15)') 'P', 'T', 'SH', 'TD', 'WD', 'WS'
     record_iterator = hash_table_iterator(record%snd_sig_pressure)
     do while (.not. record_iterator%ended())
       select type (value => record_iterator%value)
@@ -274,6 +276,7 @@ contains
       call record_iterator%next()
     end do
     print *, '- Wind levels:'
+    write(*, '(A15, 45X, 2A15)') 'P', 'WD', 'WS'
     record_iterator = hash_table_iterator(record%snd_wnd_pressure)
     do while (.not. record_iterator%ended())
       select type (value => record_iterator%value)
@@ -293,6 +296,7 @@ contains
       call record_iterator%next()
     end do
     print *, '- Tropopause levels:'
+    write(*, '(6A15)') 'P', 'T', 'SH', 'TD', 'WD', 'WS'
     record_iterator = hash_table_iterator(record%snd_trop_pressure)
     do while (.not. record_iterator%ended())
       select type (value => record_iterator%value)
@@ -323,12 +327,12 @@ contains
       call record_iterator%next()
     end do
 
-    num_level = prepbufr_value_count(obs(1,:,1))
-    write(*, '(' // to_string(num_level) // 'I2)') int(obs(1,:num_level,1))
-    do i = 1, num_level
-      write(*, '(I2, 6F15.1)') int(obs(1,i,1)), obs(2,i,1), obs(3,i,1), obs(4,i,1), obs(5,i,1), obs(6,i,1), obs(7,i,1)
-    end do
-    print *, count(obs(1,:,1) == 1)
+    ! num_level = prepbufr_value_count(obs(1,:,1))
+    ! write(*, '(' // to_string(num_level) // 'I2)') int(obs(1,:num_level,1))
+    ! do i = 1, num_level
+    !   write(*, '(I2, 6F15.1)') int(obs(1,i,1)), obs(2,i,1), obs(3,i,1), obs(4,i,1), obs(5,i,1), obs(6,i,1), obs(7,i,1)
+    ! end do
+    ! print *, count(obs(1,:,1) == 1)
 
   end subroutine debug_print
 

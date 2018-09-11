@@ -57,6 +57,8 @@ add_library(decoders
   src/amdar_odb_mod.F90
   src/raob_mod.F90
   src/raob_prepbufr_mod.F90
+  src/profiler_mod.F90
+  src/profiler_prepbufr_mod.F90
   src/synop_mod.F90
   src/synop_prepbufr_mod.F90
   src/synop_odb_mod.F90
