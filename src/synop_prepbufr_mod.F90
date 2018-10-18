@@ -136,11 +136,46 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
+          ! call debug_print(record, obs, qc, pc)
         end if
       end do
     end do
     call closbf(10)
 
   end subroutine synop_prepbufr_decode
+
+  subroutine debug_print(record, hdr, obs, qc, pc)
+
+    type(synop_record_type), intent(in) :: record
+    real(8), intent(in) :: hdr(max_num_var)
+    real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
+    real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
+    real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)
+
+    print *, '--'
+    print *, record%station%name, record%time%isoformat(), hdr(6), hdr(7)
+    print *, record%station%lon, record%station%lat, record%station%z
+    print *, 'T ', record%sfc_temperature
+    print *, 'T ', record%sfc_temperature_stack(:4)
+    print *, 'T ', record%sfc_temperature_qc(:4)
+    print *, 'T ', record%sfc_temperature_pc(:4)
+    print *, 'Q ', record%sfc_specific_humidity
+    print *, 'Q ', record%sfc_specific_humidity_stack(:4)
+    print *, 'Q ', record%sfc_specific_humidity_qc(:4)
+    print *, 'Q ', record%sfc_specific_humidity_pc(:4)
+    print *, 'TD', record%sfc_dewpoint
+    print *, 'P ', record%sfc_pressure
+    print *, 'P ', record%sfc_pressure_stack(:4)
+    print *, 'P ', record%sfc_pressure_qc(:4)
+    print *, 'P ', record%sfc_pressure_pc(:4)
+    print *, 'W ', record%sfc_wind_speed
+    print *, 'W ', record%sfc_wind_direction
+    print *, 'W ', record%sfc_wind_u_stack(:4)
+    print *, 'W ', record%sfc_wind_v_stack(:4)
+    print *, 'W ', record%sfc_wind_qc(:4)
+    print *, 'W ', record%sfc_wind_pc(:4)
+    print *, 'R ', record%sfc_rain_01h, record%sfc_rain_03h, record%sfc_rain_06h, record%sfc_rain_12h, record%sfc_rain_24h
+
+  end subroutine debug_print
 
 end module synop_prepbufr_mod

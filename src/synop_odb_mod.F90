@@ -33,8 +33,8 @@ contains
       'sfc_dewpoint REAL, ' // &
       'sfc_wind_speed REAL, ' // &
       'sfc_wind_direction REAL, ' // &
-      'sfc_pressure REAL) ON "' // &
-      trim(odb_file_name) // '";', -1, odb_stmt, odb_unparsed_sql)
+      'sfc_pressure REAL, ' // &
+      ') ON "' // trim(odb_file_name) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO synop (' // &
       'station_name, lon, lat, z, time, ' // &
       'sfc_temperature, ' // &

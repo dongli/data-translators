@@ -18,6 +18,7 @@ map = gsn_csm_map(wks, res_map)
 
 res_station = True
 res_station@gsMarkerIndex = 16
+res_station@gsMarkerColor = "red"
 
 gsn_polymarker(wks, map, station_lon, station_lat, res_station)
 
