@@ -5,6 +5,7 @@ module cli_mod
   private
 
   public cli_get_decoder_type
+  public cli_get_encoder_type
   public cli_get_file_path
 
 contains
@@ -27,6 +28,25 @@ contains
     end do
 
   end function cli_get_decoder_type
+
+  function cli_get_encoder_type() result(res)
+
+    character(30) res
+
+    character(256) arg
+    integer i
+
+    i = 1
+    do while (i <= command_argument_count())
+      call get_command_argument(i, arg)
+      i = i + 1
+      if (arg == '-e') then
+        call get_command_argument(i, res)
+        return
+      end if
+    end do
+
+  end function cli_get_encoder_type
 
   function cli_get_file_path() result(res)
 
