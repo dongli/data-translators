@@ -12,7 +12,7 @@ module profiler_prepbufr_mod
 
   private
 
-  public profiler_prepbufr_decode
+  public profiler_prepbufr_read
 
   integer, parameter :: max_num_var = 35
   integer, parameter :: max_num_lev = 250
@@ -20,7 +20,7 @@ module profiler_prepbufr_mod
 
 contains
 
-  subroutine profiler_prepbufr_decode(file_path)
+  subroutine profiler_prepbufr_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -37,7 +37,7 @@ contains
     type(datetime_type) time
     logical new_record
     type(profiler_station_type), pointer :: station
-    type(profiler_decode_record_type), pointer :: record
+    type(profiler_read_record_type), pointer :: record
 
     ! BUFRLIB functions
     integer ireadmg, ireadsb
@@ -79,7 +79,7 @@ contains
         end if
         nullify(record)
         select type (value => records%last_value())
-        type is (profiler_decode_record_type)
+        type is (profiler_read_record_type)
           ! Since recode may be split into two subsets, we need to check if previous record exists with the same time.
           record => value
           if (record%station%name == station_name .and. record%time == time) then
@@ -98,20 +98,20 @@ contains
 
         num_level = prepbufr_value_count(obs(1,:,1))
         do i = 1, num_level
-          key = to_string(prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:)))
-          value = prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:))
+          call prepbufr_raw(obs(2,i,:), value, stack_qc=qc(2,i,:), stack_pc=pc(2,i,:))
+          key = to_string(value)
           if (.not. record%pro_pressure%hashed(key) .or. value /= real_missing_value) then
             call record%pro_pressure%insert(key, value)
           end if
-          value = prepbufr_raw(obs(3,i,:), qc(3,i,:), pc(3,i,:))
+          call prepbufr_raw(obs(3,i,:), value, stack_qc=qc(3,i,:), stack_pc=pc(3,i,:))
           if (.not. record%pro_height%hashed(key) .or. value /= real_missing_value) then
             call record%pro_height%insert(key, value)
           end if
-          value = prepbufr_raw(obs(4,i,:), qc(4,i,:), pc(4,i,:))
+          call prepbufr_raw(obs(4,i,:), value, stack_qc=qc(4,i,:), stack_pc=pc(4,i,:))
           if (.not. record%pro_wind_direction%hashed(key) .or. value /= real_missing_value) then
             call record%pro_wind_direction%insert(key, value)
           end if
-          value = prepbufr_raw(obs(5,i,:), qc(5,i,:), pc(5,i,:))
+          call prepbufr_raw(obs(5,i,:), value, stack_qc=qc(5,i,:), stack_pc=pc(5,i,:))
           if (.not. record%pro_wind_speed%hashed(key) .or. value /= real_missing_value) then
             call record%pro_wind_speed%insert(key, value)
           end if
@@ -119,17 +119,18 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
+        else
           call debug_print(record, obs, qc, pc)
         end if
       end do
     end do
     call closbf(10)
 
-  end subroutine profiler_prepbufr_decode
+  end subroutine profiler_prepbufr_read
 
   subroutine debug_print(record, obs, qc, pc)
 
-    type(profiler_decode_record_type), intent(in) :: record
+    type(profiler_read_record_type), intent(in) :: record
     real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
     real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
     real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)

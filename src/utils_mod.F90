@@ -15,6 +15,19 @@ module utils_mod
 
 contains
 
+  real function add(a, b) result(res)
+
+    real, intent(in) :: a
+    real, intent(in) :: b
+
+    if (a /= real_missing_value) then
+      res = a + b
+    else
+      res = real_missing_value
+    end if
+
+  end function add
+
   real function wind_direction(u, v) result(wd)
 
     real, intent(in) :: u
@@ -47,42 +60,57 @@ contains
 
   end function wind_v_component
 
-  real function prepbufr_raw(stack, qc, pc) result(res)
+  real function p_to_slp(p, T, z) result(slp)
+
+    real, intent(in) :: p
+    real, intent(in) :: T
+    real, intent(in) :: z
+
+    slp = p * (1.0 - 0.0065 * z / (T + 0.0065 * z + 273.15)) * (-5.257)
+
+  end function p_to_slp
+
+  subroutine prepbufr_raw(stack, value, stack_qc, stack_pc, qc)
 
     real(8), intent(in) :: stack(:)
-    real(8), intent(in), optional :: qc(:)
-    real(8), intent(in), optional :: pc(:)
+    real, intent(out) :: value
+    real(8), intent(in), optional :: stack_qc(:)
+    real(8), intent(in), optional :: stack_pc(:)
+    integer, intent(out), optional :: qc
 
     integer i
 
-    res = real_missing_value
-    if (present(qc)) then
+    value = real_missing_value
+    if (present(qc)) qc = int_missing_value
+    if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (qc(i) /= 3 .and. qc(i) /= 7) then
-          res = stack(i)
+        if (stack_qc(i) /= 3 .and. stack_qc(i) /= 7) then
+          value = stack(i)
+          if (present(qc)) qc = stack_qc(i)
           exit
         end if
       end do
-    else if (present(pc)) then
+    else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (pc(i) == 1) then
-          res = stack(i)
+        if (stack_pc(i) == 1) then
+          value = stack(i)
+          if (present(qc)) qc = stack_qc(i)
           exit
-        else if (pc(i) == missing_value_in_prepbufr) then
+        else if (stack_pc(i) == missing_value_in_prepbufr) then
           exit
         end if
       end do
     else
       do i = 1, size(stack)
         if (stack(i) == missing_value_in_prepbufr) then
-          if (i /= 1) res = stack(i-1)
+          if (i /= 1) value = stack(i-1)
           exit
         end if
       end do
     end if
-    if (res == missing_value_in_prepbufr) res = real_missing_value
+    if (value == missing_value_in_prepbufr) value = real_missing_value
 
-  end function prepbufr_raw
+  end subroutine prepbufr_raw
 
   function prepbufr_codes(codes) result(res)
 

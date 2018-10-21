@@ -74,7 +74,11 @@ Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/t
   error is missing, this quality marker is set on all other data on surface
   level - i.e., height, wind, temperature and specific humidity - regardless of
   whether or not its observation error is missing.)
-- 15: Step PREPRO: An observation is flagged for non-use by the analysis.  Applies to pressure, height, wind, temperature, specific humidity, rainfall rate, precipitable water and cloud top pressure.
+- NCEP/SDM: An observation is assigned a purge flag.  Applies to pressure,
+  height, wind, temperature and specific humidity.
+- 15: Step PREPRO: An observation is flagged for non-use by the analysis.
+  Applies to pressure, height, wind, temperature, specific humidity, rainfall
+  rate, precipitable water and cloud top pressure.
   
   Step PREVENT: A moisture observation is above 300 mb.  Applies to moisture.
 

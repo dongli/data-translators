@@ -11,7 +11,7 @@ module amdar_prepbufr_mod
 
   private
 
-  public amdar_prepbufr_decode
+  public amdar_prepbufr_read
 
   integer, parameter :: max_num_var = 35
   integer, parameter :: max_num_lev = 250
@@ -19,7 +19,7 @@ module amdar_prepbufr_mod
 
 contains
 
-  subroutine amdar_prepbufr_decode(file_path)
+  subroutine amdar_prepbufr_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -99,11 +99,11 @@ contains
         if (record%lon                     == real_missing_value) record%lon = hdr(2)
         if (record%lat                     == real_missing_value) record%lat = hdr(3)
         if (record%z                       == real_missing_value) record%z   = hdr(4)
-        if (record%amdar_temperature       == real_missing_value) record%amdar_temperature       = prepbufr_raw(obs(7,1,:), pc(2,1,:))
-        if (record%amdar_wind_speed        == real_missing_value) record%amdar_wind_speed        = prepbufr_raw(obs(10,1,:), pc(4,1,:))
-        if (record%amdar_wind_direction    == real_missing_value) record%amdar_wind_direction    = prepbufr_raw(obs(9,1,:), pc(4,1,:))
-        if (record%amdar_dewpoint          == real_missing_value) record%amdar_dewpoint          = prepbufr_raw(obs(11,1,:))
-        if (record%amdar_specific_humidity == real_missing_value) record%amdar_specific_humidity = prepbufr_raw(obs(8,1,:), pc(3,1,:))
+        if (record%amdar_temperature       == real_missing_value) call prepbufr_raw(obs( 7,1,:), record%amdar_temperature,       stack_pc=pc(2,1,:))
+        if (record%amdar_wind_speed        == real_missing_value) call prepbufr_raw(obs(10,1,:), record%amdar_wind_speed,        stack_pc=pc(4,1,:))
+        if (record%amdar_wind_direction    == real_missing_value) call prepbufr_raw(obs( 9,1,:), record%amdar_wind_direction,    stack_pc=pc(4,1,:))
+        if (record%amdar_dewpoint          == real_missing_value) call prepbufr_raw(obs(11,1,:), record%amdar_dewpoint)
+        if (record%amdar_specific_humidity == real_missing_value) call prepbufr_raw(obs( 8,1,:), record%amdar_specific_humidity, stack_pc=pc(3,1,:))
 
         if (new_record) then
           call records%insert(flight_name // '@' // time%isoformat(), record)
@@ -112,6 +112,6 @@ contains
     end do
     call closbf(10)
 
-  end subroutine amdar_prepbufr_decode
+  end subroutine amdar_prepbufr_read
 
 end module amdar_prepbufr_mod

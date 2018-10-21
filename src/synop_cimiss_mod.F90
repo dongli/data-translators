@@ -13,11 +13,11 @@ module synop_cimiss_mod
 
   private
 
-  public synop_cimiss_decode
+  public synop_cimiss_read
 
 contains
 
-  subroutine synop_cimiss_decode(file_path)
+  subroutine synop_cimiss_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -39,7 +39,7 @@ contains
     print *, trim(line)
     close(10)
 
-  end subroutine synop_cimiss_decode
+  end subroutine synop_cimiss_read
 
   subroutine synop_cimiss_write_laps_netcdf()
 

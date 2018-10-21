@@ -28,22 +28,29 @@ module synop_mod
     real :: sfc_rain_24h          = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: sfc_cloud_amount      = real_missing_value ! Cloud amount (???)
 
+    integer :: sfc_temperature_qc       = int_missing_value
+    integer :: sfc_dewpoint_qc          = int_missing_value
+    integer :: sfc_pressure_qc          = int_missing_value
+    integer :: sfc_relative_humidity_qc = int_missing_value
+    integer :: sfc_specific_humidity_qc = int_missing_value
+    integer :: sfc_wind_qc              = int_missing_value
+
     real :: sfc_temperature_stack(max_stack) = real_missing_value
-    integer :: sfc_temperature_qc(max_stack) = int_missing_value
-    integer :: sfc_temperature_pc(max_stack) = int_missing_value
+    integer :: sfc_temperature_stack_qc(max_stack) = int_missing_value
+    integer :: sfc_temperature_stack_pc(max_stack) = int_missing_value
 
     real :: sfc_specific_humidity_stack(max_stack) = real_missing_value
-    integer :: sfc_specific_humidity_qc(max_stack) = int_missing_value
-    integer :: sfc_specific_humidity_pc(max_stack) = int_missing_value
+    integer :: sfc_specific_humidity_stack_qc(max_stack) = int_missing_value
+    integer :: sfc_specific_humidity_stack_pc(max_stack) = int_missing_value
 
     real :: sfc_pressure_stack(max_stack) = real_missing_value
-    integer :: sfc_pressure_qc(max_stack) = int_missing_value
-    integer :: sfc_pressure_pc(max_stack) = int_missing_value
+    integer :: sfc_pressure_stack_qc(max_stack) = int_missing_value
+    integer :: sfc_pressure_stack_pc(max_stack) = int_missing_value
 
     real :: sfc_wind_u_stack(max_stack) = real_missing_value
     real :: sfc_wind_v_stack(max_stack) = real_missing_value
-    integer :: sfc_wind_qc(max_stack) = int_missing_value
-    integer :: sfc_wind_pc(max_stack) = int_missing_value
+    integer :: sfc_wind_stack_qc(max_stack) = int_missing_value
+    integer :: sfc_wind_stack_pc(max_stack) = int_missing_value
   end type synop_record_type
 
   type(hash_table_type) stations

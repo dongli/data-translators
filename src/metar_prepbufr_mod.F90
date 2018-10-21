@@ -11,7 +11,7 @@ module metar_prepbufr_mod
 
   private
 
-  public metar_prepbufr_decode
+  public metar_prepbufr_read
 
   integer, parameter :: max_num_var = 35
   integer, parameter :: max_num_lev = 250
@@ -21,7 +21,7 @@ contains
 
   ! Report types include: 181, 183, 281, 284
 
-  subroutine metar_prepbufr_decode(file_path)
+  subroutine metar_prepbufr_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -98,49 +98,85 @@ contains
         end if
 
         if (record%sfc_pressure == real_missing_value) then
-          record%sfc_pressure = prepbufr_raw(obs(1,1,:), qc(1,1,:), pc(1,1,:))
+          call prepbufr_raw(obs(1,1,:), record%sfc_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%sfc_pressure_qc)
           record%sfc_pressure_stack(:max_num_event) = prepbufr_stack(obs(1,1,:max_num_event))
-          record%sfc_pressure_qc(:max_num_event) = prepbufr_codes(qc(1,1,:max_num_event))
-          record%sfc_pressure_pc(:max_num_event) = prepbufr_codes(pc(1,1,:max_num_event))
+          record%sfc_pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(1,1,:max_num_event))
+          record%sfc_pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(1,1,:max_num_event))
         end if
         if (record%sfc_temperature == real_missing_value) then
-          record%sfc_temperature = prepbufr_raw(obs(2,1,:), qc(2,1,:), pc(2,1,:))
+          call prepbufr_raw(obs(2,1,:), record%sfc_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%sfc_temperature_qc)
           record%sfc_temperature_stack(:max_num_event) = prepbufr_stack(obs(2,1,:max_num_event))
-          record%sfc_temperature_qc(:max_num_event) = prepbufr_codes(qc(2,1,:max_num_event))
-          record%sfc_temperature_pc(:max_num_event) = prepbufr_codes(pc(2,1,:max_num_event))
+          record%sfc_temperature_stack_qc(:max_num_event) = prepbufr_codes(qc(2,1,:max_num_event))
+          record%sfc_temperature_stack_pc(:max_num_event) = prepbufr_codes(pc(2,1,:max_num_event))
         end if
         if (record%sfc_specific_humidity == real_missing_value) then
-          record%sfc_specific_humidity = prepbufr_raw(obs(3,1,:), qc(3,1,:), pc(3,1,:))
+          call prepbufr_raw(obs(3,1,:), record%sfc_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%sfc_specific_humidity_qc)
           record%sfc_specific_humidity_stack(:max_num_event) = prepbufr_stack(obs(3,1,:max_num_event))
-          record%sfc_specific_humidity_qc(:max_num_event) = prepbufr_codes(qc(3,1,:max_num_event))
-          record%sfc_specific_humidity_pc(:max_num_event) = prepbufr_codes(pc(3,1,:max_num_event))
+          record%sfc_specific_humidity_stack_qc(:max_num_event) = prepbufr_codes(qc(3,1,:max_num_event))
+          record%sfc_specific_humidity_stack_pc(:max_num_event) = prepbufr_codes(pc(3,1,:max_num_event))
         end if
         if (record%sfc_dewpoint == real_missing_value) then
-          record%sfc_dewpoint = prepbufr_raw(obs(4,1,:))
+          call prepbufr_raw(obs(4,1,:), record%sfc_dewpoint)
         end if
         if (record%sfc_wind_speed  == real_missing_value) then
-          u = prepbufr_raw(obs(5,1,:), qc(5,1,:), pc(5,1,:))
-          v = prepbufr_raw(obs(6,1,:), qc(5,1,:), pc(5,1,:))
+          call prepbufr_raw(obs(5,1,:), u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
+          call prepbufr_raw(obs(6,1,:), v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
           record%sfc_wind_speed     = merge(real_missing_value, sqrt(u**2 + v**2), u == real_missing_value)
           record%sfc_wind_direction = merge(real_missing_value, wind_direction(u, v), u == real_missing_value)
           record%sfc_wind_u_stack(:max_num_event) = prepbufr_stack(obs(5,1,:max_num_event))
           record%sfc_wind_v_stack(:max_num_event) = prepbufr_stack(obs(6,1,:max_num_event))
-          record%sfc_wind_qc(:max_num_event) = prepbufr_codes(qc(5,1,:max_num_event))
-          record%sfc_wind_pc(:max_num_event) = prepbufr_codes(pc(5,1,:max_num_event))
+          record%sfc_wind_stack_qc(:max_num_event) = prepbufr_codes(qc(5,1,:max_num_event))
+          record%sfc_wind_stack_pc(:max_num_event) = prepbufr_codes(pc(5,1,:max_num_event))
         end if
-        if (record%sfc_rain_01h == real_missing_value) record%sfc_rain_01h = prepbufr_raw(obs(7,1,:))
-        if (record%sfc_rain_03h == real_missing_value) record%sfc_rain_03h = prepbufr_raw(obs(8,1,:))
-        if (record%sfc_rain_06h == real_missing_value) record%sfc_rain_06h = prepbufr_raw(obs(9,1,:))
-        if (record%sfc_rain_12h == real_missing_value) record%sfc_rain_12h = prepbufr_raw(obs(10,1,:))
-        if (record%sfc_rain_24h == real_missing_value) record%sfc_rain_24h = prepbufr_raw(obs(11,1,:))
+        if (record%sfc_rain_01h == real_missing_value) call prepbufr_raw(obs( 7,1,:), record%sfc_rain_01h)
+        if (record%sfc_rain_03h == real_missing_value) call prepbufr_raw(obs( 8,1,:), record%sfc_rain_03h)
+        if (record%sfc_rain_06h == real_missing_value) call prepbufr_raw(obs( 9,1,:), record%sfc_rain_06h)
+        if (record%sfc_rain_12h == real_missing_value) call prepbufr_raw(obs(10,1,:), record%sfc_rain_12h)
+        if (record%sfc_rain_24h == real_missing_value) call prepbufr_raw(obs(11,1,:), record%sfc_rain_24h)
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
+        else
+          call debug_print(record, hdr, obs, qc, pc)
         end if
       end do
     end do
     call closbf(10)
 
-  end subroutine metar_prepbufr_decode
+  end subroutine metar_prepbufr_read
+
+  subroutine debug_print(record, hdr, obs, qc, pc)
+
+    type(metar_record_type), intent(in) :: record
+    real(8), intent(in) :: hdr(max_num_var)
+    real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
+    real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
+    real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)
+
+    print *, '--'
+    print *, record%station%name, record%time%isoformat(), hdr(6), hdr(7)
+    print *, record%station%lon, record%station%lat, record%station%z
+    print *, 'T ', record%sfc_temperature, record%sfc_temperature_qc
+    print *, 'T ', record%sfc_temperature_stack(:4)
+    print *, 'T ', record%sfc_temperature_stack_qc(:4)
+    print *, 'T ', record%sfc_temperature_stack_pc(:4)
+    print *, 'Q ', record%sfc_specific_humidity, record%sfc_specific_humidity_qc
+    print *, 'Q ', record%sfc_specific_humidity_stack(:4)
+    print *, 'Q ', record%sfc_specific_humidity_stack_qc(:4)
+    print *, 'Q ', record%sfc_specific_humidity_stack_pc(:4)
+    print *, 'TD', record%sfc_dewpoint
+    print *, 'P ', record%sfc_pressure, record%sfc_pressure_qc
+    print *, 'P ', record%sfc_pressure_stack(:4)
+    print *, 'P ', record%sfc_pressure_stack_qc(:4)
+    print *, 'P ', record%sfc_pressure_stack_pc(:4)
+    print *, 'W ', record%sfc_wind_speed, record%sfc_wind_qc
+    print *, 'W ', record%sfc_wind_direction, record%sfc_wind_qc
+    print *, 'W ', record%sfc_wind_u_stack(:4)
+    print *, 'W ', record%sfc_wind_v_stack(:4)
+    print *, 'W ', record%sfc_wind_stack_qc(:4)
+    print *, 'W ', record%sfc_wind_stack_pc(:4)
+    print *, 'R ', record%sfc_rain_01h, record%sfc_rain_03h, record%sfc_rain_06h, record%sfc_rain_12h, record%sfc_rain_24h
+
+  end subroutine debug_print
 
 end module metar_prepbufr_mod

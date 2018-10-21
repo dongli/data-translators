@@ -12,7 +12,7 @@ module raob_prepbufr_mod
 
   private
 
-  public raob_prepbufr_decode
+  public raob_prepbufr_read
 
   integer, parameter :: max_num_var = 35
   integer, parameter :: max_num_lev = 250
@@ -20,7 +20,7 @@ module raob_prepbufr_mod
 
 contains
 
-  subroutine raob_prepbufr_decode(file_path)
+  subroutine raob_prepbufr_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -37,7 +37,7 @@ contains
     type(datetime_type) time
     logical new_record
     type(raob_station_type), pointer :: station
-    type(raob_decode_record_type), pointer :: record
+    type(raob_read_record_type), pointer :: record
 
     ! BUFRLIB functions
     integer ireadmg, ireadsb
@@ -79,7 +79,7 @@ contains
         end if
         nullify(record)
         select type (value => records%last_value())
-        type is (raob_decode_record_type)
+        type is (raob_read_record_type)
           ! Since recode may be split into two subsets, we need to check if previous record exists with the same time.
           record => value
           if (record%station%name == station_name .and. record%time == time) then
@@ -98,93 +98,94 @@ contains
 
         num_level = prepbufr_value_count(obs(1,:,1))
         do i = 1, num_level
-          key = to_string(prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:)))
+          call prepbufr_raw(obs(2,i,:), value, stack_qc=qc(2,i,:), stack_pc=pc(2,i,:))
+          key = to_string(value)
           select case (int(obs(1,i,1)))
           case (1)
-            value = prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:))
+            call prepbufr_raw(obs(2,i,:), value, stack_qc=qc(2,i,:), stack_pc=pc(2,i,:))
             if (.not. record%snd_man_pressure%hashed(key) .or. value /= real_missing_value) then
               call record%snd_man_pressure%insert(key, value)
             end if
-            value = prepbufr_raw(obs(3,i,:), qc(3,i,:), pc(3,i,:))
+            call prepbufr_raw(obs(3,i,:), value, stack_qc=qc(3,i,:), stack_pc=pc(3,i,:))
             if (.not. record%snd_man_temperature%hashed(key) .or. value /= real_missing_value) then
               call record%snd_man_temperature%insert(key, value)
             end if
-            value = prepbufr_raw(obs(4,i,:), qc(4,i,:), pc(4,i,:))
+            call prepbufr_raw(obs(4,i,:), value, stack_qc=qc(4,i,:), stack_pc=pc(4,i,:))
             if (.not. record%snd_man_specific_humidity%hashed(key) .or. value /= real_missing_value) then
               call record%snd_man_specific_humidity%insert(key, value)
             end if
-            value = prepbufr_raw(obs(5,i,:), qc(5,i,:), pc(5,i,:))
+            call prepbufr_raw(obs(5,i,:), value, stack_qc=qc(5,i,:), stack_pc=pc(5,i,:))
             if (.not. record%snd_man_dewpoint%hashed(key) .or. value /= real_missing_value) then
               call record%snd_man_dewpoint%insert(key, value)
             end if
-            value = prepbufr_raw(obs(6,i,:), qc(6,i,:), pc(6,i,:))
+            call prepbufr_raw(obs(6,i,:), value, stack_qc=qc(6,i,:), stack_pc=pc(6,i,:))
             if (.not. record%snd_man_wind_direction%hashed(key) .or. value /= real_missing_value) then
               call record%snd_man_wind_direction%insert(key, value)
             end if
-            value = prepbufr_raw(obs(7,i,:), qc(7,i,:), pc(7,i,:))
+            call prepbufr_raw(obs(7,i,:), value, stack_qc=qc(7,i,:), stack_pc=pc(7,i,:))
             if (.not. record%snd_man_wind_speed%hashed(key) .or. value /= real_missing_value) then
               call record%snd_man_wind_speed%insert(key, value)
             end if
           case (2)
-            value = prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:))
+            call prepbufr_raw(obs(2,i,:), value, stack_qc=qc(2,i,:), stack_pc=pc(2,i,:))
             if (.not. record%snd_sig_pressure%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_pressure%insert(key, value)
             end if
-            value = prepbufr_raw(obs(3,i,:), qc(3,i,:), pc(3,i,:))
+            call prepbufr_raw(obs(3,i,:), value, stack_qc=qc(3,i,:), stack_pc=pc(3,i,:))
             if (.not. record%snd_sig_temperature%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_temperature%insert(key, value)
             end if
-            value = prepbufr_raw(obs(4,i,:), qc(4,i,:), pc(4,i,:))
+            call prepbufr_raw(obs(4,i,:), value, stack_qc=qc(4,i,:), stack_pc=pc(4,i,:))
             if (.not. record%snd_sig_specific_humidity%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_specific_humidity%insert(key, value)
             end if
-            value = prepbufr_raw(obs(5,i,:), qc(5,i,:), pc(5,i,:))
+            call prepbufr_raw(obs(5,i,:), value, stack_qc=qc(5,i,:), stack_pc=pc(5,i,:))
             if (.not. record%snd_sig_dewpoint%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_dewpoint%insert(key, value)
             end if
-            value = prepbufr_raw(obs(6,i,:), qc(6,i,:), pc(6,i,:))
+            call prepbufr_raw(obs(6,i,:), value, stack_qc=qc(6,i,:), stack_pc=pc(6,i,:))
             if (.not. record%snd_sig_wind_direction%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_wind_direction%insert(key, value)
             end if
-            value = prepbufr_raw(obs(7,i,:), qc(7,i,:), pc(7,i,:))
+            call prepbufr_raw(obs(7,i,:), value, stack_qc=qc(7,i,:), stack_pc=pc(7,i,:))
             if (.not. record%snd_sig_wind_speed%hashed(key) .or. value /= real_missing_value) then
               call record%snd_sig_wind_speed%insert(key, value)
             end if
           case (3, 4)
-            value = prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:))
+            call prepbufr_raw(obs(2,i,:), value, stack_qc=qc(2,i,:), stack_pc=pc(2,i,:))
             if (.not. record%snd_wnd_pressure%hashed(key) .or. value /= real_missing_value) then
               call record%snd_wnd_pressure%insert(key, value)
             end if
-            value = prepbufr_raw(obs(6,i,:), qc(6,i,:), pc(6,i,:))
+            call prepbufr_raw(obs(6,i,:), value, stack_qc=qc(6,i,:), stack_pc=pc(6,i,:))
             if (.not. record%snd_wnd_wind_direction%hashed(key) .or. value /= real_missing_value) then
               call record%snd_wnd_wind_direction%insert(key, value)
             end if
-            value = prepbufr_raw(obs(7,i,:), qc(7,i,:), pc(7,i,:))
+            call prepbufr_raw(obs(7,i,:), value, stack_qc=qc(7,i,:), stack_pc=pc(7,i,:))
             if (.not. record%snd_wnd_wind_speed%hashed(key) .or. value /= real_missing_value) then
               call record%snd_wnd_wind_speed%insert(key, value)
             end if
           case (5)
-            value = prepbufr_raw(obs(2,i,:), qc(2,i,:), pc(2,i,:))
+            call prepbufr_raw(obs(2,i,:), value, stack_qc=qc(2,i,:), stack_pc=pc(2,i,:))
             if (.not. record%snd_trop_pressure%hashed(key) .or. value /= real_missing_value) then
               call record%snd_trop_pressure%insert(key, value)
             end if
-            value = prepbufr_raw(obs(3,i,:), qc(3,i,:), pc(3,i,:))
+            call prepbufr_raw(obs(3,i,:), value, stack_qc=qc(3,i,:), stack_pc=pc(3,i,:))
             if (.not. record%snd_trop_temperature%hashed(key) .or. value /= real_missing_value) then
               call record%snd_trop_temperature%insert(key, value)
             end if
-            value = prepbufr_raw(obs(4,i,:), qc(4,i,:), pc(4,i,:))
+            call prepbufr_raw(obs(4,i,:), value, stack_qc=qc(4,i,:), stack_pc=pc(4,i,:))
             if (.not. record%snd_trop_specific_humidity%hashed(key) .or. value /= real_missing_value) then
               call record%snd_trop_specific_humidity%insert(key, value)
             end if
-            value = prepbufr_raw(obs(5,i,:), qc(5,i,:), pc(5,i,:))
+            call prepbufr_raw(obs(5,i,:), value, stack_qc=qc(5,i,:), stack_pc=pc(5,i,:))
             if (.not. record%snd_trop_dewpoint%hashed(key) .or. value /= real_missing_value) then
               call record%snd_trop_dewpoint%insert(key, value)
             end if
-            value = prepbufr_raw(obs(6,i,:), qc(6,i,:), pc(6,i,:))
+            call prepbufr_raw(obs(6,i,:), value, stack_qc=qc(6,i,:), stack_pc=pc(6,i,:))
             if (.not. record%snd_trop_wind_direction%hashed(key) .or. value /= real_missing_value) then
               call record%snd_trop_wind_direction%insert(key, value)
             end if
-            value = prepbufr_raw(obs(7,i,:), qc(7,i,:), pc(7,i,:))
+            call prepbufr_raw(obs(7,i,:), value, stack_qc=qc(7,i,:), stack_pc=pc(7,i,:))
             if (.not. record%snd_trop_wind_speed%hashed(key) .or. value /= real_missing_value) then
               call record%snd_trop_wind_speed%insert(key, value)
             end if
@@ -200,11 +201,11 @@ contains
     end do
     call closbf(10)
 
-  end subroutine raob_prepbufr_decode
+  end subroutine raob_prepbufr_read
 
   subroutine debug_print(record, obs, qc, pc)
 
-    type(raob_decode_record_type), intent(in) :: record
+    type(raob_read_record_type), intent(in) :: record
     real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
     real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
     real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)

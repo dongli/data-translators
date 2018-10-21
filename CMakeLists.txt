@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(longrun-decode Fortran)
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  set (CMAKE_Fortran_FLAGS "-fno-underscoring -ffree-line-length-none")
+  set (CMAKE_Fortran_FLAGS "-ffree-line-length-none")
 endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   SET(CMAKE_Fortran_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
@@ -49,7 +49,7 @@ endif ()
 
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/.mods")
 
-add_library(decoders
+add_library(data-translators
   src/obs_base_mod.F90
   src/amdar_mod.F90
   src/amdar_bufr_mod.F90
@@ -62,6 +62,7 @@ add_library(decoders
   src/synop_mod.F90
   src/synop_prepbufr_mod.F90
   src/synop_odb_mod.F90
+  src/synop_littler_mod.F90
   src/metar_mod.F90
   src/metar_prepbufr_mod.F90
   src/metar_odb_mod.F90
@@ -71,10 +72,10 @@ add_library(decoders
   src/params_mod.F90
   src/utils_mod.F90
 )
-target_link_libraries(decoders fortran_datetime fortran_container eccodes_f90 bufr Odb_fortran)
+target_link_libraries(data-translators fortran_datetime fortran_container eccodes_f90 bufr Odb_fortran)
 
-add_executable(longrun-decode.exe src/longrun_decode.F90)
-target_link_libraries(longrun-decode.exe decoders)
+add_executable(data-translate.exe src/data_translate.F90)
+target_link_libraries(data-translate.exe data-translators)
 
-add_executable(decoder-test.exe src/decoder_test.F90)
-target_link_libraries(decoder-test.exe decoders fortran_unit_test)
+add_executable(reader-test.exe src/reader_test.F90)
+target_link_libraries(reader-test.exe data-translators fortran_unit_test)

@@ -14,7 +14,7 @@ module radarx_base_mod
 
 contains
 
-  subroutine radarx_base_decode(file_path)
+  subroutine radarx_base_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -340,7 +340,7 @@ contains
 
     close(10)
 
-  end subroutine radarx_base_decode
+  end subroutine radarx_base_read
 
   subroutine radarx_base_write_laps_netcdf(radar_station, radar_record)
 

@@ -14,11 +14,11 @@ module amdar_bufr_mod
 
   private
 
-  public amdar_bufr_decode
+  public amdar_bufr_read
 
 contains
 
-  subroutine amdar_bufr_decode(file_path)
+  subroutine amdar_bufr_read(file_path)
 
     character(*), intent(in) :: file_path
 
@@ -86,6 +86,6 @@ contains
 
     call codes_close_file(file_id)
 
-  end subroutine amdar_bufr_decode
+  end subroutine amdar_bufr_read
 
 end module amdar_bufr_mod
