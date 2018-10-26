@@ -6,7 +6,8 @@ module cli_mod
 
   public cli_get_reader_type
   public cli_get_writer_type
-  public cli_get_file_path
+  public cli_get_input_file_path
+  public cli_get_output_file_path
 
 contains
 
@@ -48,7 +49,7 @@ contains
 
   end function cli_get_writer_type
 
-  function cli_get_file_path() result(res)
+  function cli_get_input_file_path() result(res)
 
     character(256) res
 
@@ -59,7 +60,7 @@ contains
     do while (i <= command_argument_count())
       call get_command_argument(i, res)
       i = i + 1
-      if (res == '-f') then
+      if (res == '-i') then
         call get_command_argument(i, res)
         inquire(file=res, exist=file_exist)
         if (file_exist) then
@@ -70,9 +71,28 @@ contains
         end if
       end if
     end do
-    write(*, *) '[Error]: No data file is provided!'
+    write(*, *) '[Error]: No input data file is provided!'
     stop 1
 
-  end function cli_get_file_path
+  end function cli_get_input_file_path
+
+  function cli_get_output_file_path() result(res)
+
+    character(256) res
+
+    integer i
+
+    i = 1
+    do while (i <= command_argument_count())
+      call get_command_argument(i, res)
+      i = i + 1
+      if (res == '-o') then
+        call get_command_argument(i, res)
+        return
+      end if
+    end do
+    res = ''
+
+  end function cli_get_output_file_path
 
 end module cli_mod

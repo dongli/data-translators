@@ -17,17 +17,17 @@ module synop_littler_mod
 
 contains
 
-  subroutine synop_littler_write()
+  subroutine synop_littler_write(file_path)
 
-    character(50) littler_file_name
+    character(*), intent(inout) :: file_path
 
     type(linked_list_iterator_type) record_iterator
     real slp, T, Td
     integer i
 
-    littler_file_name = 'synop.littler.txt'
+    if (file_path == '') file_path = 'synop.littler'
 
-    open(10, file=littler_file_name, form='formatted')
+    open(10, file=file_path, form='formatted')
 
     i = 1
     record_iterator = linked_list_iterator(records)

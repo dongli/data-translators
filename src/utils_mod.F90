@@ -92,7 +92,7 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1) then
+        if (stack_pc(i) == 1 .or. stack_qc(i) == 2) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit

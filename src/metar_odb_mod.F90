@@ -11,19 +11,20 @@ module metar_odb_mod
 
 contains
 
-  subroutine metar_odb_write()
+  subroutine metar_odb_write(file_path)
+
+    character(*), intent(inout) :: file_path
 
     ! ODB variables
     type(odbql) odb_db
     type(odbql_stmt) odb_stmt
     type(odbql_value) odb_value
     character(100) odb_unparsed_sql
-    character(50) odb_file_name
 
     character(30) str
     type(linked_list_iterator_type) record_iterator
 
-    odb_file_name = 'metar.odb'
+    if (file_path == '') file_path = 'metar.odb'
 
     ! Write ODB file.
     call odbql_open('', odb_db)
@@ -34,7 +35,7 @@ contains
       'sfc_wind_speed REAL, ' // &
       'sfc_wind_direction REAL, ' // &
       'sfc_pressure REAL) ON "' // &
-      trim(odb_file_name) // '";', -1, odb_stmt, odb_unparsed_sql)
+      trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO metar (' // &
       'station_name, lon, lat, z, date, time, ' // &
       'sfc_temperature, ' // &
@@ -71,7 +72,6 @@ contains
 
     call odbql_finalize(odb_stmt)
     call odbql_close(odb_db)
-    write(*, *) '[Notice]: ODB file is written.'
 
   end subroutine metar_odb_write
 

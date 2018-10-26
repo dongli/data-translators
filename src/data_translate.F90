@@ -14,36 +14,40 @@ program data_translate
 
   implicit none
 
-  character(256) file_path
+  character(256) input_file_path
+  character(256) output_file_path
   character(50) writer_type
 
-  file_path = cli_get_file_path()
+  input_file_path = cli_get_input_file_path()
+  output_file_path = cli_get_output_file_path()
   writer_type = cli_get_writer_type()
 
   select case (cli_get_reader_type())
   case ('synop_prepbufr')
-    call synop_prepbufr_read(file_path)
-    if (writer_type == 'synop_odb') then
-      call synop_odb_write()
-    else if (writer_type == 'synop_littler') then
-      call synop_littler_write()
+    call synop_prepbufr_read(input_file_path)
+    if (writer_type == 'odb') then
+      call synop_odb_write(output_file_path)
+    else if (writer_type == 'littler') then
+      call synop_littler_write(output_file_path)
     end if
   case ('metar_prepbufr')
-    call metar_prepbufr_read(file_path)
-    call metar_odb_write()
+    call metar_prepbufr_read(input_file_path)
+    call metar_odb_write(output_file_path)
   case ('amdar_bufr')
-    call amdar_bufr_read(file_path)
-    call amdar_odb_write()
+    call amdar_bufr_read(input_file_path)
+    call amdar_odb_write(output_file_path)
   case ('amdar_prepbufr')
-    call amdar_prepbufr_read(file_path)
-    call amdar_odb_write()
+    call amdar_prepbufr_read(input_file_path)
+    call amdar_odb_write(output_file_path)
   case ('raob_prepbufr')
-    call raob_prepbufr_read(file_path)
+    call raob_prepbufr_read(input_file_path)
   case ('profiler_prepbufr')
-    call profiler_prepbufr_read(file_path)
+    call profiler_prepbufr_read(input_file_path)
   case default
     write(*, *) '[Error]: Unknown reader type!'
     stop 1
   end select
+
+  write(*, *) '[Notice]: Data ' // trim(output_file_path) // ' is created.'
 
 end program data_translate
