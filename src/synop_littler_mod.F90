@@ -32,7 +32,7 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (synop_record_type)
-        slp = p_to_slp(record%sfc_pressure, record%sfc_temperature, record%station%z)
+        slp = sea_level_pressure(record%sfc_pressure, record%sfc_temperature, record%station%z)
         T = add(record%sfc_temperature, freezing_point)
         Td = add(record%sfc_dewpoint, freezing_point)
         ! Header

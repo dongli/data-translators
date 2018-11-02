@@ -10,6 +10,7 @@ program data_translate
   use amdar_odb_mod
   use amdar_littler_mod
   use raob_prepbufr_mod
+  use raob_littler_mod
   use profiler_prepbufr_mod
   use cli_mod
 
@@ -46,6 +47,9 @@ program data_translate
     end if
   case ('raob_prepbufr')
     call raob_prepbufr_read(input_file_path)
+    if (writer_type == 'littler') then
+      call raob_littler_write(output_file_path)
+    end if
   case ('profiler_prepbufr')
     call profiler_prepbufr_read(input_file_path)
   case default

@@ -58,6 +58,7 @@ add_library(data-translators
   src/amdar_littler_mod.F90
   src/raob_mod.F90
   src/raob_prepbufr_mod.F90
+  src/raob_littler_mod.F90
   src/profiler_mod.F90
   src/profiler_prepbufr_mod.F90
   src/synop_mod.F90
@@ -80,3 +81,6 @@ target_link_libraries(data-translate.exe data-translators)
 
 add_executable(reader-test.exe src/reader_test.F90)
 target_link_libraries(reader-test.exe data-translators fortran_unit_test)
+
+add_executable(utils-test.exe src/utils_test.F90)
+target_link_libraries(utils-test.exe data-translators fortran_unit_test)

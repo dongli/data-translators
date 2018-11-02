@@ -8,17 +8,21 @@ module amdar_mod
   implicit none
 
   type, extends(obs_site_nopos_base_type) :: amdar_flight_type
+    character(8) number
   end type amdar_flight_type
 
   type, extends(obs_drift_record_base_type) :: amdar_record_type
     type(amdar_flight_type), pointer :: flight
-    real :: amdar_pressure          = real_missing_value ! Pressure (Pa)
-    real :: amdar_temperature       = real_missing_value ! Temperature (degC)
-    real :: amdar_specific_humidity = real_missing_value ! Specific humidity (g/kg)
-    real :: amdar_dewpoint          = real_missing_value ! Dewpoint temperature (degC)
-    real :: amdar_relative_humidity = real_missing_value ! Relative humidity (%)
-    real :: amdar_wind_speed        = real_missing_value ! Wind speed (m/s)
-    real :: amdar_wind_direction    = real_missing_value ! Wind direction (deg)
+    real    :: amdar_pressure          = real_missing_value ! Pressure (Pa)
+    real    :: amdar_temperature       = real_missing_value ! Temperature (degC)
+    real    :: amdar_specific_humidity = real_missing_value ! Specific humidity (g/kg)
+    real    :: amdar_dewpoint          = real_missing_value ! Dewpoint temperature (degC)
+    real    :: amdar_relative_humidity = real_missing_value ! Relative humidity (%)
+    real    :: amdar_wind_speed        = real_missing_value ! Wind speed (m/s)
+    real    :: amdar_wind_direction    = real_missing_value ! Wind direction (deg)
+    real    :: amdar_wind_u            = real_missing_value ! U wind component (m/s)
+    real    :: amdar_wind_v            = real_missing_value ! V wind component (m/s)
+    integer :: amdar_turbulence_index  = int_missing_value  ! Turbulence index
 
     integer :: amdar_pressure_qc          = int_missing_value
     integer :: amdar_temperature_qc       = int_missing_value

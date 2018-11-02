@@ -33,8 +33,8 @@ contains
       'sfc_temperature REAL, ' // &
       'sfc_temperature_qc INTEGER, ' // &
       'sfc_dewpoint REAL, ' // &
-      'sfc_wind_speed REAL, ' // &
-      'sfc_wind_direction REAL, ' // &
+      'sfc_wind_u REAL, ' // &
+      'sfc_wind_v REAL, ' // &
       'sfc_wind_qc INTEGER, ' // &
       'sfc_pressure REAL, ' // &
       'sfc_pressure_qc INTEGER, ' // &
@@ -44,8 +44,8 @@ contains
       'sfc_temperature, ' // &
       'sfc_temperature_qc, ' // &
       'sfc_dewpoint, ' // &
-      'sfc_wind_speed, ' // &
-      'sfc_wind_direction, ' // &
+      'sfc_wind_u, ' // &
+      'sfc_wind_v, ' // &
       'sfc_wind_qc, ' // &
       'sfc_pressure' // &
       'sfc_pressure_qc' // &
@@ -66,8 +66,8 @@ contains
         call odbql_bind_double(odb_stmt,  7, dble(record%sfc_temperature))
         call odbql_bind_int(odb_stmt,  8, record%sfc_temperature_qc)
         call odbql_bind_double(odb_stmt,  9, dble(record%sfc_dewpoint))
-        call odbql_bind_double(odb_stmt, 10, dble(record%sfc_wind_speed))
-        call odbql_bind_double(odb_stmt, 11, dble(record%sfc_wind_direction))
+        call odbql_bind_double(odb_stmt, 10, dble(record%sfc_wind_u))
+        call odbql_bind_double(odb_stmt, 11, dble(record%sfc_wind_v))
         call odbql_bind_int(odb_stmt, 12, record%sfc_wind_qc)
         call odbql_bind_double(odb_stmt, 13, dble(record%sfc_pressure))
         call odbql_bind_int(odb_stmt, 14, record%sfc_pressure_qc)

@@ -31,7 +31,6 @@ contains
     real(8) obs(max_num_var,max_num_lev,max_num_event)
     real(8) qc(max_num_var,max_num_lev,max_num_event)
     real(8) pc(max_num_var,max_num_lev,max_num_event)
-    real u, v
     type(datetime_type) base_time, time
     logical new_record
     type(amdar_flight_type), pointer :: flight
@@ -48,7 +47,7 @@ contains
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
     do while (ireadmg(10, subset, idate) == 0) ! ireadmg returns mnemonic in subset, and copies message into internal arrays.
       msg_count = msg_count + 1
-      if (subset /= 'AIRCFT') cycle
+      if (subset /= 'AIRCFT' .and. subset /= 'AIRCAR') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
       write(*, "('=> ', I5.5, X, A8)") msg_count, subset
@@ -106,16 +105,19 @@ contains
           call prepbufr_raw(obs(7,1,:), record%amdar_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%amdar_temperature_qc)
         end if
         if (record%amdar_wind_speed == real_missing_value) then
-          call prepbufr_raw(obs( 9,1,:), u, stack_qc=qc(4,1,:), stack_pc=pc(4,1,:), qc=record%amdar_wind_qc)
-          call prepbufr_raw(obs(10,1,:), v, stack_qc=qc(4,1,:), stack_pc=pc(4,1,:), qc=record%amdar_wind_qc)
-          record%amdar_wind_speed     = merge(real_missing_value, sqrt(u**2 + v**2), u == real_missing_value)
-          record%amdar_wind_direction = merge(real_missing_value, wind_direction(u, v), u == real_missing_value)
+          call prepbufr_raw(obs( 9,1,:), record%amdar_wind_u, stack_qc=qc(4,1,:), stack_pc=pc(4,1,:), qc=record%amdar_wind_qc)
+          call prepbufr_raw(obs(10,1,:), record%amdar_wind_v, stack_qc=qc(4,1,:), stack_pc=pc(4,1,:), qc=record%amdar_wind_qc)
+          record%amdar_wind_speed     = merge(real_missing_value, sqrt(record%amdar_wind_u**2 + record%amdar_wind_v**2), record%amdar_wind_u == real_missing_value)
+          record%amdar_wind_direction = merge(real_missing_value, wind_direction(record%amdar_wind_u, record%amdar_wind_v), record%amdar_wind_u == real_missing_value)
         end if
         if (record%amdar_dewpoint == real_missing_value) then
           call prepbufr_raw(obs(11,1,:), record%amdar_dewpoint)
         end if
         if (record%amdar_specific_humidity == real_missing_value) then
           call prepbufr_raw(obs(8,1,:), record%amdar_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%amdar_specific_humidity_qc)
+        end if
+        if (record%amdar_turbulence_index == int_missing_value) then
+          call prepbufr_raw(obs(12,1,:), record%amdar_turbulence_index)
         end if
 
         if (new_record) then
@@ -148,7 +150,8 @@ contains
     print *, 'P ', obs(6,1,:)
     print *, 'P ', qc(1,1,:)
     print *, 'P ', pc(1,1,:)
-    print *, 'W ', record%amdar_wind_speed, record%amdar_wind_direction
+    print *, 'W ', record%amdar_wind_u, record%amdar_wind_v
+    print *, 'TRBX ', record%amdar_turbulence_index
 
   end subroutine debug_print
 
