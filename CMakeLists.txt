@@ -55,6 +55,7 @@ add_library(data-translators
   src/amdar_bufr_mod.F90
   src/amdar_prepbufr_mod.F90
   src/amdar_odb_mod.F90
+  src/amdar_littler_mod.F90
   src/raob_mod.F90
   src/raob_prepbufr_mod.F90
   src/profiler_mod.F90

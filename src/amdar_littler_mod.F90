@@ -1,7 +1,7 @@
-module synop_littler_mod
+module amdar_littler_mod
 
   use datetime
-  use synop_mod
+  use amdar_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -11,19 +11,19 @@ module synop_littler_mod
 
   private
 
-  public synop_littler_write
+  public amdar_littler_write
 
 contains
 
-  subroutine synop_littler_write(file_path)
+  subroutine amdar_littler_write(file_path)
 
     character(*), intent(inout) :: file_path
 
     type(linked_list_iterator_type) record_iterator
-    real slp, T, Td
+    real T, Td, RH
     integer i
 
-    if (file_path == '') file_path = 'synop.littler'
+    if (file_path == '') file_path = 'amdar.littler'
 
     open(10, file=file_path, form='formatted')
 
@@ -31,18 +31,18 @@ contains
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
-      type is (synop_record_type)
-        slp = p_to_slp(record%sfc_pressure, record%sfc_temperature, record%station%z)
-        T = add(record%sfc_temperature, freezing_point)
-        Td = add(record%sfc_dewpoint, freezing_point)
+      type is (amdar_record_type)
+        T = add(record%amdar_temperature, freezing_point)
+        Td = real_missing_value
+        RH = real_missing_value
         ! Header
-        write(10, '(F20.5)', advance='no') record%station%lat                 ! latitude
-        write(10, '(F20.5)', advance='no') record%station%lon                 ! longitude
-        write(10, '(A40)',   advance='no') record%station%name                ! id
-        write(10, '(A40)',   advance='no') record%station%name                ! name
-        write(10, '(A40)',   advance='no') 'FM-12'                            ! platform
+        write(10, '(F20.5)', advance='no') record%lat                         ! latitude
+        write(10, '(F20.5)', advance='no') record%lon                         ! longitude
+        write(10, '(A40)',   advance='no') record%flight%name                 ! id
+        write(10, '(A40)',   advance='no') record%flight%name                 ! name
+        write(10, '(A40)',   advance='no') 'FM-42'                            ! platform
         write(10, '(A40)',   advance='no') 'N/A'                              ! source
-        write(10, '(F20.5)', advance='no') record%station%z                   ! elevation
+        write(10, '(F20.5)', advance='no') record%z                           ! elevation
         write(10, '(I10)',   advance='no') 1                                  ! num_vld_fld
         write(10, '(I10)',   advance='no') 0                                  ! num_error
         write(10, '(I10)',   advance='no') 0                                  ! num_warning
@@ -54,17 +54,17 @@ contains
         write(10, '(I10)',   advance='no') int(record%time%timestamp())       ! obs_time
         write(10, '(I10)',   advance='no') record%time%days_in_year()         ! julian_day
         write(10, '(A20)',   advance='no') record%time%format('%Y%m%d%H%M%S') ! date_char
-        write(10, '(F13.5)', advance='no') slp                                ! slp
-        write(10, '(I7)',    advance='no') record%sfc_pressure_qc             ! slp QC
+        write(10, '(F13.5)', advance='no') real_missing_value                 ! slp
+        write(10, '(I7)',    advance='no') int_missing_value                  ! slp QC
         write(10, '(F13.5)', advance='no') real_missing_value                 ! ref_pres
         write(10, '(I7)',    advance='no') int_missing_value                  ! ref_pres QC
-        write(10, '(F13.5)', advance='no') T                                  ! ground_t
-        write(10, '(I7)',    advance='no') record%sfc_temperature_qc          ! ground_t QC
+        write(10, '(F13.5)', advance='no') real_missing_value                 ! ground_t
+        write(10, '(I7)',    advance='no') int_missing_value                  ! ground_t QC
         write(10, '(F13.5)', advance='no') real_missing_value                 ! SST
         write(10, '(I7)',    advance='no') int_missing_value                  ! SST QC
-        write(10, '(F13.5)', advance='no') record%sfc_pressure                ! psfc
-        write(10, '(I7)',    advance='no') record%sfc_pressure_qc             ! psfc QC
-        write(10, '(F13.5)', advance='no') record%sfc_rain_01h                ! precip
+        write(10, '(F13.5)', advance='no') real_missing_value                 ! psfc
+        write(10, '(I7)',    advance='no') int_missing_value                  ! psfc QC
+        write(10, '(F13.5)', advance='no') real_missing_value                 ! precip
         write(10, '(I7)',    advance='no') int_missing_value                  ! precip QC
         write(10, '(F13.5)', advance='no') real_missing_value                 ! t_max
         write(10, '(I7)',    advance='no') int_missing_value                  ! t_max QC
@@ -81,26 +81,26 @@ contains
         write(10, '(F13.5)', advance='no') real_missing_value                 ! ceiling
         write(10, '(I7)',    advance='no') int_missing_value                  ! celing QC
         write(10, *)
-        write(10, '(F13.5)', advance='no') record%sfc_pressure                ! pressure (Pa)
-        write(10, '(I7)',    advance='no') record%sfc_pressure_qc             ! pressure QC
-        write(10, '(F13.5)', advance='no') record%station%z                   ! height
+        write(10, '(F13.5)', advance='no') record%amdar_pressure              ! pressure (Pa)
+        write(10, '(I7)',    advance='no') record%amdar_pressure_qc           ! pressure QC
+        write(10, '(F13.5)', advance='no') record%z                           ! height
         write(10, '(I7)',    advance='no') 0                                  ! height QC
         write(10, '(F13.5)', advance='no') T                                  ! temperature (K)
-        write(10, '(I7)',    advance='no') record%sfc_temperature_qc          ! temperature QC
+        write(10, '(I7)',    advance='no') record%amdar_temperature_qc        ! temperature QC
         write(10, '(F13.5)', advance='no') Td                                 ! dewpoint (K)
         write(10, '(I7)',    advance='no') 0                                  ! dewpoint QC
-        write(10, '(F13.5)', advance='no') record%sfc_wind_speed              ! wind speed (m s^-1)
-        write(10, '(I7)',    advance='no') record%sfc_wind_qc                 ! wind QC
-        write(10, '(F13.5)', advance='no') record%sfc_wind_direction          ! wind direction (degree)
-        write(10, '(I7)',    advance='no') record%sfc_wind_qc                 ! wind QC
+        write(10, '(F13.5)', advance='no') record%amdar_wind_speed            ! wind speed (m s^-1)
+        write(10, '(I7)',    advance='no') record%amdar_wind_qc               ! wind QC
+        write(10, '(F13.5)', advance='no') record%amdar_wind_direction        ! wind direction (degree)
+        write(10, '(I7)',    advance='no') record%amdar_wind_qc               ! wind QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! wind u component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                  ! wind u component QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! wind v component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                  ! wind v component QC
-        write(10, '(F13.5)', advance='no') record%sfc_relative_humidity       ! relative humidity (%)
-        write(10, '(I7)',    advance='no') record%sfc_relative_humidity_qc    ! relative humidity QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! wind v component (m s^-1)
-        write(10, '(I7)',    advance='no') 0                                  ! wind v component QC
+        write(10, '(F13.5)', advance='no') RH                                 ! relative humidity (%)
+        write(10, '(I7)',    advance='no') record%amdar_specific_humidity_qc  ! relative humidity QC
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! thickness (m)
+        write(10, '(I7)',    advance='no') 0                                  ! thickness QC
         write(10, *)
         write(10, '(F13.5)', advance='no') -777777.0                          ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                  ! pressure QC
@@ -131,6 +131,6 @@ contains
 
     close(10)
 
-  end subroutine synop_littler_write
+  end subroutine amdar_littler_write
 
-end module synop_littler_mod
+end module amdar_littler_mod
