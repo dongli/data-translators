@@ -14,6 +14,7 @@ program data_translate
   use profiler_prepbufr_mod
   use profiler_littler_mod
   use ship_cimiss_txt_mod
+  use ship_odb_mod
   use cli_mod
 
   implicit none
@@ -59,6 +60,9 @@ program data_translate
     end if
   case ('ship_cimiss_txt')
     call ship_cimiss_txt_read(input_file_path)
+    if (writer_type == 'odb') then
+      call ship_odb_write(output_file_path)
+    end if
   case default
     write(*, *) '[Error]: Unknown reader type!'
     stop 1

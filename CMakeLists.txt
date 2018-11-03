@@ -73,6 +73,7 @@ add_library(data-translators
   src/metar_odb_mod.F90
   src/ship_mod.F90
   src/ship_cimiss_txt_mod.F90
+  src/ship_odb_mod.F90
   src/radar_mod.F90
   src/string_mod.F90
   src/cli_mod.F90

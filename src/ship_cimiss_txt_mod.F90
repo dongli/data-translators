@@ -196,7 +196,7 @@ contains
       if (new_record) then
         call records%insert(ship_name // '@' // time%isoformat(), record)
       end if
-      if (ship_name == '40718') call debug_print(record)
+      ! if (ship_name == '40718') call debug_print(record)
     end do
     close(10)
 
