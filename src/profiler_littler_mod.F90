@@ -1,7 +1,7 @@
-module amdar_littler_mod
+module profiler_littler_mod
 
   use datetime
-  use amdar_mod
+  use profiler_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -11,19 +11,19 @@ module amdar_littler_mod
 
   private
 
-  public amdar_littler_write
+  public profiler_littler_write
 
 contains
 
-  subroutine amdar_littler_write(file_path)
+  subroutine profiler_littler_write(file_path)
 
     character(*), intent(inout) :: file_path
 
     type(linked_list_iterator_type) record_iterator
-    real T, Td, RH
+    type(hash_table_iterator_type) level_iterator
     integer i
 
-    if (file_path == '') file_path = 'amdar.littler'
+    if (file_path == '') file_path = 'profiler.littler'
 
     open(10, file=file_path, form='formatted')
 
@@ -31,24 +31,21 @@ contains
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
-      type is (amdar_record_type)
-        T = add(record%amdar_temperature, freezing_point)
-        Td = real_missing_value
-        RH = real_missing_value
+      type is (profiler_read_record_type)
         ! Header
-        write(10, '(F20.5)', advance='no') record%lat                         ! latitude
-        write(10, '(F20.5)', advance='no') record%lon                         ! longitude
-        write(10, '(A40)',   advance='no') record%flight%name                 ! id
-        write(10, '(A40)',   advance='no') record%flight%name                 ! name
-        write(10, '(A40)',   advance='no') 'FM-42'                            ! platform
+        write(10, '(F20.5)', advance='no') record%station%lat                 ! latitude
+        write(10, '(F20.5)', advance='no') record%station%lon                 ! longitude
+        write(10, '(A40)',   advance='no') record%station%name                ! id
+        write(10, '(A40)',   advance='no') record%station%name                ! name
+        write(10, '(A40)',   advance='no') 'FM-132'                           ! platform
         write(10, '(A40)',   advance='no') 'N/A'                              ! source
-        write(10, '(F20.5)', advance='no') record%z                           ! elevation
+        write(10, '(F20.5)', advance='no') record%station%z                   ! elevation
         write(10, '(I10)',   advance='no') 1                                  ! num_vld_fld
         write(10, '(I10)',   advance='no') 0                                  ! num_error
         write(10, '(I10)',   advance='no') 0                                  ! num_warning
         write(10, '(I10)',   advance='no') i                                  ! seq_num
         write(10, '(I10)',   advance='no') 0                                  ! num_dups
-        write(10, '(L10)',   advance='no') .false.                            ! is_sound
+        write(10, '(L10)',   advance='no') .true.                             ! is_sound
         write(10, '(L10)',   advance='no') .false.                            ! bogus
         write(10, '(L10)',   advance='no') .false.                            ! discard
         write(10, '(I10)',   advance='no') int(record%time%timestamp())       ! obs_time
@@ -81,27 +78,71 @@ contains
         write(10, '(F13.5)', advance='no') real_missing_value                 ! ceiling
         write(10, '(I7)',    advance='no') 0                                  ! celing QC
         write(10, *)
-        write(10, '(F13.5)', advance='no') record%amdar_pressure              ! pressure (Pa)
-        write(10, '(I7)',    advance='no') 0                                  ! pressure QC
-        write(10, '(F13.5)', advance='no') record%z                           ! height
-        write(10, '(I7)',    advance='no') 0                                  ! height QC
-        write(10, '(F13.5)', advance='no') T                                  ! temperature (K)
-        write(10, '(I7)',    advance='no') 0                                  ! temperature QC
-        write(10, '(F13.5)', advance='no') Td                                 ! dewpoint (K)
-        write(10, '(I7)',    advance='no') 0                                  ! dewpoint QC
-        write(10, '(F13.5)', advance='no') record%amdar_wind_speed            ! wind speed (m s^-1)
-        write(10, '(I7)',    advance='no') 0                                  ! wind QC
-        write(10, '(F13.5)', advance='no') record%amdar_wind_direction        ! wind direction (degree)
-        write(10, '(I7)',    advance='no') 0                                  ! wind QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! wind u component (m s^-1)
-        write(10, '(I7)',    advance='no') 0                                  ! wind u component QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! wind v component (m s^-1)
-        write(10, '(I7)',    advance='no') 0                                  ! wind v component QC
-        write(10, '(F13.5)', advance='no') RH                                 ! relative humidity (%)
-        write(10, '(I7)',    advance='no') 0                                  ! relative humidity QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! thickness (m)
-        write(10, '(I7)',    advance='no') 0                                  ! thickness QC
-        write(10, *)
+        level_iterator = hash_table_iterator(record%pro_pressure)
+        do while (.not. level_iterator%ended())
+          ! pressure (Pa)
+          select type (value => level_iterator%value)
+          type is (real)
+            write(10, '(F13.5)', advance='no') value
+          class default
+            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          end select
+          write(10, '(I7)', advance='no') 0
+          ! height (m)
+          select type (value => record%pro_height%value(level_iterator%key))
+          type is (real)
+            write(10, '(F13.5)', advance='no') value
+          class default
+            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          end select
+          write(10, '(I7)', advance='no') 0
+          ! temperature (K)
+          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          write(10, '(I7)', advance='no') 0
+          ! dewpoint (K)
+          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          write(10, '(I7)', advance='no') 0
+          ! wind speed (m/s)
+          select type (value => record%pro_wind_speed%value(level_iterator%key))
+          type is (real)
+            write(10, '(F13.5)', advance='no') value
+          class default
+            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          end select
+          write(10, '(I7)', advance='no') 0
+          ! wind direction (degree)
+          select type (value => record%pro_wind_direction%value(level_iterator%key))
+          type is (real)
+            write(10, '(F13.5)', advance='no') value
+          class default
+            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          end select
+          write(10, '(I7)', advance='no') 0
+          ! wind u component (m/s)
+          select type (value => record%pro_wind_u%value(level_iterator%key))
+          type is (real)
+            write(10, '(F13.5)', advance='no') value
+          class default
+            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          end select
+          write(10, '(I7)', advance='no') 0
+          ! wind v component
+          select type (value => record%pro_wind_v%value(level_iterator%key))
+          type is (real)
+            write(10, '(F13.5)', advance='no') value
+          class default
+            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          end select
+          write(10, '(I7)', advance='no') 0
+          ! relative humidity (%)
+          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          write(10, '(I7)', advance='no') 0
+          ! thickness (m)
+          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          write(10, '(I7)',    advance='no') 0
+          write(10, *)
+          call level_iterator%next()
+        end do
         write(10, '(F13.5)', advance='no') -777777.0                          ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                  ! pressure QC
         write(10, '(F13.5)', advance='no') -777777.0                          ! height
@@ -131,6 +172,6 @@ contains
 
     close(10)
 
-  end subroutine amdar_littler_write
+  end subroutine profiler_littler_write
 
-end module amdar_littler_mod
+end module profiler_littler_mod

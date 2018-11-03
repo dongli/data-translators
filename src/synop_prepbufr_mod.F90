@@ -13,8 +13,8 @@ module synop_prepbufr_mod
 
   public synop_prepbufr_read
 
-  integer, parameter :: max_num_var = 35
-  integer, parameter :: max_num_lev = 250
+  integer, parameter :: max_num_var = 20
+  integer, parameter :: max_num_lev = 1
   integer, parameter :: max_num_event = 10
 
 contains

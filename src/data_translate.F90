@@ -12,6 +12,7 @@ program data_translate
   use raob_prepbufr_mod
   use raob_littler_mod
   use profiler_prepbufr_mod
+  use profiler_littler_mod
   use cli_mod
 
   implicit none
@@ -52,6 +53,9 @@ program data_translate
     end if
   case ('profiler_prepbufr')
     call profiler_prepbufr_read(input_file_path)
+    if (writer_type == 'littler') then
+      call profiler_littler_write(output_file_path)
+    end if
   case default
     write(*, *) '[Error]: Unknown reader type!'
     stop 1
