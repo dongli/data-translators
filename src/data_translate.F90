@@ -13,6 +13,7 @@ program data_translate
   use raob_littler_mod
   use profiler_prepbufr_mod
   use profiler_littler_mod
+  use ship_cimiss_txt_mod
   use cli_mod
 
   implicit none
@@ -56,11 +57,15 @@ program data_translate
     if (writer_type == 'littler') then
       call profiler_littler_write(output_file_path)
     end if
+  case ('ship_cimiss_txt')
+    call ship_cimiss_txt_read(input_file_path)
   case default
     write(*, *) '[Error]: Unknown reader type!'
     stop 1
   end select
 
-  write(*, *) '[Notice]: Data ' // trim(output_file_path) // ' is created.'
+  if (output_file_path /= '') then
+    write(*, *) '[Notice]: Data ' // trim(output_file_path) // ' is created.'
+  end if
 
 end program data_translate

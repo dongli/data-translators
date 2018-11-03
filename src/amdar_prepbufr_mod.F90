@@ -47,6 +47,7 @@ contains
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
     do while (ireadmg(10, subset, idate) == 0) ! ireadmg returns mnemonic in subset, and copies message into internal arrays.
       msg_count = msg_count + 1
+      ! Record AIRCFT and AIRCAR together.
       if (subset /= 'AIRCFT' .and. subset /= 'AIRCAR') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
@@ -58,8 +59,8 @@ contains
         !           <W___INFO>  <DRFTINFO>  [W1_EVENT]  <ACFT_SEQ>
         !           <TURB1SEQ>  <TURB2SEQ>  {TURB3SEQ}  {PREWXSEQ}
         !           {CLOUDSEQ}  {AFIC_SEQ}   NRLQMS
-        !                                                                    1   2   3   4   5   6   7   8
-        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
+        !                                                                    1   2   3   4   5   6   7   8    9
+        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR ACID')
         !                                                                    1   2    3    4    5   6   7   8   9   10  11  12
         call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'RCT ROLF MSTQ IALR CAT POB TOB QOB UOB VOB TDO TRBX')
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret,                        'PQM TQM QQM WQM NUL')
@@ -74,6 +75,7 @@ contains
         else
           allocate(flight)
           flight%name = flight_name
+          if (subset == 'AIRCAR') flight%number = transfer(hdr(9), flight%number)
           call flights%insert(flight_name, flight)
         end if
         nullify(record)

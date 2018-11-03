@@ -14,8 +14,10 @@ add_subdirectory(lib/datetime)
 add_subdirectory(lib/container)
 include_directories(${CMAKE_BINARY_DIR}/fortran_container)
 
-add_subdirectory (lib/unit-test)
-include_directories (${UNIT_TEST_INCLUDE_DIR})
+add_subdirectory(lib/unit-test)
+include_directories(${UNIT_TEST_INCLUDE_DIR})
+
+add_subdirectory(lib/regex)
 
 if (DEFINED ENV{BUFRLIB} AND (NOT DEFINED ENV{BUFRLIB_ROOT}))
   set(ENV{BUFRLIB_ROOT} $ENV{BUFRLIB})
@@ -69,13 +71,15 @@ add_library(data-translators
   src/metar_mod.F90
   src/metar_prepbufr_mod.F90
   src/metar_odb_mod.F90
+  src/ship_mod.F90
+  src/ship_cimiss_txt_mod.F90
   src/radar_mod.F90
   src/string_mod.F90
   src/cli_mod.F90
   src/params_mod.F90
   src/utils_mod.F90
 )
-target_link_libraries(data-translators fortran_datetime fortran_container eccodes_f90 bufr Odb_fortran)
+target_link_libraries(data-translators fortran_datetime fortran_container fortran_regex eccodes_f90 bufr Odb_fortran)
 
 add_executable(data-translate.exe src/data_translate.F90)
 target_link_libraries(data-translate.exe data-translators)
