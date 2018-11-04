@@ -32,26 +32,34 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE ship AS (' // &
-      'ship_name STRING, lon REAL, lat REAL, date STRING, time STRING, ' // &
-      'ship_pressure REAL, ' // &
-      'ship_air_temperature REAL, ' // &
-      'ship_sea_temperature REAL, ' // &
-      'ship_dewpoint REAL, ' // &
-      'ship_relative_humidity REAL, ' // &
-      'ship_specific_humidity REAL, ' // &
-      'ship_wind_speed REAL, ' // &
-      'ship_wind_direction REAL ' // &
+      'ship_name STRING, ' // &                 !  1
+      'lon REAL, ' // &                         !  2
+      'lat REAL, ' // &                         !  3
+      'date STRING, ' // &                      !  4
+      'time STRING, ' // &                      !  5
+      'pressure REAL, ' // &                    !  6
+      'air_temperature REAL, ' // &             !  7
+      'sea_temperature REAL, ' // &             !  8
+      'dewpoint REAL, ' // &                    !  9
+      'relative_humidity REAL, ' // &           ! 10
+      'specific_humidity REAL, ' // &           ! 11
+      'wind_speed REAL, ' // &                  ! 12
+      'wind_direction REAL ' // &               ! 13
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO ship (' // &
-      'ship_name, lon, lat, date, time, ' // &
-      'ship_pressure, ' // &
-      'ship_air_temperature, ' // &
-      'ship_sea_temperature, ' // &
-      'ship_dewpoint, ' // &
-      'ship_relative_humidity, ' // &
-      'ship_specific_humidity, ' // &
-      'ship_wind_speed, ' // &
-      'ship_wind_direction ' // &
+      'ship_name, ' // &                        !  1
+      'lon, ' // &                              !  2
+      'lat, ' // &                              !  3
+      'date, ' // &                             !  4
+      'time, ' // &                             !  5
+      'pressure, ' // &                         !  6
+      'air_temperature, ' // &                  !  7
+      'sea_temperature, ' // &                  !  8
+      'dewpoint, ' // &                         !  9
+      'relative_humidity, ' // &                ! 10
+      'specific_humidity, ' // &                ! 11
+      'wind_speed, ' // &                       ! 12
+      'wind_direction ' // &                    ! 13
       ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)

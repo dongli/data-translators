@@ -32,22 +32,34 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE amdar AS (' // &
-      'flight_name STRING, flight_number STRING, lon REAL, lat REAL, z REAL, date STRING, time STRING, ' // &
-      'amdar_pressure REAL, ' // &
-      'amdar_temperature REAL, ' // &
-      'amdar_wind_u REAL, ' // &
-      'amdar_wind_v REAL, ' // &
-      'amdar_turbulence_index INTEGER, ' // &
-      'amdar_specific_humidity REAL) ON "' // &
+      'flight_name STRING, ' // &                   !  1
+      'flight_number STRING, ' // &                 !  2
+      'lon REAL, ' // &                             !  3
+      'lat REAL, ' // &                             !  4
+      'z REAL, ' // &                               !  5
+      'date STRING, ' // &                          !  6
+      'time STRING, ' // &                          !  7
+      'pressure REAL, ' // &                        !  8
+      'temperature REAL, ' // &                     !  9
+      'wind_u REAL, ' // &                          ! 10
+      'wind_v REAL, ' // &                          ! 11
+      'turbulence_index INTEGER, ' // &             ! 12
+      'specific_humidity REAL) ON "' // &           ! 13
       trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
-      'flight_name, flight_number, lon, lat, z, date, time, ' // &
-      'amdar_pressure, ' // &
-      'amdar_temperature, ' // &
-      'amdar_wind_u, ' // &
-      'amdar_wind_v, ' // &
-      'amdar_turbulence_index, ' // &
-      'amdar_specific_humidity' // &
+      'flight_name, ' // &                          !  1
+      'flight_number, ' // &                        !  2
+      'lon, ' // &                                  !  3
+      'lat, ' // &                                  !  4
+      'z, ' // &                                    !  5
+      'date, ' // &                                 !  6
+      'time, ' // &                                 !  7
+      'pressure, ' // &                             !  8
+      'temperature, ' // &                          !  9
+      'wind_u, ' // &                               ! 10
+      'wind_v, ' // &                               ! 11
+      'turbulence_index, ' // &                     ! 12
+      'specific_humidity' // &                      ! 13
       ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)

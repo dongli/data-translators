@@ -93,6 +93,7 @@ contains
           allocate(record)
           record%station => station
           record%time = time
+          record%type = int(hdr(5))
           new_record = .true.
         end if
 

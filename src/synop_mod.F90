@@ -30,6 +30,7 @@ module synop_mod
     real :: sfc_rain_24h          = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: sfc_cloud_amount      = real_missing_value ! Cloud amount (???)
 
+    integer :: type                     = int_missing_value
     integer :: sfc_temperature_qc       = int_missing_value
     integer :: sfc_dewpoint_qc          = int_missing_value
     integer :: sfc_pressure_qc          = int_missing_value

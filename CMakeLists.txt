@@ -61,6 +61,7 @@ add_library(data-translators
   src/raob_mod.F90
   src/raob_prepbufr_mod.F90
   src/raob_littler_mod.F90
+  src/raob_odb_mod.F90
   src/profiler_mod.F90
   src/profiler_prepbufr_mod.F90
   src/profiler_littler_mod.F90
@@ -71,10 +72,12 @@ add_library(data-translators
   src/metar_mod.F90
   src/metar_prepbufr_mod.F90
   src/metar_odb_mod.F90
+  src/metar_littler_mod.F90
   src/ship_mod.F90
   src/ship_cimiss_txt_mod.F90
   src/ship_prepbufr_mod.F90
   src/ship_odb_mod.F90
+  src/ship_littler_mod.F90
   src/radar_mod.F90
   src/string_mod.F90
   src/cli_mod.F90

@@ -5,17 +5,20 @@ program data_translate
   use synop_littler_mod
   use metar_prepbufr_mod
   use metar_odb_mod
+  use metar_littler_mod
   use amdar_bufr_mod
   use amdar_prepbufr_mod
   use amdar_odb_mod
   use amdar_littler_mod
   use raob_prepbufr_mod
+  use raob_odb_mod
   use raob_littler_mod
   use profiler_prepbufr_mod
   use profiler_littler_mod
   use ship_cimiss_txt_mod
   use ship_prepbufr_mod
   use ship_odb_mod
+  use ship_littler_mod
   use cli_mod
 
   implicit none
@@ -38,10 +41,18 @@ program data_translate
     end if
   case ('metar_prepbufr')
     call metar_prepbufr_read(input_file_path)
-    call metar_odb_write(output_file_path)
+    if (writer_type == 'odb') then
+      call metar_odb_write(output_file_path)
+    else if (writer_type == 'littler') then
+      call metar_littler_write(output_file_path)
+    end if
   case ('amdar_bufr')
     call amdar_bufr_read(input_file_path)
-    call amdar_odb_write(output_file_path)
+    if (writer_type == 'odb') then
+      call amdar_odb_write(output_file_path)
+    else if (writer_type == 'littler') then
+      call amdar_littler_write(output_file_path)
+    end if
   case ('amdar_prepbufr')
     call amdar_prepbufr_read(input_file_path)
     if (writer_type == 'odb') then
@@ -51,7 +62,9 @@ program data_translate
     end if
   case ('raob_prepbufr')
     call raob_prepbufr_read(input_file_path)
-    if (writer_type == 'littler') then
+    if (writer_type == 'odb') then
+      call raob_odb_write(output_file_path)
+    else if (writer_type == 'littler') then
       call raob_littler_write(output_file_path)
     end if
   case ('profiler_prepbufr')
@@ -63,11 +76,15 @@ program data_translate
     call ship_cimiss_txt_read(input_file_path)
     if (writer_type == 'odb') then
       call ship_odb_write(output_file_path)
+    else if (writer_type == 'littler') then
+      call ship_littler_write(output_file_path)
     end if
   case ('ship_prepbufr')
     call ship_prepbufr_read(input_file_path)
     if (writer_type == 'odb') then
       call ship_odb_write(output_file_path)
+    else if (writer_type == 'littler') then
+      call ship_littler_write(output_file_path)
     end if
   case default
     write(*, *) '[Error]: Unknown reader type!'

@@ -33,7 +33,6 @@ contains
     real(8) obs(max_num_var,max_num_lev,max_num_event)
     real(8) qc(max_num_var,max_num_lev,max_num_event)
     real(8) pc(max_num_var,max_num_lev,max_num_event)
-    real u, v
     type(datetime_type) base_time, time
     logical new_record
     type(metar_station_type), pointer :: station
@@ -94,6 +93,7 @@ contains
           allocate(record)
           record%station => station
           record%time = time
+          record%type = int(hdr(5))
           new_record = .true.
         end if
 
@@ -119,10 +119,10 @@ contains
           call prepbufr_raw(obs(4,1,:), record%sfc_dewpoint)
         end if
         if (record%sfc_wind_speed  == real_missing_value) then
-          call prepbufr_raw(obs(5,1,:), u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
-          call prepbufr_raw(obs(6,1,:), v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
-          record%sfc_wind_speed     = merge(real_missing_value, sqrt(u**2 + v**2), u == real_missing_value)
-          record%sfc_wind_direction = merge(real_missing_value, wind_direction(u, v), u == real_missing_value)
+          call prepbufr_raw(obs(5,1,:), record%sfc_wind_u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
+          call prepbufr_raw(obs(6,1,:), record%sfc_wind_v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
+          record%sfc_wind_speed     = merge(real_missing_value, sqrt(record%sfc_wind_u**2 + record%sfc_wind_v**2), record%sfc_wind_u == real_missing_value)
+          record%sfc_wind_direction = merge(real_missing_value, wind_direction(record%sfc_wind_u, record%sfc_wind_v), record%sfc_wind_u == real_missing_value)
           record%sfc_wind_u_stack(:max_num_event) = prepbufr_stack(obs(5,1,:max_num_event))
           record%sfc_wind_v_stack(:max_num_event) = prepbufr_stack(obs(6,1,:max_num_event))
           record%sfc_wind_stack_qc(:max_num_event) = prepbufr_codes(qc(5,1,:max_num_event))

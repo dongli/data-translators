@@ -21,6 +21,8 @@ module metar_mod
     real :: sfc_specific_humidity = real_missing_value ! Specific humidity (Mg/Kg)
     real :: sfc_wind_speed        = real_missing_value ! Wind speed (m/s)
     real :: sfc_wind_direction    = real_missing_value ! Wind direction (deg)
+    real :: sfc_wind_u            = real_missing_value ! U wind component (m/s)
+    real :: sfc_wind_v            = real_missing_value ! V wind component (m/s)
     real :: sfc_rain_01h          = real_missing_value ! 1h accumulated total precipitation (mm)
     real :: sfc_rain_03h          = real_missing_value ! 3h accumulated total precipitation (mm)
     real :: sfc_rain_06h          = real_missing_value ! 6h accumulated total precipitation (mm)
@@ -28,6 +30,7 @@ module metar_mod
     real :: sfc_rain_24h          = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: sfc_cloud_amount      = real_missing_value ! Cloud amount (???)
 
+    integer :: type                     = int_missing_value
     integer :: sfc_temperature_qc       = int_missing_value
     integer :: sfc_dewpoint_qc          = int_missing_value
     integer :: sfc_pressure_qc          = int_missing_value
