@@ -164,7 +164,8 @@ contains
       select type (value => records%last_value())
       type is (ship_record_type)
         record => value
-        if (record%ship%name == ship_name .and. record%time == time) then
+        if (record%ship%name == ship_name .and. record%time == time .and. &
+            record%lon == lon .and. record%lat == lat) then
           new_record = .false.
         else
           nullify(record)

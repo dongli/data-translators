@@ -38,6 +38,7 @@ contains
       'ship_sea_temperature REAL, ' // &
       'ship_dewpoint REAL, ' // &
       'ship_relative_humidity REAL, ' // &
+      'ship_specific_humidity REAL, ' // &
       'ship_wind_speed REAL, ' // &
       'ship_wind_direction REAL ' // &
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
@@ -48,9 +49,10 @@ contains
       'ship_sea_temperature, ' // &
       'ship_dewpoint, ' // &
       'ship_relative_humidity, ' // &
+      'ship_specific_humidity, ' // &
       'ship_wind_speed, ' // &
       'ship_wind_direction ' // &
-      ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
+      ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -68,8 +70,9 @@ contains
         call odbql_bind_double(odb_stmt,  8, dble(record%ship_sea_temperature))
         call odbql_bind_double(odb_stmt,  9, dble(record%ship_dewpoint))
         call odbql_bind_double(odb_stmt, 10, dble(record%ship_relative_humidity))
-        call odbql_bind_double(odb_stmt, 11, dble(record%ship_wind_speed))
-        call odbql_bind_double(odb_stmt, 12, dble(record%ship_wind_direction))
+        call odbql_bind_double(odb_stmt, 11, dble(record%ship_specific_humidity))
+        call odbql_bind_double(odb_stmt, 12, dble(record%ship_wind_speed))
+        call odbql_bind_double(odb_stmt, 13, dble(record%ship_wind_direction))
         call odbql_step(odb_stmt)
       class default
         write(*, *) '[Error]: Unknown record in the list!'

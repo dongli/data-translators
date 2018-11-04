@@ -24,6 +24,7 @@ Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/t
 - 183: ADPSFC/SFCSHP - SURFACE MARINE (SHIP, BUOY, C-MAN, TIDE GAUGE) OR LAND [SYNOPTIC (fixed and mobile), METAR] WITH MISSING STATION PRESSURE - Tv, q, Pstn, sst.
 - 187: ADPSFC - SURFACE LAND (METAR) WITH MISSING STATION PRESSURE - Tv, q, Pstn, sst.
 - 220: ADPUPA - RAWINSONDE - u, v (all levels), z (winds-by-height levels)
+- 284: ADPSFC/SFCSHP - SURFACE MARINE (SHIP, BUOY, C-MAN, TIDE GAUGE) OR LAND [SYNOPTIC (fixed and mobile), METAR] WITH MISSING STATION PRESSURE - u, v
 
 ## CAT
 
