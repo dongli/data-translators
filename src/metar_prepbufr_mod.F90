@@ -13,8 +13,8 @@ module metar_prepbufr_mod
 
   public metar_prepbufr_read
 
-  integer, parameter :: max_num_var = 35
-  integer, parameter :: max_num_lev = 250
+  integer, parameter :: max_num_var = 20
+  integer, parameter :: max_num_lev = 1
   integer, parameter :: max_num_event = 10
 
 contains
@@ -97,47 +97,47 @@ contains
           new_record = .true.
         end if
 
-        if (record%sfc_pressure == real_missing_value) then
+        if (is_missing(record%sfc_pressure)) then
           call prepbufr_raw(obs(1,1,:), record%sfc_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%sfc_pressure_qc)
           record%sfc_pressure_stack(:max_num_event) = prepbufr_stack(obs(1,1,:max_num_event))
           record%sfc_pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(1,1,:max_num_event))
           record%sfc_pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(1,1,:max_num_event))
         end if
-        if (record%sfc_temperature == real_missing_value) then
+        if (is_missing(record%sfc_temperature)) then
           call prepbufr_raw(obs(2,1,:), record%sfc_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%sfc_temperature_qc)
           record%sfc_temperature_stack(:max_num_event) = prepbufr_stack(obs(2,1,:max_num_event))
           record%sfc_temperature_stack_qc(:max_num_event) = prepbufr_codes(qc(2,1,:max_num_event))
           record%sfc_temperature_stack_pc(:max_num_event) = prepbufr_codes(pc(2,1,:max_num_event))
         end if
-        if (record%sfc_specific_humidity == real_missing_value) then
+        if (is_missing(record%sfc_specific_humidity)) then
           call prepbufr_raw(obs(3,1,:), record%sfc_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%sfc_specific_humidity_qc)
           record%sfc_specific_humidity_stack(:max_num_event) = prepbufr_stack(obs(3,1,:max_num_event))
           record%sfc_specific_humidity_stack_qc(:max_num_event) = prepbufr_codes(qc(3,1,:max_num_event))
           record%sfc_specific_humidity_stack_pc(:max_num_event) = prepbufr_codes(pc(3,1,:max_num_event))
         end if
-        if (record%sfc_dewpoint == real_missing_value) then
+        if (is_missing(record%sfc_dewpoint)) then
           call prepbufr_raw(obs(4,1,:), record%sfc_dewpoint)
         end if
-        if (record%sfc_wind_speed  == real_missing_value) then
+        if (is_missing(record%sfc_wind_speed)) then
           call prepbufr_raw(obs(5,1,:), record%sfc_wind_u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
           call prepbufr_raw(obs(6,1,:), record%sfc_wind_v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
-          record%sfc_wind_speed     = merge(real_missing_value, sqrt(record%sfc_wind_u**2 + record%sfc_wind_v**2), record%sfc_wind_u == real_missing_value)
-          record%sfc_wind_direction = merge(real_missing_value, wind_direction(record%sfc_wind_u, record%sfc_wind_v), record%sfc_wind_u == real_missing_value)
+          record%sfc_wind_speed     = merge(real_missing_value, sqrt(record%sfc_wind_u**2 + record%sfc_wind_v**2), is_missing(record%sfc_wind_u))
+          record%sfc_wind_direction = merge(real_missing_value, wind_direction(record%sfc_wind_u, record%sfc_wind_v), is_missing(record%sfc_wind_u))
           record%sfc_wind_u_stack(:max_num_event) = prepbufr_stack(obs(5,1,:max_num_event))
           record%sfc_wind_v_stack(:max_num_event) = prepbufr_stack(obs(6,1,:max_num_event))
           record%sfc_wind_stack_qc(:max_num_event) = prepbufr_codes(qc(5,1,:max_num_event))
           record%sfc_wind_stack_pc(:max_num_event) = prepbufr_codes(pc(5,1,:max_num_event))
         end if
-        if (record%sfc_rain_01h == real_missing_value) call prepbufr_raw(obs( 7,1,:), record%sfc_rain_01h)
-        if (record%sfc_rain_03h == real_missing_value) call prepbufr_raw(obs( 8,1,:), record%sfc_rain_03h)
-        if (record%sfc_rain_06h == real_missing_value) call prepbufr_raw(obs( 9,1,:), record%sfc_rain_06h)
-        if (record%sfc_rain_12h == real_missing_value) call prepbufr_raw(obs(10,1,:), record%sfc_rain_12h)
-        if (record%sfc_rain_24h == real_missing_value) call prepbufr_raw(obs(11,1,:), record%sfc_rain_24h)
+        if (is_missing(record%sfc_rain_01h)) call prepbufr_raw(obs( 7,1,:), record%sfc_rain_01h)
+        if (is_missing(record%sfc_rain_03h)) call prepbufr_raw(obs( 8,1,:), record%sfc_rain_03h)
+        if (is_missing(record%sfc_rain_06h)) call prepbufr_raw(obs( 9,1,:), record%sfc_rain_06h)
+        if (is_missing(record%sfc_rain_12h)) call prepbufr_raw(obs(10,1,:), record%sfc_rain_12h)
+        if (is_missing(record%sfc_rain_24h)) call prepbufr_raw(obs(11,1,:), record%sfc_rain_24h)
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        else
-          call debug_print(record, hdr, obs, qc, pc)
+        ! else
+        !   call debug_print(record, hdr, obs, qc, pc)
         end if
       end do
     end do

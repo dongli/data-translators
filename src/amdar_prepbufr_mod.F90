@@ -97,27 +97,31 @@ contains
         end if
 
         record%time = time
-        if (record%lon                     == real_missing_value) record%lon = hdr(2)
-        if (record%lat                     == real_missing_value) record%lat = hdr(3)
-        if (record%z                       == real_missing_value) record%z   = hdr(4)
-        if (record%amdar_pressure == real_missing_value) then
+        if (is_missing(record%lon)) record%lon = hdr(2)
+        if (is_missing(record%lat)) record%lat = hdr(3)
+        if (is_missing(record%z))   record%z   = hdr(4)
+        if (is_missing(record%amdar_pressure)) then
           call prepbufr_raw(obs(6,1,:), record%amdar_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%amdar_pressure_qc)
         end if
-        if (record%amdar_temperature == real_missing_value) then
+        if (is_missing(record%amdar_temperature)) then
           call prepbufr_raw(obs(7,1,:), record%amdar_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%amdar_temperature_qc)
         end if
-        if (record%amdar_wind_speed == real_missing_value) then
+        if (is_missing(record%amdar_wind_speed)) then
           call prepbufr_raw(obs( 9,1,:), record%amdar_wind_u, stack_qc=qc(4,1,:), stack_pc=pc(4,1,:), qc=record%amdar_wind_qc)
           call prepbufr_raw(obs(10,1,:), record%amdar_wind_v, stack_qc=qc(4,1,:), stack_pc=pc(4,1,:), qc=record%amdar_wind_qc)
-          record%amdar_wind_speed     = merge(real_missing_value, sqrt(record%amdar_wind_u**2 + record%amdar_wind_v**2), record%amdar_wind_u == real_missing_value)
-          record%amdar_wind_direction = merge(real_missing_value, wind_direction(record%amdar_wind_u, record%amdar_wind_v), record%amdar_wind_u == real_missing_value)
+          record%amdar_wind_speed     = merge(real_missing_value, sqrt(record%amdar_wind_u**2 + record%amdar_wind_v**2), is_missing(record%amdar_wind_u))
+          record%amdar_wind_direction = merge(real_missing_value, wind_direction(record%amdar_wind_u, record%amdar_wind_v), is_missing(record%amdar_wind_u))
         end if
-        if (record%amdar_dewpoint == real_missing_value) then
+        if (is_missing(record%amdar_dewpoint)) then
           call prepbufr_raw(obs(11,1,:), record%amdar_dewpoint)
         end if
-        if (record%amdar_specific_humidity == real_missing_value) then
+        if (is_missing(record%amdar_specific_humidity)) then
           call prepbufr_raw(obs(8,1,:), record%amdar_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%amdar_specific_humidity_qc)
         end if
+        if (is_missing(record%amdar_dewpoint)) then
+          record%amdar_dewpoint = dewpoint(record%amdar_pressure, record%amdar_specific_humidity)
+        end if
+        record%amdar_relative_humidity = relative_humidity(record%amdar_pressure, record%amdar_temperature, record%amdar_specific_humidity)
         if (record%amdar_turbulence_index == int_missing_value) then
           call prepbufr_raw(obs(12,1,:), record%amdar_turbulence_index)
         end if

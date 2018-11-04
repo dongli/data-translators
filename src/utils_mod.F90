@@ -152,9 +152,9 @@ contains
 
   real function relative_humidity(p, T, sh) result(rh) ! %
 
-    real, intent(in) :: p
-    real, intent(in) :: T
-    real, intent(in) :: sh
+    real, intent(in) :: p  ! Pa
+    real, intent(in) :: T  ! degC
+    real, intent(in) :: sh ! Mg/Kg
 
     if (is_missing(p) .or. is_missing(T) .or. is_missing(sh)) then
       rh = real_missing_value
@@ -166,7 +166,7 @@ contains
 
   real function saturated_vapor_pressure(T) result(esv)
 
-    real, intent(in) :: T
+    real, intent(in) :: T ! degC
 
     real, parameter :: T0 = triple_point
     real, parameter :: e0 = 611.0 ! Saturation vapor pressure at T0 (triple_point) (Pa)

@@ -20,7 +20,7 @@ contains
     character(*), intent(inout) :: file_path
 
     type(linked_list_iterator_type) record_iterator
-    real T, Td, RH
+    real T, Td
     integer i
 
     if (file_path == '') file_path = 'ship.littler'
@@ -32,9 +32,8 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (ship_record_type)
-        T = add(record%ship_temperature, freezing_point)
-        Td = real_missing_value
-        RH = real_missing_value
+        T  = add(record%ship_air_temperature, freezing_point)
+        Td = add(record%ship_dewpoint, freezing_point)
         ! Header
         write(10, '(F20.5)', advance='no') record%lat                         ! latitude
         write(10, '(F20.5)', advance='no') record%lon                         ! longitude
@@ -83,7 +82,7 @@ contains
         write(10, *)
         write(10, '(F13.5)', advance='no') record%ship_pressure               ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                  ! pressure QC
-        write(10, '(F13.5)', advance='no') 0                                  ! height
+        write(10, '(F13.5)', advance='no') 0.0                                ! height
         write(10, '(I7)',    advance='no') 0                                  ! height QC
         write(10, '(F13.5)', advance='no') T                                  ! temperature (K)
         write(10, '(I7)',    advance='no') 0                                  ! temperature QC
@@ -97,7 +96,7 @@ contains
         write(10, '(I7)',    advance='no') 0                                  ! wind u component QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! wind v component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                  ! wind v component QC
-        write(10, '(F13.5)', advance='no') RH                                 ! relative humidity (%)
+        write(10, '(F13.5)', advance='no') record%ship_relative_humidity      ! relative humidity (%)
         write(10, '(I7)',    advance='no') 0                                  ! relative humidity QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler      ! thickness (m)
         write(10, '(I7)',    advance='no') 0                                  ! thickness QC

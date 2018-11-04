@@ -40,7 +40,7 @@ contains
         write(10, '(F20.5)', advance='no') record%station%lon                 ! longitude
         write(10, '(A40)',   advance='no') record%station%name                ! id
         write(10, '(A40)',   advance='no') record%station%name                ! name
-        write(10, '(A40)',   advance='no') 'FM-12'                            ! platform
+        write(10, '(A40)',   advance='no') 'FM-15'                            ! platform
         write(10, '(A40)',   advance='no') 'N/A'                              ! source
         write(10, '(F20.5)', advance='no') record%station%z                   ! elevation
         write(10, '(I10)',   advance='no') 1                                  ! num_vld_fld

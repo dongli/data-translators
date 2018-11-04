@@ -102,25 +102,28 @@ contains
           new_record = .true.
         end if
 
-        if (record%ship_pressure == real_missing_value) then
+        if (is_missing(record%ship_pressure)) then
           call prepbufr_raw(obs(1,1,:), record%ship_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%ship_pressure_qc)
         end if
-        if (record%ship_air_temperature == real_missing_value) then
+        if (is_missing(record%ship_air_temperature)) then
           call prepbufr_raw(obs(2,1,:), record%ship_air_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%ship_air_temperature_qc)
         end if
-        if (record%ship_specific_humidity == real_missing_value) then
+        if (is_missing(record%ship_specific_humidity)) then
           call prepbufr_raw(obs(3,1,:), record%ship_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%ship_specific_humidity_qc)
         end if
-        if (record%ship_dewpoint == real_missing_value) then
+        if (is_missing(record%ship_dewpoint)) then
           call prepbufr_raw(obs(4,1,:), record%ship_dewpoint)
         end if
-        if (record%ship_wind_speed  == real_missing_value) then
+        if (is_missing(record%ship_dewpoint)) then
+          record%ship_dewpoint = dewpoint(record%ship_pressure, record%ship_specific_humidity)
+        end if
+        if (is_missing(record%ship_wind_speed)) then
           call prepbufr_raw(obs(5,1,:), record%ship_wind_u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%ship_wind_qc)
           call prepbufr_raw(obs(6,1,:), record%ship_wind_v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%ship_wind_qc)
-          record%ship_wind_speed     = merge(real_missing_value, sqrt(record%ship_wind_u**2 + record%ship_wind_v**2), record%ship_wind_u == real_missing_value)
-          record%ship_wind_direction = merge(real_missing_value, wind_direction(record%ship_wind_u, record%ship_wind_v), record%ship_wind_u == real_missing_value)
+          record%ship_wind_speed     = merge(real_missing_value, sqrt(record%ship_wind_u**2 + record%ship_wind_v**2), is_missing(record%ship_wind_u))
+          record%ship_wind_direction = merge(real_missing_value, wind_direction(record%ship_wind_u, record%ship_wind_v), is_missing(record%ship_wind_u))
         end if
-        if (record%ship_sea_temperature == real_missing_value) then
+        if (is_missing(record%ship_sea_temperature)) then
           call prepbufr_raw(obs(7,1,:), record%ship_sea_temperature, stack_qc=qc(7,1,:), stack_pc=pc(7,1,:), qc=record%ship_sea_temperature_qc)
         end if
 
