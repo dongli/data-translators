@@ -51,34 +51,34 @@ contains
         write(10, '(L10)',   advance='no') .false.                                            ! is_sound
         write(10, '(L10)',   advance='no') .false.                                            ! bogus
         write(10, '(L10)',   advance='no') .false.                                            ! discard
-        write(10, '(I10)',   advance='no') int(record%time%timestamp())                       ! obs_time
-        write(10, '(I10)',   advance='no') record%time%days_in_year()                         ! julian_day
-        write(10, '(A20)',   advance='no') pad_string(record%time%format('%Y%m%d%H%M%S'), 20) ! date_char
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! slp
+        write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! obs_time
+        write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! julian_day
+        write(10, '(A20)',   advance='no') adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20)) ! date_char
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! slp
         write(10, '(I7)',    advance='no') 0                                                  ! slp QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! ref_pres
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ref_pres
         write(10, '(I7)',    advance='no') 0                                                  ! ref_pres QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! ground_t
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ground_t
         write(10, '(I7)',    advance='no') 0                                                  ! ground_t QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! SST
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! SST
         write(10, '(I7)',    advance='no') 0                                                  ! SST QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! psfc
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! psfc
         write(10, '(I7)',    advance='no') 0                                                  ! psfc QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! precip
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! precip
         write(10, '(I7)',    advance='no') 0                                                  ! precip QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! t_max
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! t_max
         write(10, '(I7)',    advance='no') 0                                                  ! t_max QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! t_min
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! t_min
         write(10, '(I7)',    advance='no') 0                                                  ! t_min QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! t_max night
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! t_max night
         write(10, '(I7)',    advance='no') 0                                                  ! t_max night QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! p_tend03
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! p_tend03
         write(10, '(I7)',    advance='no') 0                                                  ! p_tend03 QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! p_tend24
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! p_tend24
         write(10, '(I7)',    advance='no') 0                                                  ! p_tend24 QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! clound_cover
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! clound_cover
         write(10, '(I7)',    advance='no') 0                                                  ! clound_cover QC
-        write(10, '(F13.5)', advance='no') real_missing_value                                 ! ceiling
+        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ceiling
         write(10, '(I7)',    advance='no') 0                                                  ! celing QC
         write(10, *)
         write(10, '(F13.5)', advance='no') record%amdar_pressure                              ! pressure (Pa)
@@ -125,9 +125,9 @@ contains
         write(10, *)
       end select
       call record_iterator%next()
+      write(10, '(3I7)') 1, 0, 0
       i = i + 1
     end do
-    write(10, '(3I7)') i, 0, 0
 
     close(10)
 

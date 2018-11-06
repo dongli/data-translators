@@ -104,6 +104,8 @@ contains
 
         if (is_missing(record%ship_pressure)) then
           call prepbufr_raw(obs(1,1,:), record%ship_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%ship_pressure_qc)
+          ! Convert pressure from hPa to Pa.
+          record%ship_pressure = multiply(record%ship_pressure, 100.0)
         end if
         if (is_missing(record%ship_air_temperature)) then
           call prepbufr_raw(obs(2,1,:), record%ship_air_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%ship_air_temperature_qc)

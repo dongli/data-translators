@@ -16,5 +16,6 @@ module params_mod
   real, parameter :: real_missing_value = 99999.0e0
   real(8), parameter :: missing_value_in_prepbufr = 99999997952.000000
   real, parameter :: real_missing_value_in_littler = -888888.0
+  integer, parameter :: int_missing_value_in_littler = -888888
 
 end module params_mod

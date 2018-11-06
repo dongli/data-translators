@@ -11,6 +11,11 @@ module utils_mod
     module procedure is_missing_r8
   end interface is_missing
 
+  interface multiply
+    module procedure multiply_scalar
+    module procedure multiply_array
+  end interface multiply
+
   interface resize_array
     module procedure resize_real4_array
   end interface resize_array
@@ -38,6 +43,63 @@ contains
     end if
 
   end function add
+
+  real function subtract(a, b) result(res)
+
+    real, intent(in) :: a
+    real, intent(in) :: b
+
+    if (is_missing(a) .or. is_missing(b)) then
+      res = real_missing_value
+    else
+      res = a - b
+    end if
+
+  end function subtract
+
+  real function multiply_scalar(a, b) result(res)
+
+    real, intent(in) :: a
+    real, intent(in) :: b
+
+    if (is_missing(a) .or. is_missing(b)) then
+      res = real_missing_value
+    else
+      res = a * b
+    end if
+
+  end function multiply_scalar
+
+  function multiply_array(a, b) result(res)
+
+    real, intent(in) :: a(:)
+    real, intent(in) :: b
+    real res(size(a))
+
+    integer i
+
+    do i = 1, size(a)
+      if (is_missing(a(i)) .or. is_missing(b)) then
+        res(i) = real_missing_value
+      else
+        res(i) = a(i) * b
+      end if
+    end do
+
+  end function multiply_array
+
+  real function divide(a, b) result(res)
+
+    real, intent(in) :: a
+    real, intent(in) :: b
+
+    if (is_missing(a) .or. is_missing(b)) then
+      res = real_missing_value
+    else
+      res = a / b
+    end if
+
+  end function divide
 
   logical function is_missing_i4(x) result(res)
 
@@ -313,7 +375,7 @@ contains
   function prepbufr_stack(stack) result(res)
 
     real(8), intent(in) :: stack(:)
-    real(8) res(size(stack))
+    real res(size(stack))
 
     integer i
 

@@ -102,6 +102,8 @@ contains
         if (is_missing(record%z))   record%z   = hdr(4)
         if (is_missing(record%amdar_pressure)) then
           call prepbufr_raw(obs(6,1,:), record%amdar_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%amdar_pressure_qc)
+          ! Convert pressure from hPa to Pa.
+          record%amdar_pressure = multiply(record%amdar_pressure, 100.0)
         end if
         if (is_missing(record%amdar_temperature)) then
           call prepbufr_raw(obs(7,1,:), record%amdar_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%amdar_temperature_qc)

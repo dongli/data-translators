@@ -99,7 +99,8 @@ contains
 
         if (is_missing(record%sfc_pressure)) then
           call prepbufr_raw(obs(1,1,:), record%sfc_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%sfc_pressure_qc)
-          record%sfc_pressure_stack(:max_num_event) = prepbufr_stack(obs(1,1,:max_num_event))
+          record%sfc_pressure = multiply(record%sfc_pressure, 100.0)
+          record%sfc_pressure_stack(:max_num_event) = multiply(prepbufr_stack(obs(1,1,:max_num_event)), 100.0)
           record%sfc_pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(1,1,:max_num_event))
           record%sfc_pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(1,1,:max_num_event))
         end if
