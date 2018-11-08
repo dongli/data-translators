@@ -137,6 +137,10 @@ contains
     end do
     call closbf(10)
 
+    if (records%size == 0) then
+      write(*, *) '[Warning]: There is no SHIP data!'
+    end if
+
   end subroutine ship_prepbufr_read
 
   subroutine debug_print(record, hdr, obs, qc, pc)

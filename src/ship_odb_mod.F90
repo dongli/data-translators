@@ -27,6 +27,11 @@ contains
     character(30) str
     type(linked_list_iterator_type) record_iterator
 
+    if (records%size == 0) then
+      file_path = ''
+      return
+    end if
+
     if (file_path == '') file_path = 'ship.odb'
 
     ! Write ODB file.
