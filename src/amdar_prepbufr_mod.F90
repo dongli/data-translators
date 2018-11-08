@@ -98,6 +98,7 @@ contains
 
         record%time = time
         if (is_missing(record%lon)) record%lon = hdr(2)
+        if (.not. is_missing(record%lon) .and. record%lon > 180) record%lon = record%lon - 360
         if (is_missing(record%lat)) record%lat = hdr(3)
         if (is_missing(record%z))   record%z   = hdr(4)
         if (is_missing(record%amdar_pressure)) then
