@@ -86,9 +86,6 @@ module raob_mod
     procedure :: init => raob_read_record_init
   end type raob_read_record_type
 
-  type(hash_table_type) stations
-  type(linked_list_type) records
-
 contains
 
   subroutine raob_read_record_init(this)

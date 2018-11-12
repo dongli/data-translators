@@ -14,9 +14,11 @@ module ship_odb_mod
 contains
 
 
-  subroutine ship_odb_write(file_path)
+  subroutine ship_odb_write(file_path, ships, records)
 
     character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(inout) :: ships
+    type(linked_list_type), intent(inout) :: records
 
     ! ODB variables
     type(odbql) odb_db

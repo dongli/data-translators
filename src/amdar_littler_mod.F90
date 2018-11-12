@@ -16,9 +16,11 @@ module amdar_littler_mod
 
 contains
 
-  subroutine amdar_littler_write(file_path)
+  subroutine amdar_littler_write(file_path, flights, records)
 
     character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(inout) :: flights
+    type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
     real T, Td

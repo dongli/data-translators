@@ -11,9 +11,11 @@ module metar_odb_mod
 
 contains
 
-  subroutine metar_odb_write(file_path)
+  subroutine metar_odb_write(file_path, stations, records)
 
     character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(inout) :: stations
+    type(linked_list_type), intent(inout) :: records
 
     ! ODB variables
     type(odbql) odb_db

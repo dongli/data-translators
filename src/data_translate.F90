@@ -1,5 +1,7 @@
 program data_translate
 
+  use linked_list_mod
+  use hash_table_mod
   use synop_prepbufr_mod
   use synop_odb_mod
   use synop_littler_mod
@@ -27,64 +29,67 @@ program data_translate
   character(256) output_file_path
   character(50) writer_type
 
+  type(hash_table_type) sites
+  type(linked_list_type) records
+
   input_file_path = cli_get_input_file_path()
   output_file_path = cli_get_output_file_path()
   writer_type = cli_get_writer_type()
 
   select case (cli_get_reader_type())
   case ('synop_prepbufr')
-    call synop_prepbufr_read(input_file_path)
+    call synop_prepbufr_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call synop_odb_write(output_file_path)
+      call synop_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call synop_littler_write(output_file_path)
+      call synop_littler_write(output_file_path, sites, records)
     end if
   case ('metar_prepbufr')
-    call metar_prepbufr_read(input_file_path)
+    call metar_prepbufr_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call metar_odb_write(output_file_path)
+      call metar_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call metar_littler_write(output_file_path)
+      call metar_littler_write(output_file_path, sites, records)
     end if
   case ('amdar_bufr')
-    call amdar_bufr_read(input_file_path)
+    call amdar_bufr_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call amdar_odb_write(output_file_path)
+      call amdar_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call amdar_littler_write(output_file_path)
+      call amdar_littler_write(output_file_path, sites, records)
     end if
   case ('amdar_prepbufr')
-    call amdar_prepbufr_read(input_file_path)
+    call amdar_prepbufr_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call amdar_odb_write(output_file_path)
+      call amdar_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call amdar_littler_write(output_file_path)
+      call amdar_littler_write(output_file_path, sites, records)
     end if
   case ('raob_prepbufr')
-    call raob_prepbufr_read(input_file_path)
+    call raob_prepbufr_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call raob_odb_write(output_file_path)
+      call raob_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call raob_littler_write(output_file_path)
+      call raob_littler_write(output_file_path, sites, records)
     end if
   case ('profiler_prepbufr')
-    call profiler_prepbufr_read(input_file_path)
+    call profiler_prepbufr_read(input_file_path, sites, records)
     if (writer_type == 'littler') then
-      call profiler_littler_write(output_file_path)
+      call profiler_littler_write(output_file_path, sites, records)
     end if
   case ('ship_cimiss_txt')
-    call ship_cimiss_txt_read(input_file_path)
+    call ship_cimiss_txt_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call ship_odb_write(output_file_path)
+      call ship_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call ship_littler_write(output_file_path)
+      call ship_littler_write(output_file_path, sites, records)
     end if
   case ('ship_prepbufr')
-    call ship_prepbufr_read(input_file_path)
+    call ship_prepbufr_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
-      call ship_odb_write(output_file_path)
+      call ship_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
-      call ship_littler_write(output_file_path)
+      call ship_littler_write(output_file_path, sites, records)
     end if
   case default
     write(*, *) '[Error]: Unknown reader type!'

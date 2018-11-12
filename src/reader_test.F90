@@ -11,13 +11,15 @@ program reader_test
 
   implicit none
 
+  type(hash_table_type) sites
+  type(linked_list_type) records
   type(linked_list_iterator_type) record_iterator
 
   call test_case_init()
 
   call test_case_create('Test SYNOP reader')
 
-  call synop_prepbufr_read('../sample-data/gdas-prepbufr/prepqc.gdas.2015120100')
+  call synop_prepbufr_read('../sample-data/gdas-prepbufr/prepqc.gdas.2015120100', sites, records)
 
   record_iterator = linked_list_iterator(records)
   do while (.not. record_iterator%ended())

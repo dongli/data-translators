@@ -16,9 +16,11 @@ module synop_littler_mod
 
 contains
 
-  subroutine synop_littler_write(file_path)
+  subroutine synop_littler_write(file_path, stations, records)
 
     character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(inout) :: stations
+    type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
     real slp, T, Td

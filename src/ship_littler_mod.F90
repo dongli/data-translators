@@ -16,9 +16,11 @@ module ship_littler_mod
 
 contains
 
-  subroutine ship_littler_write(file_path)
+  subroutine ship_littler_write(file_path, ships, records)
 
     character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(inout) :: ships
+    type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
     real T, Td

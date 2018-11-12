@@ -14,9 +14,11 @@ module amdar_odb_mod
 contains
 
 
-  subroutine amdar_odb_write(file_path)
+  subroutine amdar_odb_write(file_path, flights, records)
 
     character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(inout) :: flights
+    type(linked_list_type), intent(inout) :: records
 
     ! ODB variables
     type(odbql) odb_db
@@ -36,10 +38,10 @@ contains
       'flight_number STRING, ' // &                 !  2
       'lon REAL, ' // &                             !  3
       'lat REAL, ' // &                             !  4
-      'z REAL, ' // &                               !  5
-      'date STRING, ' // &                          !  6
-      'time STRING, ' // &                          !  7
-      'pressure REAL, ' // &                        !  8
+      'date STRING, ' // &                          !  5
+      'time STRING, ' // &                          !  6
+      'pressure REAL, ' // &                        !  7
+      'height REAL, ' // &                          !  8
       'temperature REAL, ' // &                     !  9
       'wind_u REAL, ' // &                          ! 10
       'wind_v REAL, ' // &                          ! 11
@@ -51,10 +53,10 @@ contains
       'flight_number, ' // &                        !  2
       'lon, ' // &                                  !  3
       'lat, ' // &                                  !  4
-      'z, ' // &                                    !  5
-      'date, ' // &                                 !  6
-      'time, ' // &                                 !  7
-      'pressure, ' // &                             !  8
+      'date, ' // &                                 !  5
+      'time, ' // &                                 !  6
+      'pressure, ' // &                             !  7
+      'height, ' // &                               !  8
       'temperature, ' // &                          !  9
       'wind_u, ' // &                               ! 10
       'wind_v, ' // &                               ! 11
@@ -70,12 +72,12 @@ contains
         call odbql_bind_text  (odb_stmt,  2, record%flight%number, len_trim(record%flight%number))
         call odbql_bind_double(odb_stmt,  3, dble(record%lon))
         call odbql_bind_double(odb_stmt,  4, dble(record%lat))
-        call odbql_bind_double(odb_stmt,  5, dble(record%z))
         str = record%time%format('%Y%m%d')
-        call odbql_bind_text  (odb_stmt,  6, trim(str), len_trim(str))
+        call odbql_bind_text  (odb_stmt,  5, trim(str), len_trim(str))
         str = record%time%format('%H%M%S')
-        call odbql_bind_text  (odb_stmt,  7, trim(str), len_trim(str))
-        call odbql_bind_double(odb_stmt,  8, dble(record%amdar_pressure))
+        call odbql_bind_text  (odb_stmt,  6, trim(str), len_trim(str))
+        call odbql_bind_double(odb_stmt,  7, dble(record%amdar_pressure))
+        call odbql_bind_double(odb_stmt,  8, dble(record%amdar_height))
         call odbql_bind_double(odb_stmt,  9, dble(record%amdar_temperature))
         call odbql_bind_double(odb_stmt, 10, dble(record%amdar_wind_u))
         call odbql_bind_double(odb_stmt, 11, dble(record%amdar_wind_v))

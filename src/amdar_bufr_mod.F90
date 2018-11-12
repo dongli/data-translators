@@ -18,9 +18,11 @@ module amdar_bufr_mod
 
 contains
 
-  subroutine amdar_bufr_read(file_path)
+  subroutine amdar_bufr_read(file_path, flights, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: flights
+    type(linked_list_type), intent(inout) :: records
 
     integer file_id, bufr_id, ret, subset_id
     integer(4) num_subset

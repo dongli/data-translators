@@ -21,9 +21,11 @@ contains
 
   ! Report types include: 181, 183, 281, 284
 
-  subroutine metar_prepbufr_read(file_path)
+  subroutine metar_prepbufr_read(file_path, stations, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: stations
+    type(linked_list_type), intent(inout) :: records
 
     character(8) subset, station_name
     integer idate, iret, i

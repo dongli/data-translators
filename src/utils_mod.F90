@@ -2,6 +2,7 @@ module utils_mod
 
   use params_mod
   use eccodes
+  use string_mod
 
   implicit none
 

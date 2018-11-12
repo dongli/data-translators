@@ -33,9 +33,6 @@ module profiler_mod
     procedure :: init => profiler_read_record_init
   end type profiler_read_record_type
 
-  type(hash_table_type) stations
-  type(linked_list_type) records
-
 contains
 
   subroutine profiler_read_record_init(this)

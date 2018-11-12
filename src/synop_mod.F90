@@ -56,7 +56,4 @@ module synop_mod
     integer :: sfc_wind_stack_pc(max_stack) = int_missing_value
   end type synop_record_type
 
-  type(hash_table_type) stations
-  type(linked_list_type) records
-
 end module synop_mod

@@ -20,9 +20,11 @@ module profiler_prepbufr_mod
 
 contains
 
-  subroutine profiler_prepbufr_read(file_path)
+  subroutine profiler_prepbufr_read(file_path, stations, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: stations
+    type(linked_list_type), intent(inout) :: records
 
     character(8) subset, station_name
     integer idate, iret, i
@@ -67,7 +69,7 @@ contains
         station_name = transfer(hdr(1), station_name)
         ! Filter out non-profiler observations.
         if (hdr(5) /= 227 .and. hdr(5) /= 229) cycle
-        time = time + timedelta(hours=int(hdr(6)))
+        time = time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (profiler_station_type)

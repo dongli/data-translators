@@ -16,9 +16,11 @@ module ship_cimiss_txt_mod
 
 contains
 
-  subroutine ship_cimiss_txt_read(file_path)
+  subroutine ship_cimiss_txt_read(file_path, ships, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: ships
+    type(linked_list_type), intent(inout) :: records
 
     character(1024) line
     integer i, j, iostat

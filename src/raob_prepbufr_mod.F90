@@ -20,9 +20,11 @@ module raob_prepbufr_mod
 
 contains
 
-  subroutine raob_prepbufr_read(file_path)
+  subroutine raob_prepbufr_read(file_path, stations, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: stations
+    type(linked_list_type), intent(inout) :: records
 
     character(8) subset, station_name
     integer idate, iret, i
@@ -67,7 +69,7 @@ contains
         station_name = transfer(hdr(1), station_name)
         ! Filter out non-RAOB observations.
         if (.not. (hdr(5) == 120 .or. hdr(5) == 220) .or. len_trim(station_name) /= 5) cycle
-        time = base_time + timedelta(hours=int(hdr(6)))
+        time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (raob_station_type)

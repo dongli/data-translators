@@ -22,9 +22,11 @@ contains
   ! Report types include: 180, 280, 282
   ! FIXME: Does 182 include SFCSHP?
 
-  subroutine ship_prepbufr_read(file_path)
+  subroutine ship_prepbufr_read(file_path, ships, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: ships
+    type(linked_list_type), intent(inout) :: records
 
     character(8) subset, ship_name
     integer idate, iret, i

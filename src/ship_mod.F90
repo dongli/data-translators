@@ -32,7 +32,4 @@ module ship_mod
     integer :: ship_wind_qc              = int_missing_value
   end type ship_record_type
 
-  type(hash_table_type)  ships
-  type(linked_list_type) records
-
 end module ship_mod

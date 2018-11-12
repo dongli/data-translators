@@ -51,7 +51,7 @@ endif ()
 
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/.mods")
 
-add_library(data-translators
+add_library(data_translators
   src/obs_base_mod.F90
   src/amdar_mod.F90
   src/amdar_bufr_mod.F90
@@ -84,13 +84,16 @@ add_library(data-translators
   src/params_mod.F90
   src/utils_mod.F90
 )
-target_link_libraries(data-translators fortran_datetime fortran_container fortran_regex eccodes_f90 bufr Odb_fortran)
+target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex eccodes_f90 bufr Odb_fortran)
 
-add_executable(data-translate.exe src/data_translate.F90)
-target_link_libraries(data-translate.exe data-translators)
+add_executable(data_translate.exe src/data_translate.F90)
+target_link_libraries(data_translate.exe data_translators)
 
-add_executable(reader-test.exe src/reader_test.F90)
-target_link_libraries(reader-test.exe data-translators fortran_unit_test)
+add_executable(data_compare.exe src/data_compare.F90 src/amdar_compare_mod.F90)
+target_link_libraries(data_compare.exe data_translators)
 
-add_executable(utils-test.exe src/utils_test.F90)
-target_link_libraries(utils-test.exe data-translators fortran_unit_test)
+add_executable(reader_test.exe src/reader_test.F90)
+target_link_libraries(reader_test.exe data_translators fortran_unit_test)
+
+add_executable(utils_test.exe src/utils_test.F90)
+target_link_libraries(utils_test.exe data_translators fortran_unit_test)

@@ -17,9 +17,11 @@ module synop_cimiss_mod
 
 contains
 
-  subroutine synop_cimiss_read(file_path)
+  subroutine synop_cimiss_read(file_path, stations, records)
 
     character(*), intent(in) :: file_path
+    type(hash_table_type), intent(inout) :: stations
+    type(linked_list_type), intent(inout) :: records
 
     integer i
     character(1024) line
