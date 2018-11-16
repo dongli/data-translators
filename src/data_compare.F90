@@ -28,12 +28,14 @@ program data_translate
 
   character(256) first_file_path
   character(256) second_file_path
+  character(256) output_file_path
 
   type(hash_table_type) sites1, sites2
   type(linked_list_type) records1, records2
 
   first_file_path = cli_get_first_file_path()
   second_file_path = cli_get_second_file_path()
+  output_file_path = cli_get_output_file_path()
 
   select case (cli_get_reader_type())
   case ('synop_prepbufr')
@@ -45,7 +47,7 @@ program data_translate
   case ('amdar_prepbufr')
     call amdar_prepbufr_read(first_file_path, sites1, records1)
     call amdar_prepbufr_read(second_file_path, sites2, records2)
-    call amdar_compare_run(sites1, records1, sites2, records2)
+    call amdar_compare_run(sites1, records1, sites2, records2, output_file_path)
   case ('raob_prepbufr')
     call raob_prepbufr_read(first_file_path, sites1, records1)
   case ('profiler_prepbufr')

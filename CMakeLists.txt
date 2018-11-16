@@ -49,6 +49,16 @@ else ()
   message(FATAL_ERROR "You should set ODB_API_ROOT where ODB-API is installed!")
 endif ()
 
+if (DEFINED ENV{NETCDF} AND (NOT DEFINED ENV{NETCDF_ROOT}))
+  set(ENV{NETCDF_ROOT} $ENV{NETCDF})
+endif ()
+if (DEFINED ENV{NETCDF_ROOT})
+  include_directories("$ENV{NETCDF_ROOT}/include")
+  link_directories("$ENV{NETCDF_ROOT}/lib")
+else ()
+  message(FATAL_ERROR "You should set ODB_API_ROOT where ODB-API is installed!")
+endif ()
+
 set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/.mods")
 
 add_library(data_translators
@@ -84,7 +94,7 @@ add_library(data_translators
   src/params_mod.F90
   src/utils_mod.F90
 )
-target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex eccodes_f90 bufr Odb_fortran)
+target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex eccodes_f90 bufr Odb_fortran netcdff)
 
 add_executable(data_translate.exe src/data_translate.F90)
 target_link_libraries(data_translate.exe data_translators)
