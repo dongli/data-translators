@@ -46,6 +46,7 @@ contains
     stations = hash_table(chunk_size=50000, max_load_factor=0.9)
     call records%clear()
 
+    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -54,7 +55,7 @@ contains
       if (subset /= 'ADPSFC') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
-      write(*, "('=> ', I5.5, X, A8)") msg_count, subset
+      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -64,7 +65,7 @@ contains
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM NUL')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC NUL')
         station_name = transfer(hdr(1), station_name)
-        if (.not. (hdr(5) == 181 .or. hdr(5) == 183 .or. hdr(5) == 281 .or. hdr(5) == 284) .or. len_trim(station_name) == 4) cycle
+        if (.not. (hdr(5) == 187 .or. hdr(5) == 287) .or. len_trim(station_name) == 4) cycle
         time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
@@ -145,6 +146,8 @@ contains
       end do
     end do
     call closbf(10)
+
+    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine metar_prepbufr_read
 
