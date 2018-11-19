@@ -36,6 +36,7 @@ contains
     real(8) qc(max_num_var,max_num_lev,max_num_event)
     real(8) pc(max_num_var,max_num_lev,max_num_event)
     type(datetime_type) base_time, time
+    real lon, lat, z
     logical new_record
     type(synop_station_type), pointer :: station
     type(synop_record_type), pointer :: record
@@ -46,6 +47,7 @@ contains
     stations = hash_table(chunk_size=50000, max_load_factor=0.9)
     call records%clear()
 
+    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -54,7 +56,7 @@ contains
       if (subset /= 'ADPSFC') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
-      write(*, "('=> ', I5.5, X, A8)") msg_count, subset
+      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -73,11 +75,11 @@ contains
           end select
         else
           allocate(station)
-          station%name = station_name
-          station%lon = hdr(2)
-          if (station%lon > 180) station%lon = station%lon - 360
-          station%lat = hdr(3)
-          station%z = hdr(4)
+          lon = hdr(2)
+          if (.not. is_missing(lon) .and. lon > 180) lon = lon - 360
+          lat = hdr(3)
+          z = hdr(4)
+          call station%init(station_name, lon, lat, z)
           call stations%insert(station_name, station)
         end if
         nullify(record)
@@ -93,6 +95,7 @@ contains
         end select
         if (.not. associated(record)) then
           allocate(record)
+          record%seq_id = records%size
           record%station => station
           record%time = time
           record%type = int(hdr(5))
@@ -140,12 +143,15 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        ! else
+        ! else if (station_name == '94677') then
         !   call debug_print(record, hdr, obs, qc, pc)
         end if
+        call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
     end do
     call closbf(10)
+
+    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine synop_prepbufr_read
 

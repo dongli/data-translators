@@ -8,6 +8,10 @@ module synop_mod
   implicit none
 
   type, extends(obs_station_type) :: synop_station_type
+    type(linked_list_type), pointer :: records => null()
+  contains
+    procedure :: init => synop_station_init
+    final :: synop_station_final
   end type synop_station_type
 
   integer, parameter :: max_stack = 255
@@ -55,5 +59,31 @@ module synop_mod
     integer :: sfc_wind_stack_qc(max_stack) = int_missing_value
     integer :: sfc_wind_stack_pc(max_stack) = int_missing_value
   end type synop_record_type
+
+contains
+
+  subroutine synop_station_init(this, name, lon, lat, z)
+
+    class(synop_station_type), intent(inout) :: this
+    character(*), intent(in) :: name
+    real, intent(in) :: lon
+    real, intent(in) :: lat
+    real, intent(in) :: z
+
+    this%name = name
+    this%lon = lon
+    this%lat = lat
+    this%z = z
+    if (.not. associated(this%records)) allocate(this%records)
+
+  end subroutine synop_station_init
+
+  subroutine synop_station_final(this)
+
+    type(synop_station_type), intent(inout) :: this
+
+    if (associated(this%records)) deallocate(this%records)
+
+  end subroutine synop_station_final
 
 end module synop_mod

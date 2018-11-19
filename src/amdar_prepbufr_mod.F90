@@ -157,7 +157,7 @@ contains
     end do
     call closbf(10)
 
-    write(*, *) '[Notice]: Flight number is ' // trim(to_string(flights%size)) // ', record number is ' // trim(to_string(records%size)) // '.'
+    write(*, *) '[Notice]: Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine amdar_prepbufr_read
 
