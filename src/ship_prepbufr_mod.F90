@@ -17,6 +17,14 @@ module ship_prepbufr_mod
   integer, parameter :: max_num_lev = 1
   integer, parameter :: max_num_event = 10
 
+  integer, parameter :: p_idx    =  1
+  integer, parameter :: T_idx    =  2
+  integer, parameter :: Q_idx    =  3
+  integer, parameter :: Td_idx   =  4
+  integer, parameter :: u_idx    =  5
+  integer, parameter :: v_idx    =  6
+  integer, parameter :: SST_idx  =  7
+
 contains
 
   ! Report types include: 180, 280, 282
@@ -48,6 +56,7 @@ contains
     ships = hash_table(chunk_size=50000, max_load_factor=0.9)
     call records%clear()
 
+    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -56,7 +65,7 @@ contains
       if (subset /= 'SFCSHP') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
-      write(*, "('=> ', I5.5, X, A8)") msg_count, subset
+      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -105,42 +114,45 @@ contains
         end if
 
         if (is_missing(record%ship_pressure)) then
-          call prepbufr_raw(obs(1,1,:), record%ship_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%ship_pressure_qc)
+          call prepbufr_raw(obs(p_idx,1,:), record%ship_pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%ship_pressure_qc)
           ! Convert pressure from hPa to Pa.
           record%ship_pressure = multiply(record%ship_pressure, 100.0)
         end if
         if (is_missing(record%ship_air_temperature)) then
-          call prepbufr_raw(obs(2,1,:), record%ship_air_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%ship_air_temperature_qc)
+          call prepbufr_raw(obs(T_idx,1,:), record%ship_air_temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%ship_air_temperature_qc)
         end if
         if (is_missing(record%ship_specific_humidity)) then
-          call prepbufr_raw(obs(3,1,:), record%ship_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%ship_specific_humidity_qc)
+          call prepbufr_raw(obs(Q_idx,1,:), record%ship_specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%ship_specific_humidity_qc)
         end if
         if (is_missing(record%ship_dewpoint)) then
-          call prepbufr_raw(obs(4,1,:), record%ship_dewpoint)
+          call prepbufr_raw(obs(Td_idx,1,:), record%ship_dewpoint)
         end if
         if (is_missing(record%ship_dewpoint)) then
           record%ship_dewpoint = dewpoint(record%ship_pressure, record%ship_specific_humidity)
         end if
         if (is_missing(record%ship_wind_speed)) then
-          call prepbufr_raw(obs(5,1,:), record%ship_wind_u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%ship_wind_qc)
-          call prepbufr_raw(obs(6,1,:), record%ship_wind_v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%ship_wind_qc)
+          call prepbufr_raw(obs(u_idx,1,:), record%ship_wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%ship_wind_qc)
+          call prepbufr_raw(obs(v_idx,1,:), record%ship_wind_v, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%ship_wind_qc)
           record%ship_wind_speed     = merge(real_missing_value, sqrt(record%ship_wind_u**2 + record%ship_wind_v**2), is_missing(record%ship_wind_u))
           record%ship_wind_direction = merge(real_missing_value, wind_direction(record%ship_wind_u, record%ship_wind_v), is_missing(record%ship_wind_u))
         end if
         if (is_missing(record%ship_sea_temperature)) then
-          call prepbufr_raw(obs(7,1,:), record%ship_sea_temperature, stack_qc=qc(7,1,:), stack_pc=pc(7,1,:), qc=record%ship_sea_temperature_qc)
+          call prepbufr_raw(obs(SST_idx,1,:), record%ship_sea_temperature, stack_qc=qc(SST_idx,1,:), stack_pc=pc(SST_idx,1,:), qc=record%ship_sea_temperature_qc)
         end if
 
         if (new_record) then
           call records%insert(ship_name // '@' // time%isoformat(), record)
+        ! else
+        !   call debug_print(record, hdr, obs, qc, pc)
         end if
-        ! call debug_print(record, hdr, obs, qc, pc)
       end do
     end do
     call closbf(10)
 
     if (records%size == 0) then
       write(*, *) '[Warning]: There is no SHIP data!'
+    else
+      write(*, *) '[Notice]: Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
     end if
 
   end subroutine ship_prepbufr_read
@@ -159,13 +171,16 @@ contains
     print *, 'P  ', record%ship_pressure, record%ship_pressure_qc
     print *, 'TA ', record%ship_air_temperature, record%ship_air_temperature_qc
     print *, 'SST', record%ship_sea_temperature, record%ship_sea_temperature_qc
-    print *, obs(7,1,:5)
+    print *, obs(SST_idx,1,:5)
     print *, 'RH ', record%ship_relative_humidity, record%ship_relative_humidity_qc
     print *, 'SH ', record%ship_specific_humidity, record%ship_specific_humidity_qc
-    print *, obs(3,1,:5)
+    print *, obs(Q_idx,1,:5)
     print *, 'TD ', record%ship_dewpoint
-    print *, 'WS ', record%ship_wind_speed, record%ship_wind_qc
-    print *, 'WD ', record%ship_wind_direction, record%ship_wind_qc
+    print *, 'U  ', record%ship_wind_u, record%ship_wind_qc
+    print *, obs(u_idx,1,:5)
+    print *, qc(u_idx,1,:5)
+    print *, 'V  ', record%ship_wind_v, record%ship_wind_qc
+    print *, obs(v_idx,1,:5)
     print *, 'CAT', obs(8,1,1)
     print *, 'Z  ', obs(9,1,1)
 
