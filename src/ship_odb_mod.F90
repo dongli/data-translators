@@ -50,8 +50,8 @@ contains
       'dewpoint REAL, ' // &                    !  9
       'relative_humidity REAL, ' // &           ! 10
       'specific_humidity REAL, ' // &           ! 11
-      'wind_speed REAL, ' // &                  ! 12
-      'wind_direction REAL ' // &               ! 13
+      'wind_u REAL, ' // &                      ! 12
+      'wind_v REAL ' // &                       ! 13
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO ship (' // &
       'ship_name, ' // &                        !  1
@@ -65,8 +65,8 @@ contains
       'dewpoint, ' // &                         !  9
       'relative_humidity, ' // &                ! 10
       'specific_humidity, ' // &                ! 11
-      'wind_speed, ' // &                       ! 12
-      'wind_direction ' // &                    ! 13
+      'wind_u, ' // &                           ! 12
+      'wind_v ' // &                            ! 13
       ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
@@ -86,8 +86,8 @@ contains
         call odbql_bind_double(odb_stmt,  9, dble(record%ship_dewpoint))
         call odbql_bind_double(odb_stmt, 10, dble(record%ship_relative_humidity))
         call odbql_bind_double(odb_stmt, 11, dble(record%ship_specific_humidity))
-        call odbql_bind_double(odb_stmt, 12, dble(record%ship_wind_speed))
-        call odbql_bind_double(odb_stmt, 13, dble(record%ship_wind_direction))
+        call odbql_bind_double(odb_stmt, 12, dble(record%ship_wind_u))
+        call odbql_bind_double(odb_stmt, 13, dble(record%ship_wind_v))
         call odbql_step(odb_stmt)
       class default
         write(*, *) '[Error]: Unknown record in the list!'

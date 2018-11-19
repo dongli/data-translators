@@ -45,12 +45,10 @@ contains
       'pressure REAL, ' // &                      !  8
       'temperature REAL, ' // &                   !  9
       'dewpoint REAL, ' // &                      ! 10
-      'wind_direction REAL, ' // &                ! 11
-      'wind_speed REAL, ' // &                    ! 12
-      'wind_u REAL, ' // &                        ! 13
-      'wind_v REAL, ' // &                        ! 14
-      'specific_humidity REAL, ' // &             ! 15
-      'relative_humidity REAL' // &               ! 16
+      'wind_u REAL, ' // &                        ! 11
+      'wind_v REAL, ' // &                        ! 12
+      'specific_humidity REAL, ' // &             ! 13
+      'relative_humidity REAL' // &               ! 14
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO raob (' // &
       'station_name, ' // &                       !  1
@@ -63,13 +61,11 @@ contains
       'pressure, ' // &                           !  8
       'temperature, ' // &                        !  9
       'dewpoint, ' // &                           ! 10
-      'wind_direction, ' // &                     ! 11
-      'wind_speed, ' // &                         ! 12
-      'wind_u, ' // &                             ! 13
-      'wind_v, ' // &                             ! 14
-      'specific_humidity,' // &                   ! 15
-      'relative_humidity' // &                    ! 16
-      ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
+      'wind_u, ' // &                             ! 11
+      'wind_v, ' // &                             ! 12
+      'specific_humidity,' // &                   ! 13
+      'relative_humidity' // &                    ! 14
+      ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -113,47 +109,33 @@ contains
           class default
             call odbql_bind_double(odb_stmt, 10, dble(real_missing_value))
           end select
-          ! wind direction (degree)
-          select type (value => record%snd_man_wind_direction%value(level_iterator%key))
+          ! wind u component (m/s)
+          select type (value => record%snd_man_wind_u%value(level_iterator%key))
           type is (real)
             call odbql_bind_double(odb_stmt, 11, dble(value))
           class default
             call odbql_bind_double(odb_stmt, 11, dble(real_missing_value))
           end select
-          ! wind speed (m/s)
-          select type (value => record%snd_man_wind_speed%value(level_iterator%key))
+          ! wind v component (m/s)
+          select type (value => record%snd_man_wind_v%value(level_iterator%key))
           type is (real)
             call odbql_bind_double(odb_stmt, 12, dble(value))
           class default
             call odbql_bind_double(odb_stmt, 12, dble(real_missing_value))
           end select
-          ! wind u component (m/s)
-          select type (value => record%snd_man_wind_u%value(level_iterator%key))
+          ! specific humidity (Mg/Kg)
+          select type (value => record%snd_man_specific_humidity%value(level_iterator%key))
           type is (real)
             call odbql_bind_double(odb_stmt, 13, dble(value))
           class default
             call odbql_bind_double(odb_stmt, 13, dble(real_missing_value))
           end select
-          ! wind v component (m/s)
-          select type (value => record%snd_man_wind_v%value(level_iterator%key))
+          ! relative humidity (%)
+          select type (value => record%snd_man_relative_humidity%value(level_iterator%key))
           type is (real)
             call odbql_bind_double(odb_stmt, 14, dble(value))
           class default
             call odbql_bind_double(odb_stmt, 14, dble(real_missing_value))
-          end select
-          ! specific humidity (Mg/Kg)
-          select type (value => record%snd_man_specific_humidity%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 15, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 15, dble(real_missing_value))
-          end select
-          ! relative humidity (%)
-          select type (value => record%snd_man_relative_humidity%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 16, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 16, dble(real_missing_value))
           end select
           call odbql_step(odb_stmt)
           call level_iterator%next()

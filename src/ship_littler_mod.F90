@@ -95,9 +95,9 @@ contains
         write(10, '(I7)',    advance='no') 0                                                  ! wind QC
         write(10, '(F13.5)', advance='no') record%ship_wind_direction                         ! wind direction (degree)
         write(10, '(I7)',    advance='no') 0                                                  ! wind QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! wind u component (m s^-1)
+        write(10, '(F13.5)', advance='no') record%ship_wind_u                                 ! wind u component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                  ! wind u component QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! wind v component (m s^-1)
+        write(10, '(F13.5)', advance='no') record%ship_wind_v                                 ! wind v component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                  ! wind v component QC
         write(10, '(F13.5)', advance='no') record%ship_relative_humidity                      ! relative humidity (%)
         write(10, '(I7)',    advance='no') 0                                                  ! relative humidity QC
