@@ -17,6 +17,20 @@ module synop_prepbufr_mod
   integer, parameter :: max_num_lev = 1
   integer, parameter :: max_num_event = 10
 
+  integer, parameter :: p_idx     = 1
+  integer, parameter :: T_idx     = 2
+  integer, parameter :: Q_idx     = 3
+  integer, parameter :: Td_idx    = 4
+  integer, parameter :: u_idx     = 5
+  integer, parameter :: v_idx     = 6
+  integer, parameter :: wd_idx    = 7
+  integer, parameter :: ws_idx    = 8
+  integer, parameter :: TP01_idx  = 9
+  integer, parameter :: TP03_idx  = 10
+  integer, parameter :: TP06_idx  = 11
+  integer, parameter :: TP12_idx  = 12
+  integer, parameter :: TP24_idx  = 13
+
 contains
 
   ! Report types include: 181, 183, 281, 284
@@ -61,10 +75,10 @@ contains
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
         call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
-        !                                                                    1   2   3   4   5   6   7    8    9    10   11
-        call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'POB TOB QOB TDO UOB VOB TP01 TP03 TP06 TP12 TP24')
-        call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM NUL')
-        call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC NUL')
+        !                                                                    1   2   3   4   5   6   7   8   9    10   11   12   13
+        call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'POB TOB QOB TDO UOB VOB DDO SOB TP01 TP03 TP06 TP12 TP24')
+        call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
+        call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
         station_name = transfer(hdr(1), station_name)
         if (.not. (hdr(5) == 181 .or. hdr(5) == 281) .or. len_trim(station_name) == 4) cycle
         time = base_time + timedelta(hours=hdr(6))
@@ -103,47 +117,53 @@ contains
         end if
 
         if (is_missing(record%sfc_pressure)) then
-          call prepbufr_raw(obs(1,1,:), record%sfc_pressure, stack_qc=qc(1,1,:), stack_pc=pc(1,1,:), qc=record%sfc_pressure_qc)
+          call prepbufr_raw(obs(p_idx,1,:), record%sfc_pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%sfc_pressure_qc)
           ! Convert pressure from hPa to Pa.
           record%sfc_pressure = multiply(record%sfc_pressure, 100.0)
-          record%sfc_pressure_stack(:max_num_event) = multiply(prepbufr_stack(obs(1,1,:max_num_event)), 100.0)
-          record%sfc_pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(1,1,:max_num_event))
-          record%sfc_pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(1,1,:max_num_event))
+          record%sfc_pressure_stack(:max_num_event) = multiply(prepbufr_stack(obs(p_idx,1,:max_num_event)), 100.0)
+          record%sfc_pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(p_idx,1,:max_num_event))
+          record%sfc_pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(p_idx,1,:max_num_event))
         end if
         if (is_missing(record%sfc_temperature)) then
-          call prepbufr_raw(obs(2,1,:), record%sfc_temperature, stack_qc=qc(2,1,:), stack_pc=pc(2,1,:), qc=record%sfc_temperature_qc)
-          record%sfc_temperature_stack(:max_num_event) = prepbufr_stack(obs(2,1,:max_num_event))
-          record%sfc_temperature_stack_qc(:max_num_event) = prepbufr_codes(qc(2,1,:max_num_event))
-          record%sfc_temperature_stack_pc(:max_num_event) = prepbufr_codes(pc(2,1,:max_num_event))
+          call prepbufr_raw(obs(T_idx,1,:), record%sfc_temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%sfc_temperature_qc)
+          record%sfc_temperature_stack(:max_num_event) = prepbufr_stack(obs(T_idx,1,:max_num_event))
+          record%sfc_temperature_stack_qc(:max_num_event) = prepbufr_codes(qc(T_idx,1,:max_num_event))
+          record%sfc_temperature_stack_pc(:max_num_event) = prepbufr_codes(pc(T_idx,1,:max_num_event))
         end if
         if (is_missing(record%sfc_specific_humidity)) then
-          call prepbufr_raw(obs(3,1,:), record%sfc_specific_humidity, stack_qc=qc(3,1,:), stack_pc=pc(3,1,:), qc=record%sfc_specific_humidity_qc)
-          record%sfc_specific_humidity_stack(:max_num_event) = prepbufr_stack(obs(3,1,:max_num_event))
-          record%sfc_specific_humidity_stack_qc(:max_num_event) = prepbufr_codes(qc(3,1,:max_num_event))
-          record%sfc_specific_humidity_stack_pc(:max_num_event) = prepbufr_codes(pc(3,1,:max_num_event))
+          call prepbufr_raw(obs(Q_idx,1,:), record%sfc_specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%sfc_specific_humidity_qc)
+          record%sfc_specific_humidity_stack(:max_num_event) = prepbufr_stack(obs(Q_idx,1,:max_num_event))
+          record%sfc_specific_humidity_stack_qc(:max_num_event) = prepbufr_codes(qc(Q_idx,1,:max_num_event))
+          record%sfc_specific_humidity_stack_pc(:max_num_event) = prepbufr_codes(pc(Q_idx,1,:max_num_event))
         end if
         if (is_missing(record%sfc_dewpoint)) then
-          call prepbufr_raw(obs(4,1,:), record%sfc_dewpoint)
+          call prepbufr_raw(obs(Td_idx,1,:), record%sfc_dewpoint)
+        end if
+        if (is_missing(record%sfc_wind_u)) then
+          call prepbufr_raw(obs(u_idx,1,:), record%sfc_wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%sfc_wind_qc)
+          record%sfc_wind_u_stack(:max_num_event) = prepbufr_stack(obs(u_idx,1,:max_num_event))
+          record%sfc_wind_stack_qc(:max_num_event) = prepbufr_codes(qc(u_idx,1,:max_num_event))
+        end if
+        if (is_missing(record%sfc_wind_v)) then
+          call prepbufr_raw(obs(v_idx,1,:), record%sfc_wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%sfc_wind_qc)
+          record%sfc_wind_v_stack(:max_num_event) = prepbufr_stack(obs(v_idx,1,:max_num_event))
+          record%sfc_wind_stack_pc(:max_num_event) = prepbufr_codes(pc(v_idx,1,:max_num_event))
+        end if
+        if (is_missing(record%sfc_wind_direction)) then
+          call prepbufr_raw(obs(wd_idx,1,:), record%sfc_wind_direction, stack_qc=qc(wd_idx,1,:), stack_pc=pc(wd_idx,1,:), qc=record%sfc_wind_qc)
         end if
         if (is_missing(record%sfc_wind_speed)) then
-          call prepbufr_raw(obs(5,1,:), record%sfc_wind_u, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
-          call prepbufr_raw(obs(6,1,:), record%sfc_wind_v, stack_qc=qc(5,1,:), stack_pc=pc(5,1,:), qc=record%sfc_wind_qc)
-          record%sfc_wind_speed     = merge(real_missing_value, sqrt(record%sfc_wind_u**2 + record%sfc_wind_v**2), is_missing(record%sfc_wind_u))
-          record%sfc_wind_direction = merge(real_missing_value, wind_direction(record%sfc_wind_u, record%sfc_wind_v), is_missing(record%sfc_wind_u))
-          record%sfc_wind_u_stack(:max_num_event) = prepbufr_stack(obs(5,1,:max_num_event))
-          record%sfc_wind_v_stack(:max_num_event) = prepbufr_stack(obs(6,1,:max_num_event))
-          record%sfc_wind_stack_qc(:max_num_event) = prepbufr_codes(qc(5,1,:max_num_event))
-          record%sfc_wind_stack_pc(:max_num_event) = prepbufr_codes(pc(5,1,:max_num_event))
+          call prepbufr_raw(obs(ws_idx,1,:), record%sfc_wind_speed, stack_qc=qc(ws_idx,1,:), stack_pc=pc(ws_idx,1,:), qc=record%sfc_wind_qc)
         end if
-        if (is_missing(record%sfc_rain_01h)) call prepbufr_raw(obs( 7,1,:), record%sfc_rain_01h)
-        if (is_missing(record%sfc_rain_03h)) call prepbufr_raw(obs( 8,1,:), record%sfc_rain_03h)
-        if (is_missing(record%sfc_rain_06h)) call prepbufr_raw(obs( 9,1,:), record%sfc_rain_06h)
-        if (is_missing(record%sfc_rain_12h)) call prepbufr_raw(obs(10,1,:), record%sfc_rain_12h)
-        if (is_missing(record%sfc_rain_24h)) call prepbufr_raw(obs(11,1,:), record%sfc_rain_24h)
+        if (is_missing(record%sfc_rain_01h)) call prepbufr_raw(obs(TP01_idx,1,:), record%sfc_rain_01h)
+        if (is_missing(record%sfc_rain_03h)) call prepbufr_raw(obs(TP03_idx,1,:), record%sfc_rain_03h)
+        if (is_missing(record%sfc_rain_06h)) call prepbufr_raw(obs(TP06_idx,1,:), record%sfc_rain_06h)
+        if (is_missing(record%sfc_rain_12h)) call prepbufr_raw(obs(TP12_idx,1,:), record%sfc_rain_12h)
+        if (is_missing(record%sfc_rain_24h)) call prepbufr_raw(obs(TP24_idx,1,:), record%sfc_rain_24h)
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        ! else if (station_name == '94677') then
+        ! else if (station_name(1:5) == '54511') then
         !   call debug_print(record, hdr, obs, qc, pc)
         end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
@@ -179,8 +199,8 @@ contains
     print *, 'P ', record%sfc_pressure_stack(:4)
     print *, 'P ', record%sfc_pressure_stack_qc(:4)
     print *, 'P ', record%sfc_pressure_stack_pc(:4)
-    print *, 'W ', record%sfc_wind_speed, record%sfc_wind_qc
-    print *, 'W ', record%sfc_wind_direction, record%sfc_wind_qc
+    print *, 'WS', record%sfc_wind_speed, record%sfc_wind_qc
+    print *, 'WD', record%sfc_wind_direction, record%sfc_wind_qc
     print *, 'W ', record%sfc_wind_u_stack(:4)
     print *, 'W ', record%sfc_wind_v_stack(:4)
     print *, 'W ', record%sfc_wind_stack_qc(:4)

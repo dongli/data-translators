@@ -338,7 +338,18 @@ contains
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
         if (stack_pc(i) == 1 .or. stack_qc(i) == 2 .or. stack_qc(i) == 6) then
-          value = stack(i)
+          ! Wind direction in GDAS is missing value when QC is 2, so we need to check if stack value is missing.
+          ! If so, we use the previous one.
+          if (stack(i) == missing_value_in_prepbufr) then
+            if (i > 1) then
+              value = stack(i-1)
+            else
+              value = real_missing_value
+              write(*, *) '[Warning]: QC is ' // trim(to_string(stack_qc(i))) // ', but value is missing!'
+            end if
+          else
+            value = stack(i)
+          end if
           if (present(qc)) qc = stack_qc(i)
           exit
         else if (stack_pc(i) == missing_value_in_prepbufr) then
