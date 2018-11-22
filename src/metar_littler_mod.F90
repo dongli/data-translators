@@ -43,7 +43,7 @@ contains
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                    ! longitude
         write(10, '(A40)',   advance='no') pad_string(record%station%name, 40)                  ! id
         write(10, '(A40)',   advance='no') pad_string(record%station%name, 40)                  ! name
-        write(10, '(A40)',   advance='no') pad_string('FM-12 SYNOP', 40)                        ! platform
+        write(10, '(A40)',   advance='no') pad_string('FM-12 METAR', 40)                        ! platform
         write(10, '(A40)',   advance='no') pad_string('N/A', 40)                                ! source
         write(10, '(F20.5)', advance='no') littler_value(record%station%z)                      ! elevation
         write(10, '(I10)',   advance='no') 1                                                    ! num_vld_fld
