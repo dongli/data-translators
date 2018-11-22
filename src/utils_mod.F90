@@ -167,7 +167,7 @@ contains
     if (is_missing(p) .or. is_missing(T) .or. is_missing(z)) then
       slp = real_missing_value
     else
-      slp = p * (1.0 - 0.0065 * z / (T + 0.0065 * z + freezing_point)) * (-5.257)
+      slp = p * (1.0 + 0.0065 * z / (T + freezing_point)) ** 5.257
     end if
 
   end function sea_level_pressure
@@ -345,7 +345,7 @@ contains
               value = stack(i-1)
             else
               value = real_missing_value
-              write(*, *) '[Warning]: QC is ' // trim(to_string(stack_qc(i))) // ', but value is missing!'
+              ! write(*, *) '[Warning]: QC is ' // trim(to_string(stack_qc(i))) // ', but value is missing!'
             end if
           else
             value = stack(i)
