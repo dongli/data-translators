@@ -49,6 +49,7 @@ contains
     call records%clear()
     nullify(record)
 
+    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -57,7 +58,7 @@ contains
       if (subset /= 'ADPUPA') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
-      write(*, "('=> ', I5.5, X, A8)") msg_count, subset
+      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -247,6 +248,8 @@ contains
       end do
     end do
     call closbf(10)
+
+    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine raob_prepbufr_read
 
