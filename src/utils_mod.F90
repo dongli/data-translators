@@ -459,6 +459,14 @@ contains
 
   end subroutine bufr_value
 
+  real function littler_value(value) result(res)
+
+    real, intent(in) :: value
+
+    res = merge(real_missing_value_in_littler, value, is_missing(value))
+
+  end function littler_value
+
   subroutine resize_real4_array(array, target_size)
 
     real(4), intent(inout), allocatable :: array(:)

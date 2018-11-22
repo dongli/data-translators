@@ -37,13 +37,13 @@ contains
       select type (record => record_iterator%value)
       type is (profiler_read_record_type)
         ! Header
-        write(10, '(F20.5)', advance='no') record%station%lat                                 ! latitude
-        write(10, '(F20.5)', advance='no') record%station%lon                                 ! longitude
+        write(10, '(F20.5)', advance='no') littler_value(record%station%lat)                  ! latitude
+        write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                  ! longitude
         write(10, '(A40)',   advance='no') pad_string(record%station%name, 40)                ! id
         write(10, '(A40)',   advance='no') pad_string(record%station%name, 40)                ! name
         write(10, '(A40)',   advance='no') pad_string('FM-132 PROFLR', 40)                    ! platform
         write(10, '(A40)',   advance='no') pad_string('N/A', 40)                              ! source
-        write(10, '(F20.5)', advance='no') record%station%z                                   ! elevation
+        write(10, '(F20.5)', advance='no') littler_value(record%station%z)                    ! elevation
         write(10, '(I10)',   advance='no') 1                                                  ! num_vld_fld
         write(10, '(I10)',   advance='no') 0                                                  ! num_error
         write(10, '(I10)',   advance='no') 0                                                  ! num_warning
@@ -54,7 +54,7 @@ contains
         write(10, '(L10)',   advance='no') .false.                                            ! discard
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! obs_time
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! julian_day
-        write(10, '(A20)',   advance='no') adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20))                 ! date_char
+        write(10, '(A20)',   advance='no') adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20)) ! date_char
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! slp
         write(10, '(I7)',    advance='no') 0                                                  ! slp QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ref_pres
@@ -82,12 +82,13 @@ contains
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ceiling
         write(10, '(I7)',    advance='no') 0                                                  ! celing QC
         write(10, *)
+        ! Records
         level_iterator = hash_table_iterator(record%pro_pressure)
         do while (.not. level_iterator%ended())
           ! pressure (Pa)
           select type (value => level_iterator%value)
           type is (real)
-            write(10, '(F13.5)', advance='no') value
+            write(10, '(F13.5)', advance='no') littler_value(value)
           class default
             write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           end select
@@ -95,7 +96,7 @@ contains
           ! height (m)
           select type (value => record%pro_height%value(level_iterator%key))
           type is (real)
-            write(10, '(F13.5)', advance='no') value
+            write(10, '(F13.5)', advance='no') littler_value(value)
           class default
             write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           end select
@@ -109,7 +110,7 @@ contains
           ! wind speed (m/s)
           select type (value => record%pro_wind_speed%value(level_iterator%key))
           type is (real)
-            write(10, '(F13.5)', advance='no') value
+            write(10, '(F13.5)', advance='no') littler_value(value)
           class default
             write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           end select
@@ -117,7 +118,7 @@ contains
           ! wind direction (degree)
           select type (value => record%pro_wind_direction%value(level_iterator%key))
           type is (real)
-            write(10, '(F13.5)', advance='no') value
+            write(10, '(F13.5)', advance='no') littler_value(value)
           class default
             write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           end select
@@ -125,7 +126,7 @@ contains
           ! wind u component (m/s)
           select type (value => record%pro_wind_u%value(level_iterator%key))
           type is (real)
-            write(10, '(F13.5)', advance='no') value
+            write(10, '(F13.5)', advance='no') littler_value(value)
           class default
             write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           end select
@@ -133,7 +134,7 @@ contains
           ! wind v component
           select type (value => record%pro_wind_v%value(level_iterator%key))
           type is (real)
-            write(10, '(F13.5)', advance='no') value
+            write(10, '(F13.5)', advance='no') littler_value(value)
           class default
             write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           end select
@@ -148,6 +149,7 @@ contains
           call level_iterator%next()
           j = j + 1
         end do
+        ! End
         write(10, '(F13.5)', advance='no') -777777.0                          ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                  ! pressure QC
         write(10, '(F13.5)', advance='no') -777777.0                          ! height
