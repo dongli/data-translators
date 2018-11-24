@@ -111,6 +111,7 @@ contains
         if (.not. associated(record)) then
           allocate(record)
           call record%init(alloc_hash=.true.)
+          record%seq_id = records%size
           record%station => station
           record%time = time
           new_record = .true.
@@ -318,8 +319,8 @@ contains
         call record%snd_sig %set_from_hash(record%snd_sig_hash)
         call record%snd_wnd %set_from_hash(record%snd_wnd_hash)
         call record%snd_trop%set_from_hash(record%snd_trop_hash)
-        call station%records%insert(record)
-        ! if (record%station%name == '70308') then
+        call record%station%records%insert(record)
+        ! if (record%station%name == '12374') then
         !   call debug_print(record, obs, qc, pc)
         ! end if
       end select
