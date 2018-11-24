@@ -13,7 +13,6 @@ module raob_odb_mod
 
 contains
 
-
   subroutine raob_odb_write(file_path, stations, records)
 
     character(*), intent(inout) :: file_path
@@ -26,9 +25,9 @@ contains
     type(odbql_value) odb_value
     character(100) odb_unparsed_sql
 
+    integer i
     character(30) str
     type(linked_list_iterator_type) record_iterator
-    type(hash_table_iterator_type) level_iterator
 
     if (file_path == '') file_path = 'raob.odb'
 
@@ -70,9 +69,9 @@ contains
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
-      type is (raob_read_record_type)
-        level_iterator = hash_table_iterator(record%snd_man_pressure)
-        do while (.not. level_iterator%ended())
+      type is (raob_record_type)
+        ! Mandatory levels
+        do i = 1, record%snd_man%num_level
           call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
           call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
           call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
@@ -81,64 +80,73 @@ contains
           call odbql_bind_text  (odb_stmt,    5, trim(str), len_trim(str))
           str = record%time%format('%H%M%S')
           call odbql_bind_text  (odb_stmt,    6, trim(str), len_trim(str))
-          ! height (m)
-          select type (value => record%snd_man_height%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt,  7, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt,  7, dble(real_missing_value))
-          end select
-          ! pressure (Pa)
-          select type (value => level_iterator%value)
-          type is (real)
-            call odbql_bind_double(odb_stmt,  8, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt,  8, dble(real_missing_value))
-          end select
-          ! temperature (degC)
-          select type (value => record%snd_man_temperature%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt,  9, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt,  9, dble(real_missing_value))
-          end select
-          ! dewpoint (degC)
-          select type (value => record%snd_man_dewpoint%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 10, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 10, dble(real_missing_value))
-          end select
-          ! wind u component (m/s)
-          select type (value => record%snd_man_wind_u%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 11, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 11, dble(real_missing_value))
-          end select
-          ! wind v component (m/s)
-          select type (value => record%snd_man_wind_v%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 12, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 12, dble(real_missing_value))
-          end select
-          ! specific humidity (Mg/Kg)
-          select type (value => record%snd_man_specific_humidity%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 13, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 13, dble(real_missing_value))
-          end select
-          ! relative humidity (%)
-          select type (value => record%snd_man_relative_humidity%value(level_iterator%key))
-          type is (real)
-            call odbql_bind_double(odb_stmt, 14, dble(value))
-          class default
-            call odbql_bind_double(odb_stmt, 14, dble(real_missing_value))
-          end select
+          call odbql_bind_double(odb_stmt,    7, dble(record%snd_man%height(i)))
+          call odbql_bind_double(odb_stmt,    8, dble(record%snd_man%pressure(i)))
+          call odbql_bind_double(odb_stmt,    9, dble(record%snd_man%temperature(i)))
+          call odbql_bind_double(odb_stmt,   10, dble(record%snd_man%dewpoint(i)))
+          call odbql_bind_double(odb_stmt,   11, dble(record%snd_man%wind_u(i)))
+          call odbql_bind_double(odb_stmt,   12, dble(record%snd_man%wind_v(i)))
+          call odbql_bind_double(odb_stmt,   13, dble(record%snd_man%specific_humidity(i)))
+          call odbql_bind_double(odb_stmt,   14, dble(record%snd_man%relative_humidity(i)))
           call odbql_step(odb_stmt)
-          call level_iterator%next()
+        end do
+        ! Significant levels
+        do i = 1, record%snd_sig%num_level
+          call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
+          call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
+          call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
+          call odbql_bind_double(odb_stmt,    4, dble(record%station%z))
+          str = record%time%format('%Y%m%d')
+          call odbql_bind_text  (odb_stmt,    5, trim(str), len_trim(str))
+          str = record%time%format('%H%M%S')
+          call odbql_bind_text  (odb_stmt,    6, trim(str), len_trim(str))
+          call odbql_bind_double(odb_stmt,    7, dble(record%snd_sig%height(i)))
+          call odbql_bind_double(odb_stmt,    8, dble(record%snd_sig%pressure(i)))
+          call odbql_bind_double(odb_stmt,    9, dble(record%snd_sig%temperature(i)))
+          call odbql_bind_double(odb_stmt,   10, dble(record%snd_sig%dewpoint(i)))
+          call odbql_bind_double(odb_stmt,   11, dble(record%snd_sig%wind_u(i)))
+          call odbql_bind_double(odb_stmt,   12, dble(record%snd_sig%wind_v(i)))
+          call odbql_bind_double(odb_stmt,   13, dble(record%snd_sig%specific_humidity(i)))
+          call odbql_bind_double(odb_stmt,   14, dble(record%snd_sig%relative_humidity(i)))
+          call odbql_step(odb_stmt)
+        end do
+        ! Wind levels
+        do i = 1, record%snd_sig%num_level
+          call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
+          call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
+          call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
+          call odbql_bind_double(odb_stmt,    4, dble(record%station%z))
+          str = record%time%format('%Y%m%d')
+          call odbql_bind_text  (odb_stmt,    5, trim(str), len_trim(str))
+          str = record%time%format('%H%M%S')
+          call odbql_bind_text  (odb_stmt,    6, trim(str), len_trim(str))
+          call odbql_bind_double(odb_stmt,    7, dble(record%snd_wnd%height(i)))
+          call odbql_bind_double(odb_stmt,    8, dble(record%snd_wnd%pressure(i)))
+          call odbql_bind_double(odb_stmt,    9, dble(real_missing_value))
+          call odbql_bind_double(odb_stmt,   10, dble(real_missing_value))
+          call odbql_bind_double(odb_stmt,   11, dble(record%snd_wnd%wind_u(i)))
+          call odbql_bind_double(odb_stmt,   12, dble(record%snd_wnd%wind_v(i)))
+          call odbql_step(odb_stmt)
+        end do
+        ! Tropopause levels
+        do i = 1, record%snd_sig%num_level
+          call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
+          call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
+          call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
+          call odbql_bind_double(odb_stmt,    4, dble(record%station%z))
+          str = record%time%format('%Y%m%d')
+          call odbql_bind_text  (odb_stmt,    5, trim(str), len_trim(str))
+          str = record%time%format('%H%M%S')
+          call odbql_bind_text  (odb_stmt,    6, trim(str), len_trim(str))
+          call odbql_bind_double(odb_stmt,    7, dble(record%snd_trop%height(i)))
+          call odbql_bind_double(odb_stmt,    8, dble(record%snd_trop%pressure(i)))
+          call odbql_bind_double(odb_stmt,    9, dble(record%snd_trop%temperature(i)))
+          call odbql_bind_double(odb_stmt,   10, dble(record%snd_trop%dewpoint(i)))
+          call odbql_bind_double(odb_stmt,   11, dble(record%snd_trop%wind_u(i)))
+          call odbql_bind_double(odb_stmt,   12, dble(record%snd_trop%wind_v(i)))
+          call odbql_bind_double(odb_stmt,   13, dble(record%snd_trop%specific_humidity(i)))
+          call odbql_bind_double(odb_stmt,   14, dble(record%snd_trop%relative_humidity(i)))
+          call odbql_step(odb_stmt)
         end do
       class default
         write(*, *) '[Error]: Unknown record in the list!'

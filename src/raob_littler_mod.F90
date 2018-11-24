@@ -23,8 +23,8 @@ contains
     type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
-    type(hash_table_iterator_type) level_iterator
-    integer i, j
+    real slp, T
+    integer i, j, k
 
     if (file_path == '') file_path = 'raob.littler'
 
@@ -35,7 +35,9 @@ contains
     do while (.not. record_iterator%ended())
       j = 0
       select type (record => record_iterator%value)
-      type is (raob_read_record_type)
+      type is (raob_record_type)
+        slp = sea_level_pressure(record%snd_sfc_pressure, record%snd_sfc_temperature, record%station%z)
+        T = add(record%snd_sfc_temperature, freezing_point)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%station%lat)                  ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                  ! longitude
@@ -55,15 +57,15 @@ contains
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! obs_time
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! julian_day
         write(10, '(A20)',   advance='no') adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20)) ! date_char
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! slp
+        write(10, '(F13.5)', advance='no') littler_value(slp)                                 ! slp
         write(10, '(I7)',    advance='no') 0                                                  ! slp QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ref_pres
         write(10, '(I7)',    advance='no') 0                                                  ! ref_pres QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ground_t
+        write(10, '(F13.5)', advance='no') littler_value(T)                                   ! ground_t
         write(10, '(I7)',    advance='no') 0                                                  ! ground_t QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! SST
         write(10, '(I7)',    advance='no') 0                                                  ! SST QC
-        write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! psfc
+        write(10, '(F13.5)', advance='no') littler_value(record%snd_sfc_pressure)             ! psfc
         write(10, '(I7)',    advance='no') 0                                                  ! psfc QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! precip
         write(10, '(I7)',    advance='no') 0                                                  ! precip QC
@@ -82,313 +84,100 @@ contains
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ceiling
         write(10, '(I7)',    advance='no') 0                                                  ! celing QC
         write(10, *)
-        level_iterator = hash_table_iterator(record%snd_man_pressure)
-        do while (.not. level_iterator%ended())
-          ! pressure (Pa)
-          select type (value => level_iterator%value)
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+        do k = 1, record%snd_man%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%pressure(k))
           write(10, '(I7)', advance='no') 0
-          ! height (m)
-          select type (value => record%snd_man_height%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%height(k))
           write(10, '(I7)', advance='no') 0
-          ! temperature (K)
-          select type (value => record%snd_man_temperature%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(add(value, freezing_point))
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%temperature(k))
           write(10, '(I7)', advance='no') 0
-          ! dewpoint (K)
-          select type (value => record%snd_man_dewpoint%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(add(value, freezing_point))
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%dewpoint(k))
           write(10, '(I7)', advance='no') 0
-          ! wind speed (m/s)
-          select type (value => record%snd_man_wind_speed%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          ! wind direction (degree)
-          select type (value => record%snd_man_wind_direction%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          ! wind u component (m/s)
-          select type (value => record%snd_man_wind_u%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          ! wind v component
-          select type (value => record%snd_man_wind_v%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          ! relative humidity (%)
-          select type (value => record%snd_man_relative_humidity%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%relative_humidity(k))
           write(10, '(I7)', advance='no') 0
-          ! thickness (m)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          write(10, '(I7)',    advance='no') 0
+          write(10, '(I7)', advance='no') 0
           write(10, *)
-          call level_iterator%next()
           j = j + 1
         end do
-        level_iterator = hash_table_iterator(record%snd_sig_pressure)
-        do while (.not. level_iterator%ended())
-          ! pressure (Pa)
-          select type (value => level_iterator%value)
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+        do k = 1, record%snd_sig%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%pressure(k))
           write(10, '(I7)', advance='no') 0
-          ! height (m)
-          select type (value => record%snd_sig_height%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%height(k))
           write(10, '(I7)', advance='no') 0
-          ! temperature (K)
-          select type (value => record%snd_sig_temperature%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(add(value, freezing_point))
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%temperature(k))
           write(10, '(I7)', advance='no') 0
-          ! dewpoint (K)
-          select type (value => record%snd_sig_dewpoint%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(add(value, freezing_point))
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%dewpoint(k))
           write(10, '(I7)', advance='no') 0
-          ! wind speed (m/s)
-          select type (value => record%snd_sig_wind_speed%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          ! wind direction (degree)
-          select type (value => record%snd_sig_wind_direction%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          ! wind u component (m/s)
-          select type (value => record%snd_sig_wind_u%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          ! wind v component
-          select type (value => record%snd_sig_wind_v%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          ! relative humidity (%)
-          select type (value => record%snd_sig_relative_humidity%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_sig%relative_humidity(k))
           write(10, '(I7)', advance='no') 0
-          ! thickness (m)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          write(10, '(I7)',    advance='no') 0
+          write(10, '(I7)', advance='no') 0
           write(10, *)
-          call level_iterator%next()
           j = j + 1
         end do
-        level_iterator = hash_table_iterator(record%snd_wnd_pressure)
-        do while (.not. level_iterator%ended())
-          ! pressure (Pa)
-          select type (value => level_iterator%value)
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+        do k = 1, record%snd_wnd%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_wnd%pressure(k))
           write(10, '(I7)', advance='no') 0
-          ! height (m)
-          select type (value => record%snd_wnd_height%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_wnd%height(k))
           write(10, '(I7)', advance='no') 0
-          ! temperature (K)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          ! dewpoint (K)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          ! wind speed (m/s)
-          select type (value => record%snd_wnd_wind_speed%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_wnd%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          ! wind direction (degree)
-          select type (value => record%snd_wnd_wind_direction%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_wnd%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          ! wind u component (m/s)
-          select type (value => record%snd_wnd_wind_u%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_wnd%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          ! wind v component
-          select type (value => record%snd_wnd_wind_v%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_wnd%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          ! relative humidity (%)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          ! thickness (m)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          write(10, '(I7)',    advance='no') 0
+          write(10, '(I7)', advance='no') 0
           write(10, *)
-          call level_iterator%next()
           j = j + 1
         end do
-        level_iterator = hash_table_iterator(record%snd_trop_pressure)
-        do while (.not. level_iterator%ended())
-          ! pressure (Pa)
-          select type (value => level_iterator%value)
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+        do k = 1, record%snd_trop%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%pressure(k))
           write(10, '(I7)', advance='no') 0
-          ! height (m)
-          select type (value => record%snd_trop_height%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%height(k))
           write(10, '(I7)', advance='no') 0
-          ! temperature (K)
-          select type (value => record%snd_trop_temperature%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(add(value, freezing_point))
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%temperature(k))
           write(10, '(I7)', advance='no') 0
-          ! dewpoint (K)
-          select type (value => record%snd_trop_dewpoint%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(add(value, freezing_point))
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%dewpoint(k))
           write(10, '(I7)', advance='no') 0
-          ! wind speed (m/s)
-          select type (value => record%snd_trop_wind_speed%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          ! wind direction (degree)
-          select type (value => record%snd_trop_wind_direction%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          ! wind u component (m/s)
-          select type (value => record%snd_trop_wind_u%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          ! wind v component
-          select type (value => record%snd_trop_wind_v%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          ! relative humidity (%)
-          select type (value => record%snd_trop_relative_humidity%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%relative_humidity(k))
           write(10, '(I7)', advance='no') 0
-          ! thickness (m)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          write(10, '(I7)',    advance='no') 0
+          write(10, '(I7)', advance='no') 0
           write(10, *)
-          call level_iterator%next()
           j = j + 1
         end do
         write(10, '(F13.5)', advance='no') -777777.0                          ! pressure (Pa)
