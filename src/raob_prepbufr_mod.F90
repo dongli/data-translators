@@ -321,9 +321,9 @@ contains
         call record%snd_wnd %set_from_hash(record%snd_wnd_hash)
         call record%snd_trop%set_from_hash(record%snd_trop_hash)
         call record%station%records%insert(record)
-        if (record%station%name == '48839') then
-          call debug_print(record, obs, qc, pc)
-        end if
+        ! if (record%station%name == '48839') then
+        !   call debug_print(record, obs, qc, pc)
+        ! end if
       end select
       call record_iterator%next()
     end do

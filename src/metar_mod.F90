@@ -8,6 +8,10 @@ module metar_mod
   implicit none
 
   type, extends(obs_station_type) :: metar_station_type
+    type(linked_list_type), pointer :: records => null()
+  contains
+    procedure :: init => metar_station_init
+    final :: metar_station_final
   end type metar_station_type
 
   integer, parameter :: max_stack = 255
@@ -55,5 +59,31 @@ module metar_mod
     integer :: sfc_wind_stack_qc(max_stack) = int_missing_value
     integer :: sfc_wind_stack_pc(max_stack) = int_missing_value
   end type metar_record_type
+
+contains
+
+  subroutine metar_station_init(this, name, lon, lat, z)
+
+    class(metar_station_type), intent(inout) :: this
+    character(*), intent(in) :: name
+    real, intent(in) :: lon
+    real, intent(in) :: lat
+    real, intent(in) :: z
+
+    this%name = name
+    this%lon = lon
+    this%lat = lat
+    this%z = z
+    if (.not. associated(this%records)) allocate(this%records)
+
+  end subroutine metar_station_init
+
+  subroutine metar_station_final(this)
+
+    type(metar_station_type), intent(inout) :: this
+
+    if (associated(this%records)) deallocate(this%records)
+
+  end subroutine metar_station_final
 
 end module metar_mod

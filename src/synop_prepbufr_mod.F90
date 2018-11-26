@@ -80,6 +80,7 @@ contains
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
         station_name = transfer(hdr(1), station_name)
+        station_name = station_name(1:5)
         if (.not. (hdr(5) == 181 .or. hdr(5) == 281) .or. len_trim(station_name) == 4) cycle
         time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then

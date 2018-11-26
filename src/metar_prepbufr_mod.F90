@@ -50,6 +50,7 @@ contains
     real(8) qc(max_num_var,max_num_lev,max_num_event)
     real(8) pc(max_num_var,max_num_lev,max_num_event)
     type(datetime_type) base_time, time
+    real lon, lat, z
     logical new_record
     type(metar_station_type), pointer :: station
     type(metar_record_type), pointer :: record
@@ -79,6 +80,7 @@ contains
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
         station_name = transfer(hdr(1), station_name)
+        station_name = station_name(1:5)
         if (.not. (hdr(5) == 187 .or. hdr(5) == 287) .or. len_trim(station_name) == 4) cycle
         time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
@@ -88,11 +90,11 @@ contains
           end select
         else
           allocate(station)
-          station%name = station_name
-          station%lon = hdr(2)
-          if (station%lon > 180) station%lon = station%lon - 360
-          station%lat = hdr(3)
-          station%z = hdr(4)
+          lon = hdr(2)
+          if (.not. is_missing(lon) .and. lon > 180) lon = lon - 360
+          lat = hdr(3)
+          z = hdr(4)
+          call station%init(station_name, lon, lat, z)
           call stations%insert(station_name, station)
         end if
         nullify(record)
@@ -108,6 +110,7 @@ contains
         end select
         if (.not. associated(record)) then
           allocate(record)
+          record%seq_id = records%size
           record%station => station
           record%time = time
           record%type = int(hdr(5))
@@ -163,6 +166,7 @@ contains
         ! else
         !   call debug_print(record, hdr, obs, qc, pc)
         end if
+        call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
     end do
     call closbf(10)

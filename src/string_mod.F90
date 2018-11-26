@@ -6,6 +6,7 @@ module string_mod
 
   public to_string
   public pad_string
+  public count_substring
 
   interface to_string
     module procedure integer1_to_string
@@ -129,5 +130,14 @@ contains
     res = x
 
   end function pad_string
+
+  integer function count_substring(x, s) result(res)
+
+    character(*), intent(in) :: x
+    character(*), intent(in) :: s
+
+    res = count(transfer(x, 'a', len_trim(x)) == s)
+
+  end function count_substring
 
 end module string_mod
