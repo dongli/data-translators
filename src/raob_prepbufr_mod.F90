@@ -76,7 +76,7 @@ contains
         !                                                                    1   2   3   4   5   6   7   8
         call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
         !                                                                    1   2   3   4   5   6   7   8   9   10
-        call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'CAT POB TOB QOB TDO UOB VOB DDO SOB ZOB')
+        call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'CAT POB TOB QOB TDO UOB VOB DDO FFO ZOB')
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'NUL PQM TQM QQM NUL WQM WQM WQM WQM ZQM')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'NUL PPC TPC QPC NUL WPC WPC WPC WPC ZPC')
         station_name = transfer(hdr(1), station_name)
@@ -159,7 +159,7 @@ contains
             end if
             call prepbufr_raw(obs(ws_idx,i,:), ws, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
             if (.not. record%snd_man_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
-              call record%snd_man_hash%wind_speed%insert(key, ws)
+              call record%snd_man_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
             call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
             if (.not. record%snd_man_hash%height%hashed(key) .and. .not. is_missing(h)) then
@@ -200,7 +200,7 @@ contains
             end if
             call prepbufr_raw(obs(ws_idx,i,:), ws, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
             if (.not. record%snd_sig_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
-              call record%snd_sig_hash%wind_speed%insert(key, ws)
+              call record%snd_sig_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
             call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
             if (.not. record%snd_sig_hash%height%hashed(key) .and. .not. is_missing(h)) then
@@ -224,7 +224,7 @@ contains
             end if
             call prepbufr_raw(obs(ws_idx,i,:), ws, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
             if (.not. record%snd_wnd_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
-              call record%snd_wnd_hash%wind_speed%insert(key, ws)
+              call record%snd_wnd_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
             call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
             if (.not. record%snd_wnd_hash%height%hashed(key) .and. .not. is_missing(h)) then
@@ -261,7 +261,7 @@ contains
             end if
             call prepbufr_raw(obs(ws_idx,i,:), ws, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
             if (.not. record%snd_trop_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
-              call record%snd_trop_hash%wind_speed%insert(key, ws)
+              call record%snd_trop_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
             call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
             if (.not. record%snd_trop_hash%height%hashed(key) .and. .not. is_missing(h)) then
@@ -292,6 +292,7 @@ contains
             end if
             if (is_missing(record%snd_sfc_wind_speed)) then
               call prepbufr_raw(obs(ws_idx,i,:), record%snd_sfc_wind_speed, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
+              record%snd_sfc_wind_speed = knot_to_meter_per_second(record%snd_sfc_wind_speed)
             end if
           case default
             write(*, *) '[Warning]: Unknown category ' // trim(to_string(int(obs(cat_idx,i,1)))) // ' for station ' // trim(station_name) // '!'
@@ -320,9 +321,9 @@ contains
         call record%snd_wnd %set_from_hash(record%snd_wnd_hash)
         call record%snd_trop%set_from_hash(record%snd_trop_hash)
         call record%station%records%insert(record)
-        ! if (record%station%name == '12374') then
-        !   call debug_print(record, obs, qc, pc)
-        ! end if
+        if (record%station%name == '48839') then
+          call debug_print(record, obs, qc, pc)
+        end if
       end select
       call record_iterator%next()
     end do

@@ -273,6 +273,18 @@ contains
 
   end function dewpoint
 
+  real function knot_to_meter_per_second(value) result(res)
+
+    real, intent(in) :: value
+
+    if (value == real_missing_value) then
+      res = real_missing_value
+    else
+      res = value * 1852.0 / 3600.0
+    end if
+
+  end function knot_to_meter_per_second
+
   subroutine prepbufr_raw_i4(stack, value, stack_qc, stack_pc, qc)
 
     real(8), intent(in) :: stack(:)
