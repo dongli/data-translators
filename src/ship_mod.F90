@@ -8,6 +8,10 @@ module ship_mod
   implicit none
 
   type, extends(obs_site_nopos_base_type) :: ship_type
+    type(linked_list_type), pointer :: records => null()
+  contains
+    procedure :: init => ship_init
+    final :: ship_final
   end type ship_type
 
   type, extends(obs_drift_record_base_type) :: ship_record_type
@@ -31,5 +35,25 @@ module ship_mod
     integer :: ship_specific_humidity_qc = int_missing_value
     integer :: ship_wind_qc              = int_missing_value
   end type ship_record_type
+
+contains
+
+  subroutine ship_init(this, name)
+
+    class(ship_type), intent(inout) :: this
+    character(*), intent(in) :: name
+
+    this%name = name
+    if (.not. associated(this%records)) allocate(this%records)
+
+  end subroutine ship_init
+
+  subroutine ship_final(this)
+
+    type(ship_type), intent(inout) :: this
+
+    if (associated(this%records)) deallocate(this%records)
+
+  end subroutine ship_final
 
 end module ship_mod

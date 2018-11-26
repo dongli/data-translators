@@ -89,7 +89,7 @@ contains
           end select
         else
           allocate(ship)
-          ship%name = ship_name
+          call ship%init(ship_name)
           call ships%insert(ship_name, ship)
         end if
         nullify(record)
@@ -106,6 +106,7 @@ contains
         end select
         if (.not. associated(record)) then
           allocate(record)
+          record%seq_id = records%size
           record%ship => ship
           record%time = time
           record%lon = lon
@@ -145,6 +146,7 @@ contains
         ! else
         !   call debug_print(record, hdr, obs, qc, pc)
         end if
+        call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
     end do
     call closbf(10)
