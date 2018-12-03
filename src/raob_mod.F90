@@ -58,12 +58,12 @@ module raob_mod
     real :: snd_sfc_wind_u            = real_missing_value
     real :: snd_sfc_wind_v            = real_missing_value
     type(raob_profile_type) snd_man
-    type(raob_profile_type) snd_sig
-    type(raob_profile_type) snd_wnd
+    type(raob_profile_type) snd_sigt
+    type(raob_profile_type) snd_sigw
     type(raob_profile_type) snd_trop
     type(raob_profile_hash_type), pointer :: snd_man_hash => null()
-    type(raob_profile_hash_type), pointer :: snd_sig_hash => null()
-    type(raob_profile_hash_type), pointer :: snd_wnd_hash => null()
+    type(raob_profile_hash_type), pointer :: snd_sigt_hash => null()
+    type(raob_profile_hash_type), pointer :: snd_sigw_hash => null()
     type(raob_profile_hash_type), pointer :: snd_trop_hash => null()
   contains
     procedure :: init => raob_record_init
@@ -245,9 +245,9 @@ contains
     logical, intent(in), optional :: alloc_hash
 
     if (present(alloc_hash) .and. alloc_hash) then
-      allocate(this%snd_man_hash);  call this%snd_man_hash%init()
-      allocate(this%snd_sig_hash);  call this%snd_sig_hash%init()
-      allocate(this%snd_wnd_hash);  call this%snd_wnd_hash%init()
+      allocate(this%snd_man_hash);  call this%snd_man_hash %init()
+      allocate(this%snd_sigt_hash); call this%snd_sigt_hash%init()
+      allocate(this%snd_sigw_hash); call this%snd_sigw_hash%init()
       allocate(this%snd_trop_hash); call this%snd_trop_hash%init()
     end if
 

@@ -166,69 +166,69 @@ contains
               call record%snd_man_hash%height%insert(key, h)
             end if
           case (2) ! Significant temperature level
-            if (.not. record%snd_sig_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
-              call record%snd_sig_hash%pressure%insert(key, p)
+            if (.not. record%snd_sigt_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
+              call record%snd_sigt_hash%pressure%insert(key, p)
             end if
             call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:))
-            if (.not. record%snd_sig_hash%temperature%hashed(key) .and. .not. is_missing(T)) then
-              call record%snd_sig_hash%temperature%insert(key, T)
+            if (.not. record%snd_sigt_hash%temperature%hashed(key) .and. .not. is_missing(T)) then
+              call record%snd_sigt_hash%temperature%insert(key, T)
             end if
             call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:))
-            if (.not. record%snd_sig_hash%specific_humidity%hashed(key) .and. .not. is_missing(sh)) then
-              call record%snd_sig_hash%specific_humidity%insert(key, sh)
+            if (.not. record%snd_sigt_hash%specific_humidity%hashed(key) .and. .not. is_missing(sh)) then
+              call record%snd_sigt_hash%specific_humidity%insert(key, sh)
             end if
             call prepbufr_raw(obs(Td_idx,i,:), Td, stack_qc=qc(Td_idx,i,:), stack_pc=pc(Td_idx,i,:))
-            if (.not. record%snd_sig_hash%dewpoint%hashed(key)) then
+            if (.not. record%snd_sigt_hash%dewpoint%hashed(key)) then
               if (is_missing(Td)) Td = dewpoint(p, sh)
-              if (.not. is_missing(Td)) call record%snd_sig_hash%dewpoint%insert(key, Td)
+              if (.not. is_missing(Td)) call record%snd_sigt_hash%dewpoint%insert(key, Td)
             end if
             rh = relative_humidity(p, T, sh)
-            if (.not. record%snd_sig_hash%relative_humidity%hashed(key) .and. .not. is_missing(rh)) then
-              call record%snd_sig_hash%relative_humidity%insert(key, rh)
+            if (.not. record%snd_sigt_hash%relative_humidity%hashed(key) .and. .not. is_missing(rh)) then
+              call record%snd_sigt_hash%relative_humidity%insert(key, rh)
             end if
             call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
-            if (.not. record%snd_sig_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
-              call record%snd_sig_hash%wind_u%insert(key, u)
+            if (.not. record%snd_sigt_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
+              call record%snd_sigt_hash%wind_u%insert(key, u)
             end if
             call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
-            if (.not. record%snd_sig_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
-              call record%snd_sig_hash%wind_v%insert(key, v)
+            if (.not. record%snd_sigt_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
+              call record%snd_sigt_hash%wind_v%insert(key, v)
             end if
             call prepbufr_raw(obs(wd_idx,i,:), wd, stack_qc=qc(wd_idx,i,:), stack_pc=pc(wd_idx,i,:))
-            if (.not. record%snd_sig_hash%wind_direction%hashed(key) .and. .not. is_missing(wd)) then
-              call record%snd_sig_hash%wind_direction%insert(key, wd)
+            if (.not. record%snd_sigt_hash%wind_direction%hashed(key) .and. .not. is_missing(wd)) then
+              call record%snd_sigt_hash%wind_direction%insert(key, wd)
             end if
             call prepbufr_raw(obs(ws_idx,i,:), ws, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
-            if (.not. record%snd_sig_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
-              call record%snd_sig_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
+            if (.not. record%snd_sigt_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
+              call record%snd_sigt_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
             call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
-            if (.not. record%snd_sig_hash%height%hashed(key) .and. .not. is_missing(h)) then
-              call record%snd_sig_hash%height%insert(key, h)
+            if (.not. record%snd_sigt_hash%height%hashed(key) .and. .not. is_missing(h)) then
+              call record%snd_sigt_hash%height%insert(key, h)
             end if
           case (3, 4) ! Winds-by-pressure level or Winds-by-height level
-            if (.not. record%snd_wnd_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
-              call record%snd_wnd_hash%pressure%insert(key, p)
+            if (.not. record%snd_sigw_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
+              call record%snd_sigw_hash%pressure%insert(key, p)
             end if
             call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
-            if (.not. record%snd_wnd_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
-              call record%snd_wnd_hash%wind_u%insert(key, u)
+            if (.not. record%snd_sigw_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
+              call record%snd_sigw_hash%wind_u%insert(key, u)
             end if
             call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
-            if (.not. record%snd_wnd_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
-              call record%snd_wnd_hash%wind_v%insert(key, v)
+            if (.not. record%snd_sigw_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
+              call record%snd_sigw_hash%wind_v%insert(key, v)
             end if
             call prepbufr_raw(obs(wd_idx,i,:), wd, stack_qc=qc(wd_idx,i,:), stack_pc=pc(wd_idx,i,:))
-            if (.not. record%snd_wnd_hash%wind_direction%hashed(key) .and. .not. is_missing(wd)) then
-              call record%snd_wnd_hash%wind_direction%insert(key, wd)
+            if (.not. record%snd_sigw_hash%wind_direction%hashed(key) .and. .not. is_missing(wd)) then
+              call record%snd_sigw_hash%wind_direction%insert(key, wd)
             end if
             call prepbufr_raw(obs(ws_idx,i,:), ws, stack_qc=qc(ws_idx,i,:), stack_pc=pc(ws_idx,i,:))
-            if (.not. record%snd_wnd_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
-              call record%snd_wnd_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
+            if (.not. record%snd_sigw_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
+              call record%snd_sigw_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
             call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
-            if (.not. record%snd_wnd_hash%height%hashed(key) .and. .not. is_missing(h)) then
-              call record%snd_wnd_hash%height%insert(key, h)
+            if (.not. record%snd_sigw_hash%height%hashed(key) .and. .not. is_missing(h)) then
+              call record%snd_sigw_hash%height%insert(key, h)
             end if
           case (5) ! Tropopause level
             if (.not. record%snd_trop_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
@@ -313,12 +313,12 @@ contains
       select type (record => record_iterator%value)
       type is (raob_record_type)
         call record%snd_man %init(record%snd_man_hash %pressure%size)
-        call record%snd_sig %init(record%snd_sig_hash %pressure%size)
-        call record%snd_wnd %init(record%snd_wnd_hash %pressure%size)
+        call record%snd_sigt%init(record%snd_sigt_hash %pressure%size)
+        call record%snd_sigw%init(record%snd_sigw_hash %pressure%size)
         call record%snd_trop%init(record%snd_trop_hash%pressure%size)
         call record%snd_man %set_from_hash(record%snd_man_hash)
-        call record%snd_sig %set_from_hash(record%snd_sig_hash)
-        call record%snd_wnd %set_from_hash(record%snd_wnd_hash)
+        call record%snd_sigt%set_from_hash(record%snd_sigt_hash)
+        call record%snd_sigw%set_from_hash(record%snd_sigw_hash)
         call record%snd_trop%set_from_hash(record%snd_trop_hash)
         call record%station%records%insert(record)
         ! if (record%station%name == '48839') then
@@ -371,32 +371,32 @@ contains
     end do
     print *, '- Significant levels:'
     write(*, '(10A15)') 'P', 'H', 'T', 'SH', 'TD', 'RH', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%snd_sig%num_level
-      write(*, '(F15.1)', advance='no') record%snd_sig%pressure(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%height(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%temperature(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%specific_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%dewpoint(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%relative_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%snd_sig%wind_speed(i)
+    do i = 1, record%snd_sigt%num_level
+      write(*, '(F15.1)', advance='no') record%snd_sigt%pressure(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%height(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%temperature(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%specific_humidity(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%dewpoint(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%relative_humidity(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_u(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_v(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_direction(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_speed(i)
       write(*, *)
     end do
     print *, '- Wind levels:'
     write(*, '(2A15, 60X, 4A15)') 'P', 'H', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%snd_wnd%num_level
-      write(*, '(F15.1)', advance='no') record%snd_wnd%pressure(i)
-      write(*, '(F15.1)', advance='no') record%snd_wnd%height(i)
+    do i = 1, record%snd_sigw%num_level
+      write(*, '(F15.1)', advance='no') record%snd_sigw%pressure(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigw%height(i)
       write(*, '(15X)',   advance='no')
       write(*, '(15X)',   advance='no')
       write(*, '(15X)',   advance='no')
       write(*, '(15X)',   advance='no')
-      write(*, '(F15.1)', advance='no') record%snd_wnd%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%snd_wnd%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%snd_wnd%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%snd_wnd%wind_speed(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_u(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_v(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_direction(i)
+      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_speed(i)
       write(*, *)
     end do
     print *, '- Tropopause levels:'

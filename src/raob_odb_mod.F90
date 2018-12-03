@@ -91,7 +91,7 @@ contains
           call odbql_step(odb_stmt)
         end do
         ! Significant levels
-        do i = 1, record%snd_sig%num_level
+        do i = 1, record%snd_sigt%num_level
           call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
           call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
           call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
@@ -100,18 +100,18 @@ contains
           call odbql_bind_text  (odb_stmt,    5, trim(str), len_trim(str))
           str = record%time%format('%H%M%S')
           call odbql_bind_text  (odb_stmt,    6, trim(str), len_trim(str))
-          call odbql_bind_double(odb_stmt,    7, dble(record%snd_sig%height(i)))
-          call odbql_bind_double(odb_stmt,    8, dble(record%snd_sig%pressure(i)))
-          call odbql_bind_double(odb_stmt,    9, dble(record%snd_sig%temperature(i)))
-          call odbql_bind_double(odb_stmt,   10, dble(record%snd_sig%dewpoint(i)))
-          call odbql_bind_double(odb_stmt,   11, dble(record%snd_sig%wind_u(i)))
-          call odbql_bind_double(odb_stmt,   12, dble(record%snd_sig%wind_v(i)))
-          call odbql_bind_double(odb_stmt,   13, dble(record%snd_sig%specific_humidity(i)))
-          call odbql_bind_double(odb_stmt,   14, dble(record%snd_sig%relative_humidity(i)))
+          call odbql_bind_double(odb_stmt,    7, dble(record%snd_sigt%height(i)))
+          call odbql_bind_double(odb_stmt,    8, dble(record%snd_sigt%pressure(i)))
+          call odbql_bind_double(odb_stmt,    9, dble(record%snd_sigt%temperature(i)))
+          call odbql_bind_double(odb_stmt,   10, dble(record%snd_sigt%dewpoint(i)))
+          call odbql_bind_double(odb_stmt,   11, dble(record%snd_sigt%wind_u(i)))
+          call odbql_bind_double(odb_stmt,   12, dble(record%snd_sigt%wind_v(i)))
+          call odbql_bind_double(odb_stmt,   13, dble(record%snd_sigt%specific_humidity(i)))
+          call odbql_bind_double(odb_stmt,   14, dble(record%snd_sigt%relative_humidity(i)))
           call odbql_step(odb_stmt)
         end do
         ! Wind levels
-        do i = 1, record%snd_sig%num_level
+        do i = 1, record%snd_sigt%num_level
           call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
           call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
           call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
@@ -120,16 +120,16 @@ contains
           call odbql_bind_text  (odb_stmt,    5, trim(str), len_trim(str))
           str = record%time%format('%H%M%S')
           call odbql_bind_text  (odb_stmt,    6, trim(str), len_trim(str))
-          call odbql_bind_double(odb_stmt,    7, dble(record%snd_wnd%height(i)))
-          call odbql_bind_double(odb_stmt,    8, dble(record%snd_wnd%pressure(i)))
+          call odbql_bind_double(odb_stmt,    7, dble(record%snd_sigw%height(i)))
+          call odbql_bind_double(odb_stmt,    8, dble(record%snd_sigw%pressure(i)))
           call odbql_bind_double(odb_stmt,    9, dble(real_missing_value))
           call odbql_bind_double(odb_stmt,   10, dble(real_missing_value))
-          call odbql_bind_double(odb_stmt,   11, dble(record%snd_wnd%wind_u(i)))
-          call odbql_bind_double(odb_stmt,   12, dble(record%snd_wnd%wind_v(i)))
+          call odbql_bind_double(odb_stmt,   11, dble(record%snd_sigw%wind_u(i)))
+          call odbql_bind_double(odb_stmt,   12, dble(record%snd_sigw%wind_v(i)))
           call odbql_step(odb_stmt)
         end do
         ! Tropopause levels
-        do i = 1, record%snd_sig%num_level
+        do i = 1, record%snd_sigt%num_level
           call odbql_bind_text  (odb_stmt,    1, record%station%name, len_trim(record%station%name))
           call odbql_bind_double(odb_stmt,    2, dble(record%station%lon))
           call odbql_bind_double(odb_stmt,    3, dble(record%station%lat))
