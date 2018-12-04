@@ -93,6 +93,7 @@ add_library(data_translators
   src/raob_odb_mod.F90
   src/profiler_mod.F90
   src/profiler_prepbufr_mod.F90
+  src/profiler_odb_mod.F90
   src/profiler_littler_mod.F90
   src/synop_mod.F90
   src/synop_prepbufr_mod.F90

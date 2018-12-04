@@ -23,8 +23,7 @@ contains
     type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
-    type(hash_table_iterator_type) level_iterator
-    integer i, j
+    integer i, j, k
 
     if (file_path == '') file_path = 'profiler.littler'
 
@@ -35,7 +34,7 @@ contains
     do while (.not. record_iterator%ended())
       j = 0
       select type (record => record_iterator%value)
-      type is (profiler_read_record_type)
+      type is (profiler_record_type)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%station%lat)                  ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                  ! longitude
@@ -83,70 +82,28 @@ contains
         write(10, '(I7)',    advance='no') 0                                                  ! celing QC
         write(10, *)
         ! Records
-        level_iterator = hash_table_iterator(record%pro_pressure)
-        do while (.not. level_iterator%ended())
-          ! pressure (Pa)
-          select type (value => level_iterator%value)
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+        do k = 1, record%pro%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%pressure(k))
           write(10, '(I7)', advance='no') 0
-          ! height (m)
-          select type (value => record%pro_height%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%height(k))
           write(10, '(I7)', advance='no') 0
-          ! temperature (K)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          ! dewpoint (K)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          ! wind speed (m/s)
-          select type (value => record%pro_wind_speed%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          ! wind direction (degree)
-          select type (value => record%pro_wind_direction%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          ! wind u component (m/s)
-          select type (value => record%pro_wind_u%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          ! wind v component
-          select type (value => record%pro_wind_v%value(level_iterator%key))
-          type is (real)
-            write(10, '(F13.5)', advance='no') littler_value(value)
-          class default
-            write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          end select
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          ! relative humidity (%)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          ! thickness (m)
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          write(10, '(I7)',    advance='no') 0
+          write(10, '(I7)', advance='no') 0
           write(10, *)
-          call level_iterator%next()
           j = j + 1
         end do
         ! End
