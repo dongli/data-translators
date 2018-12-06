@@ -78,7 +78,7 @@ contains
         !                                                                    1   2   3   4   5   6   7   8   9    10   11   12   13
         call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'POB TOB QOB TDO UOB VOB DDO SOB TP01 TP03 TP06 TP12 TP24')
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
-        call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC WQM WQM WQM NUL  NUL  NUL  NUL  NUL')
+        call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC WPC WPC WPC NUL  NUL  NUL  NUL  NUL')
         station_name = transfer(hdr(1), station_name)
         station_name = station_name(1:5)
         if (.not. (hdr(5) == 181 .or. hdr(5) == 281) .or. len_trim(station_name) == 4) cycle
@@ -202,8 +202,8 @@ contains
     print *, 'P ', record%sfc_pressure_stack_pc(:4)
     print *, 'WS', record%sfc_wind_speed, record%sfc_wind_qc
     print *, 'WD', record%sfc_wind_direction, record%sfc_wind_qc
-    print *, 'W ', record%sfc_wind_u_stack(:4)
-    print *, 'W ', record%sfc_wind_v_stack(:4)
+    print *, 'U ', record%sfc_wind_u_stack(:4)
+    print *, 'V ', record%sfc_wind_v_stack(:4)
     print *, 'W ', record%sfc_wind_stack_qc(:4)
     print *, 'W ', record%sfc_wind_stack_pc(:4)
     print *, 'R ', record%sfc_rain_01h, record%sfc_rain_03h, record%sfc_rain_06h, record%sfc_rain_12h, record%sfc_rain_24h

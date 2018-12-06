@@ -349,7 +349,7 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1 .or. stack_qc(i) == 2 .or. stack_qc(i) == 6) then
+        if (stack_pc(i) == 1 .and. (stack_qc(i) == 2 .or. stack_qc(i) == 6)) then
           ! Wind direction in GDAS is missing value when QC is 2, so we need to check if stack value is missing.
           ! If so, we use the previous one.
           if (stack(i) == missing_value_in_prepbufr) then
