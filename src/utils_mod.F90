@@ -133,10 +133,13 @@ contains
 
     real angle
 
-    wd = atan2(u, v) * degree + 180.0
-
-    if (wd >= 360) wd = wd - 360.0d0
-    if (wd < 0) wd = wd + 360.0d0
+    if (is_missing(u) .or. is_missing(v)) then
+      wd = real_missing_value
+    else
+      wd = atan2(u, v) * degree + 180.0
+      if (wd >= 360) wd = wd - 360.0d0
+      if (wd < 0) wd = wd + 360.0d0
+    end if
 
   end function wind_direction
 
@@ -145,7 +148,11 @@ contains
     real, intent(in) :: ws
     real, intent(in) :: wd
 
-    u = - ws * sin(wd * radian)
+    if (is_missing(ws) .or. is_missing(wd)) then
+      u = real_missing_value
+    else
+      u = - ws * sin(wd * radian)
+    end if
 
   end function wind_u_component
 
@@ -154,7 +161,11 @@ contains
     real, intent(in) :: ws
     real, intent(in) :: wd
 
-    v = - ws * cos(wd * radian)
+    if (is_missing(ws) .or. is_missing(wd)) then
+      v = real_missing_value
+    else
+      v = - ws * cos(wd * radian)
+    end if
 
   end function wind_v_component
 
@@ -201,6 +212,24 @@ contains
 
   end function mixing_ratio
 
+  real function mixing_ratio_from_relative_humidity(p, T, rh) result(r) ! 1
+
+    real, intent(in) :: p  ! Pa
+    real, intent(in) :: T  ! degC
+    real, intent(in) :: rh ! %
+
+    real e, es
+
+    if (is_missing(p) .or. is_missing(T) .or. is_missing(rh)) then
+      r = real_missing_value
+    else
+      es = saturated_vapor_pressure(T)
+      e  = rh / 100.0 * es
+      r = Rd / Rv / (p / e - 1)
+    end if
+
+  end function mixing_ratio_from_relative_humidity
+
   real function specific_humidity(r) result(sh) ! mg/kg
 
     real, intent(in) :: r ! mixing ratio (1)
@@ -212,6 +241,23 @@ contains
     end if
 
   end function specific_humidity
+
+  real function specific_humidity_from_relative_humidity(p, T, rh) result(sh) ! mg/kg
+
+    real, intent(in) :: p  ! Pa
+    real, intent(in) :: T  ! degC
+    real, intent(in) :: rh ! %
+
+    real r
+
+    if (is_missing(p) .or. is_missing(T) .or. is_missing(rh)) then
+      sh = real_missing_value
+    else
+      r  = mixing_ratio_from_relative_humidity(p, T, rh)
+      sh = specific_humidity(r)
+    end if
+
+  end function specific_humidity_from_relative_humidity
 
   real function relative_humidity(p, T, sh) result(rh) ! %
 

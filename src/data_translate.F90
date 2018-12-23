@@ -5,6 +5,7 @@ program data_translate
   use synop_prepbufr_mod
   use synop_odb_mod
   use synop_littler_mod
+  use synop_cimiss_xml_mod
   use metar_prepbufr_mod
   use metar_odb_mod
   use metar_littler_mod
@@ -44,6 +45,11 @@ program data_translate
       call synop_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
       call synop_littler_write(output_file_path, sites, records)
+    end if
+  case ('synop_cimiss_xml')
+    call synop_cimiss_xml_read(input_file_path, sites, records)
+    if (writer_type == 'prepbufr') then
+      call synop_prepbufr_write(output_file_path, sites, records)
     end if
   case ('metar_prepbufr')
     call metar_prepbufr_read(input_file_path, sites, records)

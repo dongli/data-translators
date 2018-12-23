@@ -73,6 +73,18 @@ else ()
   message(FATAL_ERROR "You should set NETCDF_ROOT where NetCDF is installed!")
 endif ()
 
+if (DEFINED ENV{FOX} AND (NOT DEFINED ENV{FOX_ROOT}))
+  set(ENV{FOX_ROOT} $ENV{FOX})
+endif ()
+if (DEFINED ENV{FOX_ROOT})
+  include_directories("$ENV{FOX_ROOT}/include")
+  link_directories("$ENV{FOX_ROOT}/lib")
+  list(APPEND DATA_TRANSLATORS_INC $ENV{FOX_ROOT}/include)
+  list(APPEND DATA_TRANSLATORS_LIB $ENV{FOX_ROOT}/lib)
+else ()
+  message(FATAL_ERROR "You should set FOX_ROOT where FOX is installed!")
+endif ()
+
 if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   set(DATA_TRANSLATORS_INC ${DATA_TRANSLATORS_INC} PARENT_SCOPE)
   set(DATA_TRANSLATORS_LIB ${DATA_TRANSLATORS_LIB} PARENT_SCOPE)
@@ -99,6 +111,7 @@ add_library(data_translators
   src/synop_prepbufr_mod.F90
   src/synop_odb_mod.F90
   src/synop_littler_mod.F90
+  src/synop_cimiss_xml_mod.F90
   src/metar_mod.F90
   src/metar_prepbufr_mod.F90
   src/metar_odb_mod.F90
@@ -114,7 +127,19 @@ add_library(data_translators
   src/params_mod.F90
   src/utils_mod.F90
 )
-target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex eccodes_f90 bufr Odb_fortran netcdff)
+target_link_libraries(data_translators
+  fortran_datetime
+  fortran_container
+  fortran_regex
+  eccodes_f90
+  bufr
+  Odb_fortran
+  netcdff
+  FoX_common
+  FoX_utils
+  FoX_fsys
+  FoX_sax
+)
 
 add_executable(data_translate.exe src/data_translate.F90)
 target_link_libraries(data_translate.exe data_translators)

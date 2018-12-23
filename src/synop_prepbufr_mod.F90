@@ -12,6 +12,7 @@ module synop_prepbufr_mod
   private
 
   public synop_prepbufr_read
+  public synop_prepbufr_write
 
   integer, parameter :: max_num_var = 20
   integer, parameter :: max_num_lev = 1
@@ -164,9 +165,9 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        ! else if (station_name(1:5) == '54511') then
+        ! else if (station_name(1:5) == 'V8552') then
         !   call debug_print(record, hdr, obs, qc, pc)
-        end if
+        ! end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
     end do
@@ -175,6 +176,86 @@ contains
     write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine synop_prepbufr_read
+
+  subroutine synop_prepbufr_write(file_path, stations, records)
+
+    character(*), intent(inout) :: file_path
+    type(hash_table_type), intent(in) :: stations
+    type(linked_list_type), intent(in) :: records
+
+    type(linked_list_iterator_type) record_iterator
+    integer idate, iret
+    real(8) hdr(max_num_var)
+    real(8) obs(max_num_var,max_num_lev,max_num_event)
+    real(8) qc(max_num_var,max_num_lev,max_num_event)
+    real(8) pc(max_num_var,max_num_lev,max_num_event)
+
+    if (file_path == '') file_path ='synop.prepbufr'
+
+    hdr = 0.0
+    obs = 0.0
+
+    write(*, *) '[Notice]: Writing ' // trim(file_path) // ' ...'
+    open(10, file=file_path, action='write', form='unformatted')
+    open(11, file='../notes/prepobs_prep.bufrtable')
+    call openbf(10, 'OUT', 11)
+    record_iterator = linked_list_iterator(records)
+    do while (.not. record_iterator%ended())
+      select type (record => record_iterator%value)
+      type is (synop_record_type)
+        idate = record%time%year * 1000000 + record%time%month * 10000 + record%time%day * 100 + record%time%hour
+        ! Mass part
+        call openmb(10, 'ADPSFC', idate)
+        hdr(1) = transfer(record%station%name, hdr(1))
+        hdr(2) = record%station%lon
+        hdr(3) = record%station%lat
+        hdr(4) = record%station%z
+        hdr(5) = 181
+        hdr(6) = 0.0
+        call ufbint(10, hdr, 6, 1, iret, 'SID XOB YOB ELV TYP DHR')
+        obs(1,1,1) = divide(record%sfc_pressure, 100.0)
+        obs(2,1,1) = record%sfc_temperature
+        obs(3,1,1) = record%sfc_specific_humidity
+        call ufbint(10, obs, 3, 1, iret, 'POB TOB QOB')
+        qc(1,1,1) = record%sfc_pressure_qc
+        qc(2,1,1) = record%sfc_temperature_qc
+        qc(3,1,1) = record%sfc_specific_humidity_qc
+        call ufbint(10, qc,  3, 1, iret, 'PQM TQM QQM')
+        pc(1,1,1) = 1
+        pc(2,1,1) = 1
+        pc(3,1,1) = 1
+        call ufbint(10, pc,  3, 1, iret, 'PPC TPC QPC')
+        call writsb(10)
+        call closmg(10)
+        ! Wind part
+        call openmb(10, 'ADPSFC', idate)
+        hdr(1) = transfer(record%station%name, hdr(1))
+        hdr(2) = record%station%lon
+        hdr(3) = record%station%lat
+        hdr(4) = record%station%z
+        hdr(5) = 281
+        hdr(6) = 0.0
+        call ufbint(10, hdr, 6, 1, iret, 'SID XOB YOB ELV TYP DHR')
+        obs(1,1,1) = divide(record%sfc_pressure, 100.0)
+        obs(2,1,1) = record%sfc_wind_direction
+        obs(3,1,1) = record%sfc_wind_speed
+        obs(4,1,1) = record%sfc_wind_u
+        obs(5,1,1) = record%sfc_wind_v
+        call ufbint(10, obs, 5, 1, iret, 'POB DDO SOB UOB VOB')
+        qc(1,1,1) = record%sfc_pressure_qc
+        qc(2,1,1) = record%sfc_wind_qc
+        call ufbint(10, qc,  2, 1, iret, 'PQM WQM')
+        pc(1,1,1) = 1
+        pc(2,1,1) = 1
+        call ufbint(10, pc,  2, 1, iret, 'PPC WPC')
+        call writsb(10)
+        call closmg(10)
+      end select
+      call record_iterator%next()
+    end do
+    call closbf(10)
+
+  end subroutine synop_prepbufr_write
 
   subroutine debug_print(record, hdr, obs, qc, pc)
 
