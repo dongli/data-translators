@@ -6,6 +6,7 @@ program data_translate
   use synop_odb_mod
   use synop_littler_mod
   use synop_cimiss_xml_mod
+  use synop_netcdf_mod
   use metar_prepbufr_mod
   use metar_odb_mod
   use metar_littler_mod
@@ -45,6 +46,8 @@ program data_translate
       call synop_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
       call synop_littler_write(output_file_path, sites, records)
+    else if (writer_type == 'netcdf') then
+      call synop_netcdf_write(output_file_path, sites, records)
     end if
   case ('synop_cimiss_xml')
     call synop_cimiss_xml_read(input_file_path, sites, records)

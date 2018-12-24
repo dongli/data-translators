@@ -112,6 +112,7 @@ add_library(data_translators
   src/synop_odb_mod.F90
   src/synop_littler_mod.F90
   src/synop_cimiss_xml_mod.F90
+  src/synop_netcdf_mod.F90
   src/metar_mod.F90
   src/metar_prepbufr_mod.F90
   src/metar_odb_mod.F90

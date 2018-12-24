@@ -167,7 +167,7 @@ contains
           call records%insert(station_name // '@' // time%isoformat(), record)
         ! else if (station_name(1:5) == 'V8552') then
         !   call debug_print(record, hdr, obs, qc, pc)
-        ! end if
+        end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
     end do
