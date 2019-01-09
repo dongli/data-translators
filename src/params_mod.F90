@@ -12,8 +12,8 @@ module params_mod
 
   ! Missing values
   character(3), parameter :: str_missing_value = 'N/A'
-  integer, parameter :: int_missing_value = 99999
-  real, parameter :: real_missing_value = 99999.0e0
+  integer, parameter :: int_missing_value = -100000000
+  real, parameter :: real_missing_value = -1.0e10
   real(8), parameter :: missing_value_in_prepbufr = 99999997952.000000
   real, parameter :: real_missing_value_in_littler = -888888.0
   integer, parameter :: int_missing_value_in_littler = -888888
