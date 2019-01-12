@@ -136,10 +136,10 @@ target_link_libraries(data_translators
   bufr
   Odb_fortran
   netcdff
-  FoX_common
-  FoX_utils
-  FoX_fsys
   FoX_sax
+  FoX_common
+  FoX_fsys
+  FoX_utils
 )
 
 add_executable(data_translate.exe src/data_translate.F90)
