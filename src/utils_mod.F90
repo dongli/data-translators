@@ -411,7 +411,11 @@ contains
           if (present(qc)) qc = stack_qc(i)
           exit
         else if (stack_pc(i) == missing_value_in_prepbufr) then
-          exit
+          if (stack_qc(i) == 2 .or. stack_qc(i) == 6) then
+            value = stack(i)
+          else
+            exit
+          end if
         end if
       end do
     else

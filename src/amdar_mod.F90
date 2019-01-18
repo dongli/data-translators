@@ -8,7 +8,7 @@ module amdar_mod
   implicit none
 
   type, extends(obs_site_nopos_base_type) :: amdar_flight_type
-    character(8) number
+    character(8) :: number = ''
     type(linked_list_type), pointer :: records => null()
   contains
     procedure :: init => amdar_flight_init
