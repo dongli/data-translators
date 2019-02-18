@@ -37,6 +37,8 @@ contains
     dummy_stations => stations
     dummy_records => records
 
+    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+
     call open_xml_file(xml, file_path, iostat)
 
     call parse(xml, startElement_handler=startElement_handler)
@@ -144,12 +146,12 @@ contains
       record%station => station
       record%time = time
       ! Set record.
-      record%sfc_pressure = multiply(merge(real_missing_value, p, p == real_missing_value_in_cimiss), 100.0)
-      record%sfc_temperature = merge(real_missing_value, T, T == real_missing_value_in_cimiss)
-      record%sfc_relative_humidity = merge(real_missing_value, rh, rh == real_missing_value_in_cimiss)
+      record%sfc_pressure = multiply(merge(real_missing_value, p, p == real_missing_value_in_cimiss .or. p == 999998.0), 100.0)
+      record%sfc_temperature = merge(real_missing_value, T, T == real_missing_value_in_cimiss .or. T == 999998.0)
+      record%sfc_relative_humidity = merge(real_missing_value, rh, rh == real_missing_value_in_cimiss .or. rh == 999998.0)
       record%sfc_specific_humidity = specific_humidity_from_relative_humidity(record%sfc_pressure, record%sfc_temperature, record%sfc_relative_humidity)
-      record%sfc_wind_direction = merge(real_missing_value, wd, wd == real_missing_value_in_cimiss)
-      record%sfc_wind_speed = merge(real_missing_value, ws, ws == real_missing_value_in_cimiss)
+      record%sfc_wind_direction = merge(real_missing_value, wd, wd == real_missing_value_in_cimiss .or. wd == 999998.0)
+      record%sfc_wind_speed = merge(real_missing_value, ws, ws == real_missing_value_in_cimiss .or. ws == 999998.0)
       record%sfc_wind_u = wind_u_component(record%sfc_wind_speed, record%sfc_wind_direction)
       record%sfc_wind_v = wind_v_component(record%sfc_wind_speed, record%sfc_wind_direction)
       record%sfc_pressure_qc = merge(2, 3, p_qc == 0)

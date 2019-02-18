@@ -97,6 +97,7 @@ add_library(data_translators
   src/amdar_mod.F90
   src/amdar_bufr_mod.F90
   src/amdar_prepbufr_mod.F90
+  src/amdar_cimiss_xml_mod.F90
   src/amdar_odb_mod.F90
   src/amdar_littler_mod.F90
   src/raob_mod.F90

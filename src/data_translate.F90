@@ -13,6 +13,7 @@ program data_translate
   use amdar_bufr_mod
   use amdar_prepbufr_mod
   use amdar_odb_mod
+  use amdar_cimiss_xml_mod
   use amdar_littler_mod
   use raob_prepbufr_mod
   use raob_odb_mod
@@ -70,6 +71,13 @@ program data_translate
     end if
   case ('amdar_prepbufr')
     call amdar_prepbufr_read(input_file_path, sites, records)
+    if (writer_type == 'odb') then
+      call amdar_odb_write(output_file_path, sites, records)
+    else if (writer_type == 'littler') then
+      call amdar_littler_write(output_file_path, sites, records)
+    end if
+  case ('amdar_cimiss_xml')
+    call amdar_cimiss_xml_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
       call amdar_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
