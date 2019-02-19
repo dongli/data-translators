@@ -62,7 +62,7 @@ contains
     type(amdar_record_type), pointer :: record
     character(8) flight_name
     character(256) value
-    real lat, lon, z
+    real lat, lon, z1, z2
     integer year, month, day, hour, minute
     type(datetime_type) time
     real p, p_qc
@@ -98,7 +98,9 @@ contains
         case ('Lon')
           read(value, *) lon
         case ('Flight_Heigh')
-          read(value, *) z
+          read(value, *) z1
+        case ('Heigh_Alti')
+          read(value, *) z2
         case ('Year')
           read(value, *) year
         case ('Mon')
@@ -144,6 +146,15 @@ contains
       record%flight => flight
       record%time = time
       ! Set record.
+      record%lon = merge(real_missing_value, lon, lon == real_missing_value_in_cimiss .or. lon == 999998.0)
+      record%lat = merge(real_missing_value, lat, lat == real_missing_value_in_cimiss .or. lat == 999998.0)
+      if (z1 /= real_missing_value_in_cimiss .and. z1 /= 999998.0) then
+        record%amdar_height = z1
+      else if (z2 /= real_missing_value_in_cimiss .and. z2 /= 999998.0) then
+        record%amdar_height = z2
+      else
+        record%amdar_height = real_missing_value
+      end if
       record%amdar_pressure = multiply(merge(real_missing_value, p, p == real_missing_value_in_cimiss .or. p == 999998.0), 100.0)
       record%amdar_temperature = merge(real_missing_value, T, T == real_missing_value_in_cimiss .or. T == 999998.0)
       record%amdar_specific_humidity = merge(real_missing_value, q, q == real_missing_value_in_cimiss .or. q == 999998.0)
