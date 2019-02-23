@@ -54,7 +54,11 @@ program data_translate
     end if
   case ('synop_cimiss_xml')
     call synop_cimiss_xml_read(input_file_path, sites, records)
-    if (writer_type == 'prepbufr') then
+    if (writer_type == 'odb') then
+      call synop_odb_write(output_file_path, sites, records)
+    else if (writer_type == 'littler') then
+      call synop_littler_write(output_file_path, sites, records)
+    else if (writer_type == 'prepbufr') then
       call synop_prepbufr_write(output_file_path, sites, records)
     end if
   case ('metar_prepbufr')

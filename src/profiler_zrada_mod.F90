@@ -120,9 +120,9 @@ contains
         call record%pro%init(record%pro_hash%height%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        if (record%station%name == '54511') then
-          call record%print()
-        end if
+        ! if (record%station%name == '54511') then
+        !   call record%print()
+        ! end if
       end select
       call record_iterator%next()
     end do

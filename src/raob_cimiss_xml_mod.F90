@@ -61,9 +61,9 @@ contains
         call record%snd_sigw%set_from_hash(record%snd_sigw_hash)
         call record%snd_trop%set_from_hash(record%snd_trop_hash)
         call record%station%records%insert(record)
-        if (record%station%name == '54511') then
-          call record%print()
-        end if
+        ! if (record%station%name == '54511') then
+        !   call record%print()
+        ! end if
         call records%insert(record%station%name // '@' // record%time%isoformat(), record)
       end select
       call record_iterator%next()
