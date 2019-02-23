@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(longrun-decode Fortran)
+project(data-translators Fortran)
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  set (CMAKE_Fortran_FLAGS "-ffree-line-length-none")
+  set (CMAKE_Fortran_FLAGS "-ffree-line-length-none -g -fbacktrace")
 endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   SET(CMAKE_Fortran_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
@@ -104,6 +104,7 @@ add_library(data_translators
   src/raob_prepbufr_mod.F90
   src/raob_littler_mod.F90
   src/raob_odb_mod.F90
+  src/raob_cimiss_xml_mod.F90
   src/profiler_mod.F90
   src/profiler_prepbufr_mod.F90
   src/profiler_odb_mod.F90
@@ -127,6 +128,7 @@ add_library(data_translators
   src/string_mod.F90
   src/cli_mod.F90
   src/params_mod.F90
+  src/missing_value_mod.F90
   src/utils_mod.F90
 )
 target_link_libraries(data_translators

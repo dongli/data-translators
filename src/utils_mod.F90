@@ -3,14 +3,9 @@ module utils_mod
   use params_mod
   use eccodes
   use string_mod
+  use missing_value_mod
 
   implicit none
-
-  interface is_missing
-    module procedure is_missing_i4
-    module procedure is_missing_r4
-    module procedure is_missing_r8
-  end interface is_missing
 
   interface multiply
     module procedure multiply_scalar
@@ -101,30 +96,6 @@ contains
     end if
 
   end function divide
-
-  logical function is_missing_i4(x) result(res)
-
-    integer(4), intent(in) :: x
-
-    res = x == real_missing_value
-
-  end function is_missing_i4
-
-  logical function is_missing_r4(x) result(res)
-
-    real(4), intent(in) :: x
-
-    res = x == real_missing_value
-
-  end function is_missing_r4
-
-  logical function is_missing_r8(x) result(res)
-
-    real(8), intent(in) :: x
-
-    res = x == real_missing_value
-
-  end function is_missing_r8
 
   real function wind_direction(u, v) result(wd)
 

@@ -100,7 +100,7 @@ contains
         nullify(record)
         select type (value => records%last_value())
         type is (raob_record_type)
-          ! Since recode may be split into two subsets, we need to check if previous record exists with the same time.
+          ! Since record may be split into two subsets, we need to check if previous record exists with the same time.
           record => value
           if (record%station%name == station_name .and. record%time == time) then
             new_record = .false.
@@ -322,7 +322,7 @@ contains
         call record%snd_trop%set_from_hash(record%snd_trop_hash)
         call record%station%records%insert(record)
         ! if (record%station%name == '48839') then
-        !   call debug_print(record, obs, qc, pc)
+        !   call record%print()
         ! end if
       end select
       call record_iterator%next()
@@ -331,90 +331,5 @@ contains
     write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine raob_prepbufr_read
-
-  subroutine debug_print(record, obs, qc, pc)
-
-    type(raob_record_type), intent(in) :: record
-    real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)
-
-    integer i
-
-    print *, 'Station ', record%station%name
-    print *, 'Time ', record%time%isoformat()
-    print *, '- Surface:'
-    write(*, '(8A15)') 'P', 'T', 'SH', 'TD', 'U', 'V', 'WD', 'WS'
-    write(*, '(F15.1)', advance='no') record%snd_sfc_pressure
-    write(*, '(F15.1)', advance='no') record%snd_sfc_temperature
-    write(*, '(F15.1)', advance='no') record%snd_sfc_specific_humidity
-    write(*, '(F15.1)', advance='no') record%snd_sfc_dewpoint
-    write(*, '(F15.1)', advance='no') record%snd_sfc_wind_u
-    write(*, '(F15.1)', advance='no') record%snd_sfc_wind_v
-    write(*, '(F15.1)', advance='no') record%snd_sfc_wind_direction
-    write(*, '(F15.1)', advance='no') record%snd_sfc_wind_speed
-    write(*, *)
-    print *, '- Mandatory levels:'
-    write(*, '(10A15)') 'P', 'H', 'T', 'SH', 'TD', 'RH', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%snd_man%num_level
-      write(*, '(F15.1)', advance='no') record%snd_man%pressure(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%height(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%temperature(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%specific_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%dewpoint(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%relative_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%snd_man%wind_speed(i)
-      write(*, *)
-    end do
-    print *, '- Significant levels:'
-    write(*, '(10A15)') 'P', 'H', 'T', 'SH', 'TD', 'RH', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%snd_sigt%num_level
-      write(*, '(F15.1)', advance='no') record%snd_sigt%pressure(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%height(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%temperature(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%specific_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%dewpoint(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%relative_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigt%wind_speed(i)
-      write(*, *)
-    end do
-    print *, '- Wind levels:'
-    write(*, '(2A15, 60X, 4A15)') 'P', 'H', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%snd_sigw%num_level
-      write(*, '(F15.1)', advance='no') record%snd_sigw%pressure(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigw%height(i)
-      write(*, '(15X)',   advance='no')
-      write(*, '(15X)',   advance='no')
-      write(*, '(15X)',   advance='no')
-      write(*, '(15X)',   advance='no')
-      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%snd_sigw%wind_speed(i)
-      write(*, *)
-    end do
-    print *, '- Tropopause levels:'
-    write(*, '(10A15)') 'P', 'H', 'T', 'SH', 'TD', 'RH', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%snd_trop%num_level
-      write(*, '(F15.1)', advance='no') record%snd_trop%pressure(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%height(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%temperature(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%specific_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%dewpoint(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%relative_humidity(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%snd_trop%wind_speed(i)
-      write(*, *)
-    end do
-
-  end subroutine debug_print
 
 end module

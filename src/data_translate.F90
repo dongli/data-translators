@@ -18,6 +18,7 @@ program data_translate
   use raob_prepbufr_mod
   use raob_odb_mod
   use raob_littler_mod
+  use raob_cimiss_xml_mod
   use profiler_prepbufr_mod
   use profiler_odb_mod
   use profiler_littler_mod
@@ -85,6 +86,13 @@ program data_translate
     end if
   case ('raob_prepbufr')
     call raob_prepbufr_read(input_file_path, sites, records)
+    if (writer_type == 'odb') then
+      call raob_odb_write(output_file_path, sites, records)
+    else if (writer_type == 'littler') then
+      call raob_littler_write(output_file_path, sites, records)
+    end if
+  case ('raob_cimiss_xml')
+    call raob_cimiss_xml_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
       call raob_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
