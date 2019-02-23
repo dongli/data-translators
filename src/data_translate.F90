@@ -20,6 +20,7 @@ program data_translate
   use raob_littler_mod
   use raob_cimiss_xml_mod
   use profiler_prepbufr_mod
+  use profiler_zrada_mod
   use profiler_odb_mod
   use profiler_littler_mod
   use ship_cimiss_txt_mod
@@ -100,6 +101,13 @@ program data_translate
     end if
   case ('profiler_prepbufr')
     call profiler_prepbufr_read(input_file_path, sites, records)
+    if (writer_type == 'odb') then
+      call profiler_odb_write(output_file_path, sites, records)
+    else if (writer_type == 'littler') then
+      call profiler_littler_write(output_file_path, sites, records)
+    end if
+  case ('profiler_zrada')
+    call profiler_zrada_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
       call profiler_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then

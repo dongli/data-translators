@@ -4,6 +4,7 @@ module profiler_mod
   use params_mod
   use hash_table_mod
   use linked_list_mod
+  use missing_value_mod
 
   implicit none
 
@@ -45,6 +46,7 @@ module profiler_mod
     type(profiler_profile_hash_type), pointer :: pro_hash => null()
   contains
     procedure :: init => profiler_record_init
+    procedure :: print => profiler_record_print
   end type profiler_record_type
 
 contains
@@ -98,15 +100,23 @@ contains
     type(hash_table_iterator_type) level_iterator
 
     i = 1
-    level_iterator = hash_table_iterator(hash%pressure)
+    if (hash%pressure%size /= 0) then
+      level_iterator = hash_table_iterator(hash%pressure)
+    else
+      level_iterator = hash_table_iterator(hash%height)
+    end if
     do while (.not. level_iterator%ended())
-      ! pressure (Pa)
-      select type (value => level_iterator%value)
-      type is (real)
-        this%pressure(i) = value
-      class default
+      if (hash%pressure%size /= 0) then
+        ! pressure (Pa)
+        select type (value => level_iterator%value)
+        type is (real)
+          this%pressure(i) = value
+        class default
+          this%pressure(i) = real_missing_value
+        end select
+      else
         this%pressure(i) = real_missing_value
-      end select
+      end if
       ! height (m)
       select type (value => hash%height%value(level_iterator%key))
       type is (real)
@@ -188,5 +198,49 @@ contains
     end if
 
   end subroutine profiler_record_init
+
+  subroutine profiler_record_print(record)
+
+    class(profiler_record_type), intent(in) :: record
+
+    integer i
+
+    print *, 'Station ', record%station%name
+    print *, 'Time ', record%time%isoformat()
+    write(*, '(6A15)') 'P', 'Z', 'U', 'V', 'WD', 'WS'
+    do i = 1, record%pro%num_level
+      if (is_missing(record%pro%pressure(i))) then
+        write(*, '(A15)', advance='no') '             --'
+      else
+        write(*, '(F15.1)', advance='no') record%pro%pressure(i)
+      end if
+      if (is_missing(record%pro%height(i))) then 
+      else
+        write(*, '(F15.1)', advance='no') record%pro%height(i)
+      end if
+      if (is_missing(record%pro%wind_u(i))) then 
+        write(*, '(A15)', advance='no') '             --'
+      else
+        write(*, '(F15.1)', advance='no') record%pro%wind_u(i)
+      end if
+      if (is_missing(record%pro%wind_v(i))) then 
+        write(*, '(A15)', advance='no') '             --'
+      else
+        write(*, '(F15.1)', advance='no') record%pro%wind_v(i)
+      end if
+      if (is_missing(record%pro%wind_direction(i))) then 
+        write(*, '(A15)', advance='no') '             --'
+      else
+        write(*, '(F15.1)', advance='no') record%pro%wind_direction(i)
+      end if
+      if (is_missing(record%pro%wind_speed(i))) then 
+        write(*, '(A15)', advance='no') '             --'
+      else
+        write(*, '(F15.1)', advance='no') record%pro%wind_speed(i)
+      end if
+      write(*, *)
+    end do
+
+  end subroutine profiler_record_print
 
 end module profiler_mod
