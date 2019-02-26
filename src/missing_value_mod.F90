@@ -5,6 +5,12 @@ module missing_value_mod
   private
 
   public is_missing  
+  public str_missing_value
+  public int_missing_value
+  public real_missing_value
+  public missing_value_in_prepbufr
+  public real_missing_value_in_littler
+  public int_missing_value_in_littler
 
   character(3), parameter :: str_missing_value = 'N/A'
   integer, parameter :: int_missing_value = -100000000

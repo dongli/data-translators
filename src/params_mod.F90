@@ -10,14 +10,4 @@ module params_mod
   real, parameter :: Rd = 287.058 ! J/(kg*K)
   real, parameter :: Rv = 461.495 ! J/(kg*K)
 
-  ! Missing values
-  character(3), parameter :: str_missing_value = 'N/A'
-  integer, parameter :: int_missing_value = -100000000
-  real, parameter :: real_missing_value = -1.0e10
-  real(8), parameter :: missing_value_in_prepbufr = 99999997952.000000
-  real, parameter :: real_missing_value_in_littler = -888888.0
-  integer, parameter :: int_missing_value_in_littler = -888888
-  real, parameter :: real_missing_value_in_cimiss = 999999.0
-  integer, parameter :: int_missing_value_in_cimiss = 999999
-
 end module params_mod

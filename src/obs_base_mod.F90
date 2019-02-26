@@ -1,7 +1,7 @@
 module obs_base_mod
 
   use datetime_mod
-  use params_mod
+  use missing_value_mod
 
   implicit none
 
