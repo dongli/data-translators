@@ -130,6 +130,7 @@ add_library(data_translators
   src/cli_mod.F90
   src/params_mod.F90
   src/missing_value_mod.F90
+  src/atm_formula_mod.F90
   src/utils_mod.F90
 )
 target_link_libraries(data_translators
