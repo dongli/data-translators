@@ -150,10 +150,10 @@ target_link_libraries(data_translators
 add_executable(data_translate.exe src/data_translate.F90)
 target_link_libraries(data_translate.exe data_translators)
 
-if (EXISTS lib/unit-test/CMakeLists)
+if (EXISTS ${CMAKE_SOURCE_DIR}/lib/unit-test/CMakeLists.txt)
   add_executable(reader_test.exe src/reader_test.F90)
   target_link_libraries(reader_test.exe data_translators fortran_unit_test)
 
-  add_executable(utils_test.exe src/utils_test.F90)
-  target_link_libraries(utils_test.exe data_translators fortran_unit_test)
+  add_executable(test_atm_formula.exe src/test_atm_formula.F90)
+  target_link_libraries(test_atm_formula.exe data_translators fortran_unit_test)
 endif ()

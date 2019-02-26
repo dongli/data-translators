@@ -87,9 +87,9 @@ contains
     real, intent(in) :: sh ! mg kg-1
 
     ! See (7) in Lawrence 2005 on BAMS.
-    real, parameter :: A = 7.625
-    real, parameter :: B = 243.04 ! degC
-    real, parameter :: C = 610.94 ! Pa
+    real, parameter :: A = 17.67
+    real, parameter :: B = 243.5 ! degC
+    real, parameter :: C = 611.2 ! Pa
 
     real e
 
@@ -110,9 +110,9 @@ contains
     real, intent(in) :: rh ! %
 
     ! See (8) in Lawrence 2005 on BAMS.
-    real, parameter :: A = 7.625
-    real, parameter :: B = 243.04 ! degC
-    real, parameter :: C = 610.94 ! Pa
+    real, parameter :: A = 17.67
+    real, parameter :: B = 243.5 ! degC
+    real, parameter :: C = 611.2 ! Pa
 
     real tmp
 
@@ -158,19 +158,19 @@ contains
 
   end function vapor_pressure
 
-  real function saturated_vapor_pressure(T) result(esv) ! Pa
+  real function saturated_vapor_pressure(T) result(es) ! Pa
 
     real, intent(in) :: T ! degC
 
     ! See (6) in Lawrence 2005 on BAMS.
-    real, parameter :: A = 7.625
-    real, parameter :: B = 243.04 ! degC
-    real, parameter :: C = 610.94 ! Pa
+    real, parameter :: A = 17.67
+    real, parameter :: B = 243.5 ! degC
+    real, parameter :: C = 611.2 ! Pa
 
     if (is_missing(T)) then
-      esv = real_missing_value
+      es = real_missing_value
     else
-      esv = C * exp(A * T / (B + T))
+      es = C * exp(A * T / (B + T))
     end if
 
   end function saturated_vapor_pressure
@@ -241,9 +241,9 @@ contains
     real, intent(in) :: Td ! degC
 
     ! See (7) in Lawrence 2005 on BAMS.
-    real, parameter :: A = 7.625
-    real, parameter :: B = 243.04 ! degC
-    real, parameter :: C = 610.94 ! Pa
+    real, parameter :: A = 17.67
+    real, parameter :: B = 243.5 ! degC
+    real, parameter :: C = 611.2 ! Pa
 
     real e, r
 
