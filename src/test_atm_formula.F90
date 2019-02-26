@@ -1,7 +1,7 @@
-program utils_test
+program atm_formula_test
 
   use unit_test
-  use utils_mod
+  use atm_formula_mod
 
   implicit none
 
@@ -9,7 +9,7 @@ program utils_test
 
   call test_case_init()
 
-  call test_case_create('Test module utils')
+  call test_case_create('Test atm_formula_mod')
 
   p = 762.0e2
   T = -12.5
@@ -26,7 +26,7 @@ program utils_test
   call assert_approximate(es, 234.9224375494164, __FILE__, __LINE__)
 
   rh = relative_humidity(p, T, sh)
-  call assert_approximate(rh, 42.509894518278585, __FILE__, __LINE__)
+  call assert_approximate(rh, 42.509894518278585, __FILE__, __LINE__, eps=1e-2)
 
   p = 891.0e2
   T = -9.9
@@ -45,8 +45,14 @@ program utils_test
   rh = relative_humidity(p, T, sh)
   call assert_approximate(rh, 99.69335807814043, __FILE__, __LINE__)
 
-  call test_case_report('Test module utils')
+  Td = dewpoint(p, sh)
+  call assert_approximate(Td, -9.938943591342465, __FILE__, __LINE__)
+
+  sh = specific_humidity_from_dewpoint(p, T, Td)
+  call assert_approximate(sh, 2014.0, __FILE__, __LINE__)
+
+  call test_case_report('Test atm_formula_mod')
 
   call test_case_final()
 
-end program utils_test
+end program atm_formula_test

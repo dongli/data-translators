@@ -130,6 +130,14 @@ contains
         end select
       end do
       time = create_datetime(year, month, day, hour, minute)
+      p  = merge(real_missing_value, p,  is_missing(p,  src='cimiss'))
+      T  = merge(real_missing_value, T,  is_missing(T,  src='cimiss'))
+      Td = merge(real_missing_value, Td, is_missing(Td, src='cimiss'))
+      q  = merge(real_missing_value, q,  is_missing(q,  src='cimiss'))
+      rh = merge(real_missing_value, rh, is_missing(rh, src='cimiss'))
+      ws = merge(real_missing_value, ws, is_missing(ws, src='cimiss'))
+      wd = merge(real_missing_value, wd, is_missing(wd, src='cimiss'))
+      turb_idx = merge(int_missing_value, turb_idx, is_missing(turb_idx, src='cimiss'))
       ! Create flight and record.
       if (dummy_flights%hashed(flight_name)) then
         select type (value => dummy_flights%value(flight_name))
@@ -146,25 +154,25 @@ contains
       record%flight => flight
       record%time = time
       ! Set record.
-      record%lon = merge(real_missing_value, lon, lon == real_missing_value_in_cimiss .or. lon == 999998.0)
-      record%lat = merge(real_missing_value, lat, lat == real_missing_value_in_cimiss .or. lat == 999998.0)
-      if (z1 /= real_missing_value_in_cimiss .and. z1 /= 999998.0) then
+      record%lon = merge(real_missing_value, lon, is_missing(lon, src='cimiss'))
+      record%lat = merge(real_missing_value, lat, is_missing(lat, src='cimiss'))
+      if (is_missing(z1, src='cimiss')) then
         record%amdar_height = z1
-      else if (z2 /= real_missing_value_in_cimiss .and. z2 /= 999998.0) then
+      else if (is_missing(z2, src='cimiss')) then
         record%amdar_height = z2
       else
         record%amdar_height = real_missing_value
       end if
-      record%amdar_pressure = multiply(merge(real_missing_value, p, p == real_missing_value_in_cimiss .or. p == 999998.0), 100.0)
-      record%amdar_temperature = merge(real_missing_value, T, T == real_missing_value_in_cimiss .or. T == 999998.0)
-      record%amdar_specific_humidity = merge(real_missing_value, q, q == real_missing_value_in_cimiss .or. q == 999998.0)
-      record%amdar_dewpoint = merge(real_missing_value, Td, Td == real_missing_value_in_cimiss .or. Td == 999998.0)
-      record%amdar_relative_humidity = merge(real_missing_value, rh, rh == real_missing_value_in_cimiss .or. rh == 999998.0)
-      record%amdar_wind_speed = merge(real_missing_value, ws, ws == real_missing_value_in_cimiss .or. ws == 999998.0)
-      record%amdar_wind_direction = merge(real_missing_value, wd, wd == real_missing_value_in_cimiss .or. wd == 999998.0)
-      record%amdar_wind_u = wind_u_component(record%amdar_wind_speed, record%amdar_wind_direction)
-      record%amdar_wind_v = wind_v_component(record%amdar_wind_speed, record%amdar_wind_direction)
-      record%amdar_turbulence_index = merge(int_missing_value, turb_idx, turb_idx == int_missing_value_in_cimiss .or. turb_idx == 999998)
+      record%amdar_pressure = multiply(p, 100.0)
+      record%amdar_temperature = T
+      record%amdar_specific_humidity = q
+      record%amdar_dewpoint = Td
+      record%amdar_relative_humidity = rh
+      record%amdar_wind_speed = ws
+      record%amdar_wind_direction = wd
+      record%amdar_wind_u = wind_u_component(ws, wd)
+      record%amdar_wind_v = wind_v_component(ws, wd)
+      record%amdar_turbulence_index = turb_idx
       call dummy_records%insert(flight_name // '@' // time%isoformat(), record)
       call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
     end select

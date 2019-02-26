@@ -69,7 +69,7 @@ contains
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Flight size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine raob_cimiss_xml_read
 
@@ -97,6 +97,7 @@ contains
     real Td, Td_qc
     real wd, wd_qc
     real ws, ws_qc
+    real rh, sh, u, v
     integer obs_type
     integer i
 
@@ -165,7 +166,16 @@ contains
         end select
       end do
       time = create_datetime(year, month, day, hour, minute)
-      h = merge(h1, h2, is_missing(h1, src='cimiss'))
+      h  = merge(h1, h2, is_missing(h1, src='cimiss'))
+      p  = multiply(merge(real_missing_value, p, is_missing(p, src='cimiss')), 100.0)
+      T  = merge(real_missing_value, T, is_missing(T, src='cimiss'))
+      Td = merge(real_missing_value, Td, is_missing(Td, src='cimiss'))
+      sh = specific_humidity_from_dewpoint(p, T, Td)
+      rh = relative_humidity(p, T, sh)
+      ws = merge(real_missing_value, ws, is_missing(ws, src='cimiss'))
+      wd = merge(real_missing_value, wd, is_missing(wd, src='cimiss'))
+      u  = wind_u_component(ws, wd)
+      v  = wind_v_component(ws, wd)
       ! Create station and record.
       if (dummy_stations%hashed(station_name)) then
         select type (value => dummy_stations%value(station_name))
@@ -192,33 +202,46 @@ contains
         new_record = .true.
       end if
       ! Set record.
-      p = multiply(merge(real_missing_value, p, is_missing(p, src='cimiss')), 100.0)
       level_key = to_string(p)
       select case (obs_type)
       case (131072) ! Surface
-        if (.not. is_missing(p))                record%snd_sfc_pressure = p
-        if (.not. is_missing(T,  src='cimiss')) record%snd_sfc_temperature = T
-        if (.not. is_missing(Td, src='cimiss')) record%snd_sfc_dewpoint = Td
-        if (.not. is_missing(ws, src='cimiss')) record%snd_sfc_wind_speed = ws
-        if (.not. is_missing(wd, src='cimiss')) record%snd_sfc_wind_direction = wd
+        record%snd_sfc_pressure       = p
+        record%snd_sfc_temperature    = T
+        record%snd_sfc_dewpoint       = Td
+        record%snd_sfc_wind_speed     = ws
+        record%snd_sfc_wind_direction = wd
+        record%snd_sfc_wind_u         = u
+        record%snd_sfc_wind_v         = v
       case (65536) ! Mandatory level
         if (.not. record%snd_man_hash%pressure%hashed(level_key) .and. .not. is_missing(p)) then
           call record%snd_man_hash%pressure%insert(level_key, p)
         end if
-        if (.not. record%snd_man_hash%height%hashed(level_key) .and. .not. is_missing(h, src='cimiss')) then
+        if (.not. record%snd_man_hash%height%hashed(level_key) .and. .not. is_missing(h)) then
           call record%snd_man_hash%height%insert(level_key, h)
         end if
-        if (.not. record%snd_man_hash%temperature%hashed(level_key) .and. .not. is_missing(T, src='cimiss')) then
+        if (.not. record%snd_man_hash%temperature%hashed(level_key) .and. .not. is_missing(T)) then
           call record%snd_man_hash%temperature%insert(level_key, T)
         end if
-        if (.not. record%snd_man_hash%dewpoint%hashed(level_key) .and. .not. is_missing(Td, src='cimiss')) then
+        if (.not. record%snd_man_hash%dewpoint%hashed(level_key) .and. .not. is_missing(Td)) then
           call record%snd_man_hash%dewpoint%insert(level_key, Td)
         end if
-        if (.not. record%snd_man_hash%wind_speed%hashed(level_key) .and. .not. is_missing(ws, src='cimiss')) then
+        if (.not. record%snd_man_hash%specific_humidity%hashed(level_key) .and. .not. is_missing(sh)) then
+          call record%snd_man_hash%specific_humidity%insert(level_key, sh)
+        end if
+        if (.not. record%snd_man_hash%relative_humidity%hashed(level_key) .and. .not. is_missing(rh)) then
+          call record%snd_man_hash%relative_humidity%insert(level_key, rh)
+        end if
+        if (.not. record%snd_man_hash%wind_speed%hashed(level_key) .and. .not. is_missing(ws)) then
           call record%snd_man_hash%wind_speed%insert(level_key, ws)
         end if
-        if (.not. record%snd_man_hash%wind_direction%hashed(level_key) .and. .not. is_missing(wd, src='cimiss')) then
+        if (.not. record%snd_man_hash%wind_direction%hashed(level_key) .and. .not. is_missing(wd)) then
           call record%snd_man_hash%wind_direction%insert(level_key, wd)
+        end if
+        if (.not. record%snd_man_hash%wind_u%hashed(level_key) .and. .not. is_missing(u)) then
+          call record%snd_man_hash%wind_u%insert(level_key, u)
+        end if
+        if (.not. record%snd_man_hash%wind_v%hashed(level_key) .and. .not. is_missing(v)) then
+          call record%snd_man_hash%wind_v%insert(level_key, v)
         end if
       case (32768) ! Tropopause level
         if (.not. record%snd_trop_hash%pressure%hashed(level_key) .and. .not. is_missing(p)) then
@@ -230,11 +253,23 @@ contains
         if (.not. record%snd_trop_hash%dewpoint%hashed(level_key) .and. .not. is_missing(Td, src='cimiss')) then
           call record%snd_trop_hash%dewpoint%insert(level_key, Td)
         end if
+        if (.not. record%snd_trop_hash%specific_humidity%hashed(level_key) .and. .not. is_missing(sh)) then
+          call record%snd_trop_hash%specific_humidity%insert(level_key, sh)
+        end if
+        if (.not. record%snd_trop_hash%relative_humidity%hashed(level_key) .and. .not. is_missing(rh)) then
+          call record%snd_trop_hash%relative_humidity%insert(level_key, rh)
+        end if
         if (.not. record%snd_trop_hash%wind_speed%hashed(level_key) .and. .not. is_missing(ws, src='cimiss')) then
           call record%snd_trop_hash%wind_speed%insert(level_key, ws)
         end if
         if (.not. record%snd_trop_hash%wind_direction%hashed(level_key) .and. .not. is_missing(wd, src='cimiss')) then
           call record%snd_trop_hash%wind_direction%insert(level_key, wd)
+        end if
+        if (.not. record%snd_trop_hash%wind_u%hashed(level_key) .and. .not. is_missing(u)) then
+          call record%snd_trop_hash%wind_u%insert(level_key, u)
+        end if
+        if (.not. record%snd_trop_hash%wind_v%hashed(level_key) .and. .not. is_missing(v)) then
+          call record%snd_trop_hash%wind_v%insert(level_key, v)
         end if
       case (8192)  ! Significant temperature level
         if (.not. record%snd_sigt_hash%pressure%hashed(level_key) .and. .not. is_missing(p)) then
@@ -245,6 +280,12 @@ contains
         end if
         if (.not. record%snd_sigt_hash%dewpoint%hashed(level_key) .and. .not. is_missing(Td, src='cimiss')) then
           call record%snd_sigt_hash%dewpoint%insert(level_key, Td)
+        end if
+        if (.not. record%snd_sigt_hash%specific_humidity%hashed(level_key) .and. .not. is_missing(sh)) then
+          call record%snd_sigt_hash%specific_humidity%insert(level_key, sh)
+        end if
+        if (.not. record%snd_sigt_hash%relative_humidity%hashed(level_key) .and. .not. is_missing(rh)) then
+          call record%snd_sigt_hash%relative_humidity%insert(level_key, rh)
         end if
       case (2048)  ! Significant wind level
         if (.not. record%snd_sigw_hash%pressure%hashed(level_key) .and. .not. is_missing(p)) then
@@ -258,6 +299,12 @@ contains
         end if
         if (.not. record%snd_sigw_hash%wind_direction%hashed(level_key) .and. .not. is_missing(wd, src='cimiss')) then
           call record%snd_sigw_hash%wind_direction%insert(level_key, wd)
+        end if
+        if (.not. record%snd_sigw_hash%wind_u%hashed(level_key) .and. .not. is_missing(u)) then
+          call record%snd_sigw_hash%wind_u%insert(level_key, u)
+        end if
+        if (.not. record%snd_sigw_hash%wind_v%hashed(level_key) .and. .not. is_missing(v)) then
+          call record%snd_sigw_hash%wind_v%insert(level_key, v)
         end if
       case (16384, 4096) ! Unknown levels
         return

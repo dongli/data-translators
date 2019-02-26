@@ -90,9 +90,9 @@ contains
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%snd_man%height(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%temperature(k))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_man%temperature(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%dewpoint(k))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_man%dewpoint(k), freezing_point))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_speed(k))
           write(10, '(I7)', advance='no') 0
@@ -114,9 +114,9 @@ contains
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%height(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%temperature(k))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_sigt%temperature(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%dewpoint(k))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_sigt%dewpoint(k), freezing_point))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%wind_speed(k))
           write(10, '(I7)', advance='no') 0
@@ -162,9 +162,9 @@ contains
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%height(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%temperature(k))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_trop%temperature(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%dewpoint(k))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_trop%dewpoint(k), freezing_point))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_speed(k))
           write(10, '(I7)', advance='no') 0

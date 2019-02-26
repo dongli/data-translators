@@ -68,6 +68,7 @@ contains
     type(datetime_type) time
     real p, p_qc
     real T, T_qc
+    real Td, sh
     real rh, rh_qc
     real wd, wd_qc
     real ws, ws_qc
@@ -130,6 +131,13 @@ contains
         end select
       end do
       time = create_datetime(year, month, day, hour, minute)
+      p  = merge(real_missing_value, p,  is_missing(p,  src='cimiss'))
+      T  = merge(real_missing_value, T,  is_missing(T,  src='cimiss'))
+      rh = merge(real_missing_value, rh, is_missing(rh, src='cimiss'))
+      sh = specific_humidity_from_relative_humidity(p, T, rh)
+      Td = dewpoint(p, sh)
+      wd = merge(real_missing_value, wd, is_missing(wd, src='cimiss'))
+      ws = merge(real_missing_value, ws, is_missing(ws, src='cimiss'))
       ! Create station and record.
       if (dummy_stations%hashed(station_name)) then
         select type (value => dummy_stations%value(station_name))
@@ -146,14 +154,15 @@ contains
       record%station => station
       record%time = time
       ! Set record.
-      record%sfc_pressure = multiply(merge(real_missing_value, p, p == real_missing_value_in_cimiss .or. p == 999998.0), 100.0)
-      record%sfc_temperature = merge(real_missing_value, T, T == real_missing_value_in_cimiss .or. T == 999998.0)
-      record%sfc_relative_humidity = merge(real_missing_value, rh, rh == real_missing_value_in_cimiss .or. rh == 999998.0)
-      record%sfc_specific_humidity = specific_humidity_from_relative_humidity(record%sfc_pressure, record%sfc_temperature, record%sfc_relative_humidity)
-      record%sfc_wind_direction = merge(real_missing_value, wd, wd == real_missing_value_in_cimiss .or. wd == 999998.0)
-      record%sfc_wind_speed = merge(real_missing_value, ws, ws == real_missing_value_in_cimiss .or. ws == 999998.0)
-      record%sfc_wind_u = wind_u_component(record%sfc_wind_speed, record%sfc_wind_direction)
-      record%sfc_wind_v = wind_v_component(record%sfc_wind_speed, record%sfc_wind_direction)
+      record%sfc_pressure = multiply(p, 100.0)
+      record%sfc_temperature = T
+      record%sfc_dewpoint = Td
+      record%sfc_relative_humidity = rh
+      record%sfc_specific_humidity = sh
+      record%sfc_wind_direction = wd
+      record%sfc_wind_speed = ws
+      record%sfc_wind_u = wind_u_component(ws, wd)
+      record%sfc_wind_v = wind_v_component(ws, wd)
       record%sfc_pressure_qc = merge(2, 3, p_qc == 0)
       record%sfc_temperature_qc = merge(2, 3, T_qc == 0)
       record%sfc_relative_humidity_qc = merge(2, 3, rh_qc == 0)
