@@ -114,6 +114,7 @@ contains
                       specific_humidity_qc,     & ! 35
                       encoding_type_qc            ! 36
 
+        time = create_datetime(year=year, month=month, day=day, hour=hour, minute=minute)
         source = merge(int_missing_value, source, is_missing(source, src='cimiss'))
         lat = merge(real_missing_value, lat, is_missing(lat, src='cimiss'))
         lon = merge(real_missing_value, lon, is_missing(lon, src='cimiss'))

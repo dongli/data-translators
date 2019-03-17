@@ -25,6 +25,7 @@ contains
     integer name_maxlen_dimid
     integer source_maxlen_dimid
     integer record_dimid
+    integer time_varid
     integer ship_name_varid
     integer ship_idx_varid
     integer src_varid
@@ -45,6 +46,7 @@ contains
     integer cld_varid
     integer ice_varid
 
+    real(8), allocatable :: time(:)
     character(8), allocatable :: ship_name(:)
     integer, allocatable :: ship_idx(:)
     character(10), allocatable :: src(:)
@@ -82,6 +84,12 @@ contains
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_dim(ncid, 'record', records%size, record_dimid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_def_var(ncid, 'time', nf90_double, [record_dimid], time_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, time_varid, 'units', 'hours since 1970-01-01T00:00:00')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'ship_name', nf90_char, [name_maxlen_dimid,ship_dimid], ship_name_varid)
@@ -207,6 +215,7 @@ contains
     ierr = nf90_enddef(ncid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    allocate(time(records%size))
     allocate(ship_name(ships%size))
     allocate(ship_idx(records%size))
     allocate(src(records%size))
@@ -241,6 +250,7 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (ship_record_type)
+        time(i) = record%time%timestamp() / 3600.0
         ship_idx(i) = record%ship%seq_id
         src(i) = record%source
         lon(i) = record%lon
@@ -261,6 +271,9 @@ contains
       i = i + 1
       call record_iterator%next()
     end do
+
+    ierr = nf90_put_var(ncid, time_varid, time)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_var(ncid, ship_name_varid, ship_name)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
@@ -316,6 +329,7 @@ contains
     ierr = nf90_close(ncid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    deallocate(time)
     deallocate(ship_name)
     deallocate(ship_idx)
     deallocate(src)
