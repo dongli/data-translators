@@ -24,9 +24,12 @@ program data_translate
   use profiler_odb_mod
   use profiler_littler_mod
   use ship_cimiss_txt_mod
+  use ship_cimiss_xml_mod
+  use ship_txt_mod
   use ship_prepbufr_mod
   use ship_odb_mod
   use ship_littler_mod
+  use ship_netcdf_mod
   use cli_mod
 
   implicit none
@@ -117,12 +120,30 @@ program data_translate
     else if (writer_type == 'littler') then
       call profiler_littler_write(output_file_path, sites, records)
     end if
+  case ('ship_cimiss_xml')
+    call ship_cimiss_xml_read(input_file_path, sites, records)
+    if (writer_type == 'odb') then
+      call ship_odb_write(output_file_path, sites, records)
+    else if (writer_type == 'littler') then
+      call ship_littler_write(output_file_path, sites, records)
+    else if (writer_type == 'netcdf') then
+      call ship_netcdf_write(output_file_path, sites, records)
+    end if
   case ('ship_cimiss_txt')
     call ship_cimiss_txt_read(input_file_path, sites, records)
     if (writer_type == 'odb') then
       call ship_odb_write(output_file_path, sites, records)
     else if (writer_type == 'littler') then
       call ship_littler_write(output_file_path, sites, records)
+    end if
+  case ('ship_txt')
+    call ship_txt_read(input_file_path, sites, records)
+    if (writer_type == 'odb') then
+      call ship_odb_write(output_file_path, sites, records)
+    else if (writer_type == 'littler') then
+      call ship_littler_write(output_file_path, sites, records)
+    else if (writer_type == 'netcdf') then
+      call ship_netcdf_write(output_file_path, sites, records)
     end if
   case ('ship_prepbufr')
     call ship_prepbufr_read(input_file_path, sites, records)

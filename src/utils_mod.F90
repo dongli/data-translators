@@ -2,6 +2,7 @@ module utils_mod
 
   use params_mod
   use eccodes
+  use netcdf
   use string_mod
   use missing_value_mod
   use atm_formula_mod
@@ -339,5 +340,22 @@ contains
     end do
 
   end function unique_real4_element_count
+
+  subroutine handle_netcdf_error(ierr, file, line)
+
+    integer, intent(in) :: ierr
+    character(*), intent(in), optional :: file
+    integer, intent(in), optional :: line
+
+    if (ierr /= nf90_noerr) then
+      if (present(file) .and. present(line)) then
+        write(*, *) '[Error]: ' // trim(file) // ':' // trim(to_string(line)) // ': ' // trim(nf90_strerror(ierr)) // '!'
+      else
+        write(*, *) '[Error]: ' // trim(nf90_strerror(ierr)) // '!'
+      end if
+      stop 1
+    end if
+
+  end subroutine handle_netcdf_error
 
 end module utils_mod

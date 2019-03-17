@@ -13,10 +13,12 @@ module obs_base_mod
   end type obs_site_base_type
 
   type, extends(obs_site_base_type) :: obs_station_type
+    integer :: seq_id = 0
     character(30) name
   end type obs_station_type
 
   type, abstract :: obs_site_nopos_base_type
+    integer :: seq_id = 0
     character(30) name
   end type obs_site_nopos_base_type
 

@@ -16,16 +16,20 @@ module ship_mod
 
   type, extends(obs_drift_record_base_type) :: ship_record_type
     type(ship_type), pointer :: ship
-    real    :: ship_pressure          = real_missing_value ! Pressure (Pa)
-    real    :: ship_air_temperature   = real_missing_value ! Air temperature (degC)
-    real    :: ship_sea_temperature   = real_missing_value ! Sea temperature / SST (degC)
-    real    :: ship_dewpoint          = real_missing_value ! Dewpoint temperature (degC)
-    real    :: ship_relative_humidity = real_missing_value ! Relative humidity (%)
-    real    :: ship_specific_humidity = real_missing_value ! Specific humidity (Mg/Kg)
-    real    :: ship_wind_speed        = real_missing_value ! Wind speed (m/s)
-    real    :: ship_wind_direction    = real_missing_value ! Wind direction (deg)
-    real    :: ship_wind_u            = real_missing_value ! U wind component (m/s)
-    real    :: ship_wind_v            = real_missing_value ! V wind component (m/s)
+    real    :: ship_pressure             = real_missing_value ! Pressure (Pa)
+    real    :: ship_air_temperature      = real_missing_value ! Air temperature (degC)
+    real    :: ship_sea_temperature      = real_missing_value ! Sea temperature / SST (degC)
+    real    :: ship_dewpoint             = real_missing_value ! Dewpoint temperature (degC)
+    real    :: ship_relative_humidity    = real_missing_value ! Relative humidity (%)
+    real    :: ship_specific_humidity    = real_missing_value ! Specific humidity (Mg/Kg)
+    real    :: ship_wind_speed           = real_missing_value ! Wind speed (m/s)
+    real    :: ship_wind_direction       = real_missing_value ! Wind direction (deg)
+    real    :: ship_wind_u               = real_missing_value ! U wind component (m/s)
+    real    :: ship_wind_v               = real_missing_value ! V wind component (m/s)
+    real    :: ship_wave_period          = real_missing_value ! (Wind) wave period (s)
+    real    :: ship_visibility           = real_missing_value ! Visibility (m)
+    real    :: ship_cloud_cover          = real_missing_value ! Cloud cover (%)
+    real    :: ship_ice_cover            = real_missing_value
 
     integer :: ship_pressure_qc          = int_missing_value
     integer :: ship_air_temperature_qc   = int_missing_value
@@ -33,7 +37,15 @@ module ship_mod
     integer :: ship_dewpoint_qc          = int_missing_value
     integer :: ship_relative_humidity_qc = int_missing_value
     integer :: ship_specific_humidity_qc = int_missing_value
+    integer :: ship_wind_u_qc            = int_missing_value
+    integer :: ship_wind_v_qc            = int_missing_value
+    integer :: ship_wind_direction_qc    = int_missing_value
+    integer :: ship_wind_speed_qc        = int_missing_value
     integer :: ship_wind_qc              = int_missing_value
+    integer :: ship_wave_period_qc       = int_missing_value
+    integer :: ship_visibility_qc        = int_missing_value
+    integer :: ship_cloud_cover_qc       = int_missing_value
+    integer :: ship_ice_cover_qc         = int_missing_value
   end type ship_record_type
 
 contains

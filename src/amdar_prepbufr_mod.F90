@@ -135,8 +135,8 @@ contains
         if (is_missing(record%amdar_wind_speed)) then
           call prepbufr_raw(obs(u_idx,1,:), record%amdar_wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%amdar_wind_qc)
           call prepbufr_raw(obs(v_idx,1,:), record%amdar_wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%amdar_wind_qc)
-          record%amdar_wind_speed     = merge(real_missing_value, sqrt(record%amdar_wind_u**2 + record%amdar_wind_v**2), is_missing(record%amdar_wind_u))
-          record%amdar_wind_direction = merge(real_missing_value, wind_direction(record%amdar_wind_u, record%amdar_wind_v), is_missing(record%amdar_wind_u))
+          record%amdar_wind_speed = wind_speed(record%amdar_wind_u, record%amdar_wind_v)
+          record%amdar_wind_direction = wind_direction(record%amdar_wind_u, record%amdar_wind_v)
         end if
         if (is_missing(record%amdar_dewpoint)) then
           call prepbufr_raw(obs(Td_idx,1,:), record%amdar_dewpoint)

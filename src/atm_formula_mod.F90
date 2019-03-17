@@ -27,6 +27,19 @@ contains
 
   end function wind_direction
 
+  real function wind_speed(u, v) result(ws) ! m s-1
+
+    real, intent(in) :: u ! m s-1
+    real, intent(in) :: v ! m s-1
+
+    if (is_missing(u) .or. is_missing(v)) then
+      ws = real_missing_value
+    else
+      ws = sqrt(u**2 + v**2)
+    end if
+
+  end function wind_speed
+
   real function wind_u_component(ws, wd) result(u) ! m s-1
 
     real, intent(in) :: ws ! m s-1

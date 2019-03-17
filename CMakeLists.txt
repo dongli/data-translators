@@ -122,9 +122,12 @@ add_library(data_translators
   src/metar_littler_mod.F90
   src/ship_mod.F90
   src/ship_cimiss_txt_mod.F90
+  src/ship_cimiss_xml_mod.F90
+  src/ship_txt_mod.F90
   src/ship_prepbufr_mod.F90
   src/ship_odb_mod.F90
   src/ship_littler_mod.F90
+  src/ship_netcdf_mod.F90
   src/radar_mod.F90
   src/string_mod.F90
   src/cli_mod.F90
