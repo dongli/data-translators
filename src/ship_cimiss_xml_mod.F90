@@ -68,7 +68,10 @@ contains
     type(datetime_type) time
     real wd, wd_qc
     real ws, ws_qc
-    real wave_period, wave_period_qc
+    real wind_wave_height, wind_wave_height_qc
+    real wind_wave_period, wind_wave_period_qc
+    real surge_wave_height, surge_wave_height_qc
+    real surge_wave_period, surge_wave_period_qc
     real vis, vis_qc
     real cld, cld_qc
     integer i
@@ -113,10 +116,22 @@ contains
           read(value, *) ws
         case ('Q_WIN_S')
           read(value, *) ws_qc
+        case ('WinWave_Heigh')
+          read(value, *) wind_wave_height
+        case ('Q_WinWave_Heigh')
+          read(value, *) wind_wave_height_qc
         case ('WinWave_CYC')
-          read(value, *) wave_period
+          read(value, *) wind_wave_period
         case ('Q_WinWave_CYC')
-          read(value, *) wave_period_qc
+          read(value, *) wind_wave_period_qc
+        case ('SeaWave_1st_Heigh')
+          read(value, *) surge_wave_height
+        case ('Q_SeaWave_1st_Heigh')
+          read(value, *) surge_wave_height_qc
+        case ('SeaWave_1st_CYC')
+          read(value, *) surge_wave_period
+        case ('Q_SeaWave_1st_CYC')
+          read(value, *) surge_wave_period_qc
         case ('VIS')
           read(value, *) vis
         case ('Q_VIS')
@@ -134,6 +149,10 @@ contains
       ws  = merge(real_missing_value, ws,  is_missing(ws,  src='cimiss'))
       vis = merge(real_missing_value, vis, is_missing(vis, src='cimiss'))
       cld = merge(real_missing_value, cld, is_missing(cld, src='cimiss'))
+      wind_wave_height  = merge(real_missing_value, wind_wave_height,  is_missing(wind_wave_height,  src='cimiss'))
+      wind_wave_period  = merge(real_missing_value, wind_wave_period,  is_missing(wind_wave_period,  src='cimiss'))
+      surge_wave_height = merge(real_missing_value, surge_wave_height, is_missing(surge_wave_height, src='cimiss'))
+      surge_wave_period = merge(real_missing_value, surge_wave_period, is_missing(surge_wave_period, src='cimiss'))
       ! Create ship and record.
       if (dummy_ships%hashed(ship_name)) then
         select type (value => dummy_ships%value(ship_name))
@@ -157,13 +176,19 @@ contains
       record%ship_wind_speed = ws
       record%ship_wind_u = wind_u_component(ws, wd)
       record%ship_wind_v = wind_v_component(ws, wd)
-      record%ship_wave_period = wave_period
+      record%ship_wind_wave_height = wind_wave_height
+      record%ship_wind_wave_period = wind_wave_period
+      record%ship_surge_wave_height = surge_wave_height
+      record%ship_surge_wave_period = surge_wave_period
       record%ship_visibility = vis
       record%ship_cloud_cover = cld
       ! TODO: How to map CIMISS QC to PrepBUFR QC?
       record%ship_wind_direction_qc = wd_qc
       record%ship_wind_speed_qc = ws_qc
-      record%ship_wave_period_qc = wave_period_qc
+      record%ship_wind_wave_height_qc = wind_wave_height_qc
+      record%ship_wind_wave_period_qc = wind_wave_period_qc
+      record%ship_surge_wave_height_qc = surge_wave_height_qc
+      record%ship_surge_wave_period_qc = surge_wave_period_qc
       record%ship_visibility_qc = vis_qc
       record%ship_cloud_cover_qc = cld_qc
       call dummy_records%insert(ship_name // '@' // time%isoformat(), record)

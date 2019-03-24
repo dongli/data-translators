@@ -42,6 +42,9 @@ contains
     integer wd_varid
     integer ws_varid
     integer wvp_varid
+    integer wvh_varid
+    integer svp_varid
+    integer svh_varid
     integer vis_varid
     integer cld_varid
     integer ice_varid
@@ -62,7 +65,10 @@ contains
     real, allocatable :: v(:)
     real, allocatable :: wd(:)
     real, allocatable :: ws(:)
+    real, allocatable :: wvh(:)
     real, allocatable :: wvp(:)
+    real, allocatable :: svh(:)
+    real, allocatable :: svp(:)
     real, allocatable :: vis(:)
     real, allocatable :: cld(:)
     real, allocatable :: ice(:)
@@ -188,13 +194,46 @@ contains
     ierr = nf90_put_att(ncid, ws_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'wave_period', nf90_float, [record_dimid], wvp_varid)
+    ierr = nf90_def_var(ncid, 'wind_wave_height', nf90_float, [record_dimid], wvh_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, wvh_varid, 'units', 'm')
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, wvh_varid, '_FillValue', real_missing_value)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_def_var(ncid, 'wind_wave_period', nf90_float, [record_dimid], wvp_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, wvp_varid, 'units', 's')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, wvp_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    ierr = nf90_def_var(ncid, 'surge_wave_height', nf90_float, [record_dimid], svh_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, svh_varid, 'units', 'm')
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, svh_varid, '_FillValue', real_missing_value)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_def_var(ncid, 'surge_wave_period', nf90_float, [record_dimid], svp_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, svp_varid, 'units', 's')
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, svp_varid, '_FillValue', real_missing_value)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
     ierr = nf90_def_var(ncid, 'visibility', nf90_float, [record_dimid], vis_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, vis_varid, 'units', 'm')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, vis_varid, '_FillValue', real_missing_value)
@@ -203,10 +242,16 @@ contains
     ierr = nf90_def_var(ncid, 'cloud_cover', nf90_float, [record_dimid], cld_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    ierr = nf90_put_att(ncid, cld_varid, 'units', '%')
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
     ierr = nf90_put_att(ncid, cld_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'ice_cover', nf90_float, [record_dimid], ice_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, ice_varid, 'units', '%')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ice_varid, '_FillValue', real_missing_value)
@@ -229,7 +274,10 @@ contains
     allocate(sh(records%size))
     allocate(wd(records%size))
     allocate(ws(records%size))
+    allocate(wvh(records%size))
     allocate(wvp(records%size))
+    allocate(svh(records%size))
+    allocate(svp(records%size))
     allocate(vis(records%size))
     allocate(cld(records%size))
     allocate(ice(records%size))
@@ -263,7 +311,10 @@ contains
         sh (i) = record%ship_specific_humidity
         wd (i) = record%ship_wind_direction
         ws (i) = record%ship_wind_speed
-        wvp(i) = record%ship_wave_period
+        wvh(i) = record%ship_wind_wave_height
+        wvp(i) = record%ship_wind_wave_period
+        svh(i) = record%ship_surge_wave_height
+        svp(i) = record%ship_surge_wave_period
         vis(i) = record%ship_visibility
         cld(i) = record%ship_cloud_cover
         ice(i) = record%ship_ice_cover
@@ -314,7 +365,16 @@ contains
     ierr = nf90_put_var(ncid, ws_varid, ws)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    ierr = nf90_put_var(ncid, wvh_varid, wvh)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
     ierr = nf90_put_var(ncid, wvp_varid, wvp)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_var(ncid, svh_varid, svh)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_var(ncid, svp_varid, svp)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_var(ncid, vis_varid, vis)
@@ -343,7 +403,10 @@ contains
     deallocate(sh)
     deallocate(wd)
     deallocate(ws)
+    deallocate(wvh)
     deallocate(wvp)
+    deallocate(svh)
+    deallocate(svp)
     deallocate(vis)
     deallocate(cld)
     deallocate(ice)
