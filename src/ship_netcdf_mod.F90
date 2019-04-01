@@ -20,14 +20,16 @@ contains
 
     type(hash_table_iterator_type) ship_iterator
     type(linked_list_iterator_type) record_iterator
-    integer ncid, ierr, i
+    integer ncid, ierr, i, j
     integer ship_dimid
     integer name_maxlen_dimid
     integer source_maxlen_dimid
+    integer max_record_per_ship_dimid
     integer record_dimid
     integer time_varid
     integer ship_name_varid
     integer ship_idx_varid
+    integer record_idx_varid
     integer src_varid
     integer lon_varid
     integer lat_varid
@@ -49,9 +51,12 @@ contains
     integer cld_varid
     integer ice_varid
 
+    integer, parameter :: max_record_per_ship = 100
+
     real(8), allocatable :: time(:)
     character(8), allocatable :: ship_name(:)
     integer, allocatable :: ship_idx(:)
+    integer, allocatable :: record_idx(:,:)
     character(10), allocatable :: src(:)
     real, allocatable :: lon(:)
     real, allocatable :: lat(:)
@@ -92,6 +97,9 @@ contains
     ierr = nf90_def_dim(ncid, 'record', records%size, record_dimid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    ierr = nf90_def_dim(ncid, 'max_record_per_ship', max_record_per_ship, max_record_per_ship_dimid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
     ierr = nf90_def_var(ncid, 'time', nf90_double, [record_dimid], time_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
@@ -102,6 +110,9 @@ contains
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'ship_idx', nf90_int, [record_dimid], ship_idx_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_def_var(ncid, 'record_idx', nf90_int, [max_record_per_ship_dimid,ship_dimid], record_idx_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'source', nf90_char, [source_maxlen_dimid,record_dimid], src_varid)
@@ -263,6 +274,7 @@ contains
     allocate(time(records%size))
     allocate(ship_name(ships%size))
     allocate(ship_idx(records%size))
+    allocate(record_idx(max_record_per_ship,ships%size))
     allocate(src(records%size))
     allocate(lon(records%size))
     allocate(lat(records%size))
@@ -282,6 +294,8 @@ contains
     allocate(cld(records%size))
     allocate(ice(records%size))
 
+    record_idx = -1
+
     i = 1
     ship_iterator = hash_table_iterator(ships)
     do while (.not. ship_iterator%ended())
@@ -300,6 +314,12 @@ contains
       type is (ship_record_type)
         time(i) = record%time%timestamp() / 3600.0
         ship_idx(i) = record%ship%seq_id
+        j = count(record_idx(:,ship_idx(i)+1) >= 0) + 1
+        if (j > max_record_per_ship) then
+          write(*, *) '[Error]: Exceeds max_record_per_ship ' // trim(to_string(max_record_per_ship)) // '!'
+          stop 1
+        end if
+        record_idx(j,ship_idx(i)+1) = record%seq_id
         src(i) = record%source
         lon(i) = record%lon
         lat(i) = record%lat
@@ -330,6 +350,9 @@ contains
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_var(ncid, ship_idx_varid, ship_idx)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_var(ncid, record_idx_varid, record_idx)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_var(ncid, src_varid, src)
@@ -392,6 +415,7 @@ contains
     deallocate(time)
     deallocate(ship_name)
     deallocate(ship_idx)
+    deallocate(record_idx)
     deallocate(src)
     deallocate(lon)
     deallocate(lat)

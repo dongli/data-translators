@@ -170,6 +170,7 @@ contains
       record%ship => ship
       record%time = time
       ! Set record.
+      record%source = 'CIMISS'
       record%lon = lon
       record%lat = lat
       record%ship_wind_direction = wd

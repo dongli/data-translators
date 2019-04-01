@@ -1,3 +1,5 @@
+! NOTE: seq_id is zero-started.
+
 module obs_base_mod
 
   use datetime_mod
