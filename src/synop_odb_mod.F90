@@ -31,12 +31,12 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE synop AS (' // &
-      'station_name STRING, ' // &              !  1
+      'platform_id STRING, ' // &               !  1
       'lon REAL, ' // &                         !  2
       'lat REAL, ' // &                         !  3
       'z REAL, ' // &                           !  4
-      'date STRING, ' // &                      !  5
-      'time STRING, ' // &                      !  6
+      'date YYYYMMDD, ' // &                    !  5
+      'time HHMMSS, ' // &                      !  6
       'type INTEGER, ' // &                     !  7
       'temperature REAL, ' // &                 !  8
       'temperature_qc INTEGER, ' // &           !  9
@@ -48,7 +48,7 @@ contains
       'pressure_qc INTEGER, ' // &              ! 15
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO synop (' // &
-      'station_name, ' // &                     !  1
+      'platform_id, ' // &                      !  1
       'lon, ' // &                              !  2
       'lat, ' // &                              !  3
       'z, ' // &                                !  4
