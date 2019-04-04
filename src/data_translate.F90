@@ -41,6 +41,8 @@ program data_translate
   type(hash_table_type) sites
   type(linked_list_type) records
 
+  call print_help()
+
   input_file_path = cli_get_input_file_path()
   output_file_path = cli_get_output_file_path()
   writer_type = cli_get_writer_type()
@@ -160,5 +162,27 @@ program data_translate
   if (output_file_path /= '') then
     write(*, *) '[Notice]: Data ' // trim(output_file_path) // ' is created.'
   end if
+
+contains
+
+  subroutine print_help()
+
+    character(256) arg
+    integer i
+
+    i = 1
+    do while (i <= command_argument_count())
+      call get_command_argument(i, arg)
+      i = i + 1
+      if (arg == '-h' .or. arg == '--help') then
+        write(*, *)
+        write(*, *) ' ./data_translate.exe -r <obs_type>_<input_format> -w <output_format> -i <input_obs_file> -o <output_obs_file>'
+        write(*, *)
+        stop 0
+      end if
+    end do
+
+  end subroutine print_help
+
 
 end program data_translate
