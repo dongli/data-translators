@@ -96,6 +96,7 @@ contains
           lat = hdr(3)
           z = hdr(4)
           call station%init(station_name, lon, lat, z)
+          station%seq_id = stations%size
           call stations%insert(station_name, station)
         end if
         nullify(record)
