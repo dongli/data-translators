@@ -72,6 +72,7 @@ contains
     real wind_wave_period, wind_wave_period_qc
     real surge_wave_height, surge_wave_height_qc
     real surge_wave_period, surge_wave_period_qc
+    real surge_wave_direction, surge_wave_direction_qc
     real vis, vis_qc
     real cld, cld_qc
     integer i
@@ -132,6 +133,10 @@ contains
           read(value, *) surge_wave_period
         case ('Q_SeaWave_1st_CYC')
           read(value, *) surge_wave_period_qc
+        case ('SeaWave_1st_D')
+          read(value, *) surge_wave_direction
+        case ('Q_SeaWave_1st_D')
+          read(value, *) surge_wave_direction_qc
         case ('VIS')
           read(value, *) vis
         case ('Q_VIS')
@@ -153,6 +158,7 @@ contains
       wind_wave_period  = merge(real_missing_value, wind_wave_period,  is_missing(wind_wave_period,  src='cimiss'))
       surge_wave_height = merge(real_missing_value, surge_wave_height, is_missing(surge_wave_height, src='cimiss'))
       surge_wave_period = merge(real_missing_value, surge_wave_period, is_missing(surge_wave_period, src='cimiss'))
+      surge_wave_direction = merge(real_missing_value, surge_wave_direction, is_missing(surge_wave_direction, src='cimiss'))
       ! Create ship and record.
       if (dummy_ships%hashed(ship_name)) then
         select type (value => dummy_ships%value(ship_name))
@@ -181,6 +187,7 @@ contains
       record%ship_wind_wave_period = wind_wave_period
       record%ship_surge_wave_height = surge_wave_height
       record%ship_surge_wave_period = surge_wave_period
+      record%ship_surge_wave_direction = surge_wave_direction
       record%ship_visibility = vis
       record%ship_cloud_cover = cld
       ! TODO: How to map CIMISS QC to PrepBUFR QC?
@@ -190,6 +197,7 @@ contains
       record%ship_wind_wave_period_qc = wind_wave_period_qc
       record%ship_surge_wave_height_qc = surge_wave_height_qc
       record%ship_surge_wave_period_qc = surge_wave_period_qc
+      record%ship_surge_wave_direction_qc = surge_wave_direction_qc
       record%ship_visibility_qc = vis_qc
       record%ship_cloud_cover_qc = cld_qc
       call dummy_records%insert(ship_name // '@' // time%isoformat(), record)

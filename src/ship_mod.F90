@@ -30,6 +30,7 @@ module ship_mod
     real    :: ship_wind_wave_period     = real_missing_value ! Wind wave period (s)
     real    :: ship_surge_wave_height    = real_missing_value ! Surge wave height (m)
     real    :: ship_surge_wave_period    = real_missing_value ! Surge wave period (s)
+    real    :: ship_surge_wave_direction = real_missing_value ! Surge wave direction (deg)
     real    :: ship_visibility           = real_missing_value ! Visibility (m)
     real    :: ship_cloud_cover          = real_missing_value ! Cloud cover (%)
     real    :: ship_ice_cover            = real_missing_value
@@ -49,6 +50,7 @@ module ship_mod
     integer :: ship_wind_wave_period_qc  = int_missing_value
     integer :: ship_surge_wave_height_qc = int_missing_value
     integer :: ship_surge_wave_period_qc = int_missing_value
+    integer :: ship_surge_wave_direction_qc = int_missing_value
     integer :: ship_visibility_qc        = int_missing_value
     integer :: ship_cloud_cover_qc       = int_missing_value
     integer :: ship_ice_cover_qc         = int_missing_value

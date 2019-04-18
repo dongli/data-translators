@@ -47,6 +47,7 @@ contains
     integer wvh_varid
     integer svp_varid
     integer svh_varid
+    integer svd_varid
     integer vis_varid
     integer cld_varid
     integer ice_varid
@@ -74,6 +75,7 @@ contains
     real, allocatable :: wvp(:)
     real, allocatable :: svh(:)
     real, allocatable :: svp(:)
+    real, allocatable :: svd(:)
     real, allocatable :: vis(:)
     real, allocatable :: cld(:)
     real, allocatable :: ice(:)
@@ -241,6 +243,15 @@ contains
     ierr = nf90_put_att(ncid, svp_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    ierr = nf90_def_var(ncid, 'surge_wave_direction', nf90_float, [record_dimid], svd_varid)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, svd_varid, 'units', 'deg')
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
+    ierr = nf90_put_att(ncid, svd_varid, '_FillValue', real_missing_value)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
     ierr = nf90_def_var(ncid, 'visibility', nf90_float, [record_dimid], vis_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
@@ -290,6 +301,7 @@ contains
     allocate(wvp(records%size))
     allocate(svh(records%size))
     allocate(svp(records%size))
+    allocate(svd(records%size))
     allocate(vis(records%size))
     allocate(cld(records%size))
     allocate(ice(records%size))
@@ -335,6 +347,7 @@ contains
         wvp(i) = record%ship_wind_wave_period
         svh(i) = record%ship_surge_wave_height
         svp(i) = record%ship_surge_wave_period
+        svd(i) = record%ship_surge_wave_direction
         vis(i) = record%ship_visibility
         cld(i) = record%ship_cloud_cover
         ice(i) = record%ship_ice_cover
@@ -400,6 +413,9 @@ contains
     ierr = nf90_put_var(ncid, svp_varid, svp)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
+    ierr = nf90_put_var(ncid, svd_varid, svd)
+    call handle_netcdf_error(ierr, __FILE__, __LINE__)
+
     ierr = nf90_put_var(ncid, vis_varid, vis)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
@@ -431,6 +447,7 @@ contains
     deallocate(wvp)
     deallocate(svh)
     deallocate(svp)
+    deallocate(svd)
     deallocate(vis)
     deallocate(cld)
     deallocate(ice)
