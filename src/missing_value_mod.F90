@@ -20,8 +20,10 @@ module missing_value_mod
   integer, parameter :: int_missing_value_in_littler = -888888
   real, parameter :: real_missing_value_in_cimiss_1 = 999999.0
   real, parameter :: real_missing_value_in_cimiss_2 = 999998.0
+  real, parameter :: real_missing_value_in_cimiss_3 = 999997.0
   integer, parameter :: int_missing_value_in_cimiss_1 = 999999
   integer, parameter :: int_missing_value_in_cimiss_2 = 999998
+  integer, parameter :: int_missing_value_in_cimiss_3 = 999997
 
   interface is_missing
     module procedure is_missing_str
@@ -48,7 +50,7 @@ contains
     if (present(src)) then
       select case (src)
       case ('cimiss')
-        res = x == int_missing_value_in_cimiss_1 .or. x == int_missing_value_in_cimiss_2
+        res = x == int_missing_value_in_cimiss_1 .or. x == int_missing_value_in_cimiss_2 .or. x == int_missing_value_in_cimiss_3
       case default
         write(*, *) '[Error]: is_missing: Unknown src ' // trim(src) // '!'
       end select
@@ -66,7 +68,7 @@ contains
     if (present(src)) then
       select case (src)
       case ('cimiss')
-        res = x == real_missing_value_in_cimiss_1 .or. x == real_missing_value_in_cimiss_2
+        res = x == real_missing_value_in_cimiss_1 .or. x == real_missing_value_in_cimiss_2 .or. x == real_missing_value_in_cimiss_3
       case ('prepbufr')
         res = x == missing_value_in_prepbufr
       case default
