@@ -92,6 +92,14 @@ Reference [here](http://www.emc.ncep.noaa.gov/mmb/data_processing/prepbufr.doc/t
   rejected but with a value of 9 or 15.  Applies to temperature.  (Note: Prior
   to 12/04/2007 this case received quality marker 8.)
 
+% - NAM and GFS/GDAS GSI analyses only: Observations normally used by the
+analysis when their quality marker is < 4 (based on their report type and
+variable) will be MONITORED  (but NOT USED) by the analysis when their quality
+marker is 9 or 15.   (Observations with quality marker 4-8, 10-14 will NOT be
+monitored nor used by the analysis.)  (Note: Non-GSI analyses currently do not
+use any observations with quality marker > 3, as they are not set up to monitor
+observations.)
+
 ## Observation program codes
 
 - 0: Reserved.

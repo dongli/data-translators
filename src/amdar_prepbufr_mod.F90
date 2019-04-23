@@ -64,7 +64,6 @@ contains
       if (subset /= 'AIRCFT' .and. subset /= 'AIRCAR') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
-      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         ! PRSLEVLA  RCT      ROLF        MSTQ        IALR        CAT        
@@ -80,7 +79,6 @@ contains
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'NUL NUL  NUL  NUL  NUL PPC ZPC TPC QPC WPC WPC NUL NUL')
         flight_name = transfer(hdr(1), flight_name)
         lon = hdr(2)
-        if (.not. is_missing(lon) .and. lon > 180) lon = lon - 360
         lat = hdr(3)
         call prepbufr_raw(obs(p_idx,1,:), p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:))
         p = multiply(p, 100.0)

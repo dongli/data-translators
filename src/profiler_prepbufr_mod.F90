@@ -44,6 +44,7 @@ contains
     real(8) qc(max_num_var,max_num_lev,max_num_event)
     real(8) pc(max_num_var,max_num_lev,max_num_event)
     real lon, lat, z, p, h, u, v, wd, ws
+    integer p_qc, h_qc, uv_qc
     type(datetime_type) base_time, time
     logical new_record
     type(profiler_station_type), pointer :: station
@@ -66,7 +67,6 @@ contains
       if (subset /= 'PROFLR') cycle
       write(sdate, "(I10)") idate
       time = create_datetime(sdate, '%Y%m%d%H')
-      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -87,10 +87,10 @@ contains
         else
           allocate(station)
           lon = hdr(2)
-          if (lon > 180) lon = lon - 360
           lat = hdr(3)
           z = hdr(4)
           call station%init(station_name, lon, lat, z)
+          station%seq_id = stations%size
           call stations%insert(station_name, station)
         end if
         nullify(record)
@@ -115,20 +115,23 @@ contains
 
         num_level = prepbufr_value_count(obs(cat_idx,:,1))
         do i = 1, num_level
-          call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:))
+          call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
           p = p * 100 ! Convert units from hPa to Pa.
           key = to_string(p)
           if (.not. record%pro_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
             call record%pro_hash%pressure%insert(key, p)
+            call record%pro_hash%pressure_qc%insert(key, p_qc)
           end if
-          call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
+          call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:), qc=h_qc)
           if (.not. record%pro_hash%height%hashed(key) .and. .not. is_missing(h)) then
             call record%pro_hash%height%insert(key, h)
+            call record%pro_hash%height_qc%insert(key, h_qc)
           end if
-          call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
+          call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=uv_qc)
           if (.not. record%pro_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
             call record%pro_hash%wind_u%insert(key, u)
+            call record%pro_hash%wind_qc%insert(key, uv_qc)
           end if
           call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
           if (.not. record%pro_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
@@ -159,9 +162,9 @@ contains
         call record%pro%init(record%pro_hash%pressure%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        ! if (record%station%name == '48839') then
-        !   call debug_print(record, obs, qc, pc)
-        ! end if
+        if (record%station%name == '54511') then
+          call record%print()
+        end if
       end select
       call record_iterator%next()
     end do
@@ -169,29 +172,5 @@ contains
     write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine profiler_prepbufr_read
-
-  subroutine debug_print(record, obs, qc, pc)
-
-    type(profiler_record_type), intent(in) :: record
-    real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)
-
-    integer i
-
-    print *, 'Station ', record%station%name
-    print *, 'Time ', record%time%isoformat()
-    write(*, '(6A15)') 'P', 'Z', 'U', 'V', 'WD', 'WS'
-    do i = 1, record%pro%num_level
-      write(*, '(F15.1)', advance='no') record%pro%pressure(i)
-      write(*, '(F15.1)', advance='no') record%pro%height(i)
-      write(*, '(F15.1)', advance='no') record%pro%wind_u(i)
-      write(*, '(F15.1)', advance='no') record%pro%wind_v(i)
-      write(*, '(F15.1)', advance='no') record%pro%wind_direction(i)
-      write(*, '(F15.1)', advance='no') record%pro%wind_speed(i)
-      write(*, *)
-    end do
-
-  end subroutine debug_print
 
 end module

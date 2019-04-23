@@ -47,7 +47,7 @@ contains
     real(8) qc(max_num_var,max_num_lev,max_num_event)
     real(8) pc(max_num_var,max_num_lev,max_num_event)
     real lon, lat, z, p, T, sh, Td, rh, u, v, wd, ws, h
-    integer p_qc, T_qc, sh_qc, uv_qc
+    integer p_qc, T_qc, sh_qc, uv_qc, h_qc
     type(datetime_type) base_time, time
     logical new_record
     type(raob_station_type), pointer :: station
@@ -70,7 +70,6 @@ contains
       if (subset /= 'ADPUPA') cycle
       write(sdate, "(I10)") idate
       base_time = create_datetime(sdate, '%Y%m%d%H')
-      ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -91,10 +90,10 @@ contains
         else
           allocate(station)
           lon = hdr(2)
-          if (lon > 180) lon = lon - 360
           lat = hdr(3)
           z = hdr(4)
           call station%init(station_name, lon, lat, z)
+          station%seq_id = stations%size
           call stations%insert(station_name, station)
         end if
         nullify(record)
@@ -119,7 +118,7 @@ contains
 
         num_level = prepbufr_value_count(obs(cat_idx,:,1))
         do i = 1, num_level
-          call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:))
+          call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
           p = p * 100 ! Convert units from hPa to Pa.
           key = to_string(p)
@@ -127,14 +126,17 @@ contains
           case (1) ! Mandatory level
             if (.not. record%snd_man_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
               call record%snd_man_hash%pressure%insert(key, p)
+              call record%snd_man_hash%pressure_qc%insert(key, p_qc)
             end if
-            call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:))
+            call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:), qc=T_qc)
             if (.not. record%snd_man_hash%temperature%hashed(key) .and. .not. is_missing(T)) then
               call record%snd_man_hash%temperature%insert(key, T)
+              call record%snd_man_hash%temperature_qc%insert(key, T_qc)
             end if
-            call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:))
+            call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:), qc=sh_qc)
             if (.not. record%snd_man_hash%specific_humidity%hashed(key) .and. .not. is_missing(sh)) then
               call record%snd_man_hash%specific_humidity%insert(key, sh)
+              call record%snd_man_hash%specific_humidity_qc%insert(key, sh_qc)
             end if
             call prepbufr_raw(obs(Td_idx,i,:), Td)
             if (.not. record%snd_man_hash%dewpoint%hashed(key)) then
@@ -145,9 +147,10 @@ contains
             if (.not. record%snd_man_hash%relative_humidity%hashed(key) .and. .not. is_missing(rh)) then
               call record%snd_man_hash%relative_humidity%insert(key, rh)
             end if
-            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
+            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=uv_qc)
             if (.not. record%snd_man_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
               call record%snd_man_hash%wind_u%insert(key, u)
+              call record%snd_man_hash%wind_qc%insert(key, uv_qc)
             end if
             call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
             if (.not. record%snd_man_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
@@ -161,23 +164,27 @@ contains
             if (.not. record%snd_man_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
               call record%snd_man_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
-            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
+            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:), qc=h_qc)
             if (.not. record%snd_man_hash%height%hashed(key) .and. .not. is_missing(h)) then
               call record%snd_man_hash%height%insert(key, h)
+              call record%snd_man_hash%height_qc%insert(key, h_qc)
             end if
           case (2) ! Significant temperature level
             if (.not. record%snd_sigt_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
               call record%snd_sigt_hash%pressure%insert(key, p)
+              call record%snd_sigt_hash%pressure_qc%insert(key, p_qc)
             end if
-            call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:))
+            call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:), qc=T_qc)
             if (.not. record%snd_sigt_hash%temperature%hashed(key) .and. .not. is_missing(T)) then
               call record%snd_sigt_hash%temperature%insert(key, T)
+              call record%snd_sigt_hash%temperature_qc%insert(key, T_qc)
             end if
-            call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:))
+            call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:), qc=sh_qc)
             if (.not. record%snd_sigt_hash%specific_humidity%hashed(key) .and. .not. is_missing(sh)) then
               call record%snd_sigt_hash%specific_humidity%insert(key, sh)
+              call record%snd_sigt_hash%specific_humidity_qc%insert(key, sh_qc)
             end if
-            call prepbufr_raw(obs(Td_idx,i,:), Td, stack_qc=qc(Td_idx,i,:), stack_pc=pc(Td_idx,i,:))
+            call prepbufr_raw(obs(Td_idx,i,:), Td)
             if (.not. record%snd_sigt_hash%dewpoint%hashed(key)) then
               if (is_missing(Td)) Td = dewpoint(p, sh)
               if (.not. is_missing(Td)) call record%snd_sigt_hash%dewpoint%insert(key, Td)
@@ -186,9 +193,10 @@ contains
             if (.not. record%snd_sigt_hash%relative_humidity%hashed(key) .and. .not. is_missing(rh)) then
               call record%snd_sigt_hash%relative_humidity%insert(key, rh)
             end if
-            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
+            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=uv_qc)
             if (.not. record%snd_sigt_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
               call record%snd_sigt_hash%wind_u%insert(key, u)
+              call record%snd_sigt_hash%wind_qc%insert(key, uv_qc)
             end if
             call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
             if (.not. record%snd_sigt_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
@@ -202,17 +210,20 @@ contains
             if (.not. record%snd_sigt_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
               call record%snd_sigt_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
-            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
+            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:), qc=h_qc)
             if (.not. record%snd_sigt_hash%height%hashed(key) .and. .not. is_missing(h)) then
               call record%snd_sigt_hash%height%insert(key, h)
+              call record%snd_sigt_hash%height_qc%insert(key, h_qc)
             end if
           case (3, 4) ! Winds-by-pressure level or Winds-by-height level
             if (.not. record%snd_sigw_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
               call record%snd_sigw_hash%pressure%insert(key, p)
+              call record%snd_sigw_hash%pressure_qc%insert(key, p_qc)
             end if
-            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
+            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=uv_qc)
             if (.not. record%snd_sigw_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
               call record%snd_sigw_hash%wind_u%insert(key, u)
+              call record%snd_sigw_hash%wind_qc%insert(key, uv_qc)
             end if
             call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
             if (.not. record%snd_sigw_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
@@ -226,30 +237,35 @@ contains
             if (.not. record%snd_sigw_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
               call record%snd_sigw_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
-            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
+            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:), qc=h_qc)
             if (.not. record%snd_sigw_hash%height%hashed(key) .and. .not. is_missing(h)) then
               call record%snd_sigw_hash%height%insert(key, h)
+              call record%snd_sigw_hash%height_qc%insert(key, h_qc)
             end if
           case (5) ! Tropopause level
             if (.not. record%snd_trop_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
               call record%snd_trop_hash%pressure%insert(key, p)
+              call record%snd_trop_hash%pressure_qc%insert(key, p_qc)
             end if
-            call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:))
+            call prepbufr_raw(obs(T_idx,i,:), T, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:), qc=T_qc)
             if (.not. record%snd_trop_hash%temperature%hashed(key) .and. .not. is_missing(T)) then
               call record%snd_trop_hash%temperature%insert(key, T)
+              call record%snd_trop_hash%temperature_qc%insert(key, T_qc)
             end if
-            call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:))
+            call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:), qc=sh_qc)
             if (.not. record%snd_trop_hash%specific_humidity%hashed(key) .and. .not. is_missing(sh)) then
               call record%snd_trop_hash%specific_humidity%insert(key, sh)
+              call record%snd_trop_hash%specific_humidity_qc%insert(key, sh_qc)
             end if
-            call prepbufr_raw(obs(Td_idx,i,:), Td, stack_qc=qc(Td_idx,i,:), stack_pc=pc(Td_idx,i,:))
+            call prepbufr_raw(obs(Td_idx,i,:), Td)
             if (.not. record%snd_trop_hash%dewpoint%hashed(key)) then
               if (is_missing(Td)) Td = dewpoint(p, sh)
               if (.not. is_missing(Td)) call record%snd_trop_hash%dewpoint%insert(key, Td)
             end if
-            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
+            call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=uv_qc)
             if (.not. record%snd_trop_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
               call record%snd_trop_hash%wind_u%insert(key, u)
+              call record%snd_trop_hash%wind_qc%insert(key, uv_qc)
             end if
             call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
             if (.not. record%snd_trop_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
@@ -263,26 +279,27 @@ contains
             if (.not. record%snd_trop_hash%wind_speed%hashed(key) .and. .not. is_missing(ws)) then
               call record%snd_trop_hash%wind_speed%insert(key, knot_to_meter_per_second(ws))
             end if
-            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:))
+            call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:), qc=h_qc)
             if (.not. record%snd_trop_hash%height%hashed(key) .and. .not. is_missing(h)) then
               call record%snd_trop_hash%height%insert(key, h)
+              call record%snd_trop_hash%height_qc%insert(key, h_qc)
             end if
           case (0)
             if (is_missing(record%snd_sfc_pressure)) then
-              call prepbufr_raw(obs(p_idx,i,:), record%snd_sfc_pressure, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:))
+              call prepbufr_raw(obs(p_idx,i,:), record%snd_sfc_pressure, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=record%snd_sfc_pressure_qc)
               record%snd_sfc_pressure = multiply(record%snd_sfc_pressure, 100.0)
             end if
             if (is_missing(record%snd_sfc_temperature)) then
-              call prepbufr_raw(obs(T_idx,i,:), record%snd_sfc_temperature, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:))
+              call prepbufr_raw(obs(T_idx,i,:), record%snd_sfc_temperature, stack_qc=qc(T_idx,i,:), stack_pc=pc(T_idx,i,:), qc=record%snd_sfc_temperature_qc)
             end if
             if (is_missing(record%snd_sfc_specific_humidity)) then
-              call prepbufr_raw(obs(Q_idx,i,:), record%snd_sfc_specific_humidity, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:))
+              call prepbufr_raw(obs(Q_idx,i,:), record%snd_sfc_specific_humidity, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:), qc=record%snd_sfc_specific_humidity_qc)
             end if
             if (is_missing(record%snd_sfc_dewpoint)) then
               call prepbufr_raw(obs(Td_idx,i,:), record%snd_sfc_dewpoint)
             end if
             if (is_missing(record%snd_sfc_wind_u)) then
-              call prepbufr_raw(obs(u_idx,i,:), record%snd_sfc_wind_u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:))
+              call prepbufr_raw(obs(u_idx,i,:), record%snd_sfc_wind_u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=record%snd_sfc_wind_qc)
             end if
             if (is_missing(record%snd_sfc_wind_v)) then
               call prepbufr_raw(obs(v_idx,i,:), record%snd_sfc_wind_v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))

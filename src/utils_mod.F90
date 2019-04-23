@@ -3,6 +3,7 @@ module utils_mod
   use params_mod
   use eccodes
   use netcdf
+  use odbql_wrappers
   use string_mod
   use missing_value_mod
   use atm_formula_mod
@@ -181,6 +182,7 @@ contains
         else if (stack_pc(i) == missing_value_in_prepbufr) then
           if (stack_qc(i) == 2 .or. stack_qc(i) == 6) then
             value = stack(i)
+            if (present(qc)) qc = stack_qc(i)
           else
             exit
           end if
@@ -205,10 +207,11 @@ contains
 
     integer i
 
-    res(:) = codes(:)
     do i = 1, size(codes)
-      if (res(i) < 0) then
+      if (is_missing(codes(i), src='prepbufr')) then
         res(i) = int_missing_value
+      else
+        res(i) = int(codes(i))
       end if
     end do
 
@@ -357,5 +360,35 @@ contains
     end if
 
   end subroutine handle_netcdf_error
+
+  function odb_values_placeholder(n) result(res)
+
+    integer, intent(in) :: n
+    character(:), allocatable :: res
+
+    character(n * 2 - 1) tmp
+
+    integer i
+
+    do i = 1, n - 1
+      tmp(2*i-1:2*i) = '?,'
+    end do
+    tmp(2*n-1:2*n-1) = '?'
+    res = tmp
+
+  end function odb_values_placeholder
+
+  subroutine odb_all_bind_null(odb_stmt, n)
+
+    type(odbql_stmt), intent(in) :: odb_stmt
+    integer, intent(in) :: n
+
+    integer i
+
+    do i = 1, n
+      call odbql_bind_null(odb_stmt, i)
+    end do
+
+  end subroutine odb_all_bind_null
 
 end module utils_mod

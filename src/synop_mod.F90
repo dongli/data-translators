@@ -42,6 +42,7 @@ module synop_mod
     integer :: sfc_specific_humidity_qc = int_missing_value
     integer :: sfc_wind_qc              = int_missing_value
 
+    ! For PrepBUFR data
     real :: sfc_temperature_stack(max_stack) = real_missing_value
     integer :: sfc_temperature_stack_qc(max_stack) = int_missing_value
     integer :: sfc_temperature_stack_pc(max_stack) = int_missing_value

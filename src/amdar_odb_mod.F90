@@ -4,6 +4,7 @@ module amdar_odb_mod
   use linked_list_mod
   use amdar_mod
   use odbql_wrappers
+  use utils_mod
 
   implicit none
 
@@ -23,10 +24,9 @@ contains
     ! ODB variables
     type(odbql) odb_db
     type(odbql_stmt) odb_stmt
-    type(odbql_value) odb_value
     character(100) odb_unparsed_sql
 
-    character(30) str
+    integer col
     type(linked_list_iterator_type) record_iterator
 
     if (file_path == '') file_path = 'amdar.odb'
@@ -34,56 +34,71 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE amdar AS (' // &
-      'flight_name STRING, ' // &                   !  1
-      'flight_number STRING, ' // &                 !  2
-      'lon REAL, ' // &                             !  3
-      'lat REAL, ' // &                             !  4
-      'date STRING, ' // &                          !  5
-      'time STRING, ' // &                          !  6
-      'pressure REAL, ' // &                        !  7
-      'height REAL, ' // &                          !  8
-      'temperature REAL, ' // &                     !  9
-      'wind_u REAL, ' // &                          ! 10
-      'wind_v REAL, ' // &                          ! 11
-      'turbulence_index INTEGER, ' // &             ! 12
-      'specific_humidity REAL) ON "' // &           ! 13
-      trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
+      'platform_id STRING, '                   // &
+      'flight_number STRING, '                 // &
+      'lon REAL, '                             // &
+      'lat REAL, '                             // &
+      'date STRING, '                          // &
+      'time STRING, '                          // &
+      'pressure REAL, '                        // &
+      'pressure_qc INTEGER, '                  // &
+      'height REAL, '                          // &
+      'height_qc INTEGER, '                    // &
+      'temperature REAL, '                     // &
+      'temperature_qc INTEGER, '               // &
+      'specific_humidity REAL, '               // &
+      'specific_humidity_qc INTEGER, '         // &
+      'wind_u REAL, '                          // &
+      'wind_v REAL, '                          // &
+      'wind_qc INTEGER, '                      // &
+      'turbulence_index INTEGER'               // &
+      ') ON "' //trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
-      'flight_name, ' // &                          !  1
-      'flight_number, ' // &                        !  2
-      'lon, ' // &                                  !  3
-      'lat, ' // &                                  !  4
-      'date, ' // &                                 !  5
-      'time, ' // &                                 !  6
-      'pressure, ' // &                             !  7
-      'height, ' // &                               !  8
-      'temperature, ' // &                          !  9
-      'wind_u, ' // &                               ! 10
-      'wind_v, ' // &                               ! 11
-      'turbulence_index, ' // &                     ! 12
-      'specific_humidity' // &                      ! 13
-      ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', -1, odb_stmt, odb_unparsed_sql)
+      'platform_id, '                          // &
+      'flight_number, '                        // &
+      'lon, '                                  // &
+      'lat, '                                  // &
+      'date, '                                 // &
+      'time, '                                 // &
+      'pressure, '                             // &
+      'pressure_qc, '                          // &
+      'height, '                               // &
+      'height_qc, '                            // &
+      'temperature, '                          // &
+      'temperature_qc, '                       // &
+      'specific_humidity, '                    // &
+      'specific_humidity_qc, '                 // &
+      'wind_u, '                               // &
+      'wind_v, '                               // &
+      'wind_qc, '                              // &
+      'turbulence_index'                       // &
+      ') VALUES (' // trim(odb_values_placeholder(18)) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (amdar_record_type)
-        call odbql_bind_text  (odb_stmt,  1, record%flight%name, len_trim(record%flight%name))
-        call odbql_bind_text  (odb_stmt,  2, record%flight%number, len_trim(record%flight%number))
-        call odbql_bind_double(odb_stmt,  3, dble(record%lon))
-        call odbql_bind_double(odb_stmt,  4, dble(record%lat))
-        str = record%time%format('%Y%m%d')
-        call odbql_bind_text  (odb_stmt,  5, trim(str), len_trim(str))
-        str = record%time%format('%H%M%S')
-        call odbql_bind_text  (odb_stmt,  6, trim(str), len_trim(str))
-        call odbql_bind_double(odb_stmt,  7, dble(record%amdar_pressure))
-        call odbql_bind_double(odb_stmt,  8, dble(record%amdar_height))
-        call odbql_bind_double(odb_stmt,  9, dble(record%amdar_temperature))
-        call odbql_bind_double(odb_stmt, 10, dble(record%amdar_wind_u))
-        call odbql_bind_double(odb_stmt, 11, dble(record%amdar_wind_v))
-        call odbql_bind_double(odb_stmt, 12, dble(record%amdar_turbulence_index))
-        call odbql_bind_double(odb_stmt, 13, dble(record%amdar_specific_humidity))
+        col = 0
+        col = col + 1; call odbql_bind_text  (odb_stmt, col, record%flight%name, len_trim(record%flight%name))
+        col = col + 1; call odbql_bind_text  (odb_stmt, col, record%flight%number, len_trim(record%flight%number))
+        col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lon))
+        col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
+        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
+        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
+        col = col + 1; if (.not. is_missing(record%amdar_pressure))             call odbql_bind_double(odb_stmt, col, dble(record%amdar_pressure))
+        col = col + 1; if (.not. is_missing(record%amdar_pressure_qc))          call odbql_bind_double(odb_stmt, col, dble(record%amdar_pressure_qc))
+        col = col + 1; if (.not. is_missing(record%amdar_height))               call odbql_bind_double(odb_stmt, col, dble(record%amdar_height))
+        col = col + 1; if (.not. is_missing(record%amdar_height_qc))            call odbql_bind_double(odb_stmt, col, dble(record%amdar_height_qc))
+        col = col + 1; if (.not. is_missing(record%amdar_temperature))          call odbql_bind_double(odb_stmt, col, dble(record%amdar_temperature))
+        col = col + 1; if (.not. is_missing(record%amdar_temperature_qc))       call odbql_bind_double(odb_stmt, col, dble(record%amdar_temperature_qc))
+        col = col + 1; if (.not. is_missing(record%amdar_specific_humidity))    call odbql_bind_double(odb_stmt, col, dble(record%amdar_specific_humidity))
+        col = col + 1; if (.not. is_missing(record%amdar_specific_humidity_qc)) call odbql_bind_double(odb_stmt, col, dble(record%amdar_specific_humidity_qc))
+        col = col + 1; if (.not. is_missing(record%amdar_wind_u))               call odbql_bind_double(odb_stmt, col, dble(record%amdar_wind_u))
+        col = col + 1; if (.not. is_missing(record%amdar_wind_v))               call odbql_bind_double(odb_stmt, col, dble(record%amdar_wind_v))
+        col = col + 1; if (.not. is_missing(record%amdar_wind_qc))              call odbql_bind_double(odb_stmt, col, dble(record%amdar_wind_qc))
+        col = col + 1; if (.not. is_missing(record%amdar_turbulence_index))     call odbql_bind_double(odb_stmt, col, dble(record%amdar_turbulence_index))
         call odbql_step(odb_stmt)
+        call odb_all_bind_null(odb_stmt, col)
       class default
         write(*, *) '[Error]: Unknown record in the list!'
         stop 1

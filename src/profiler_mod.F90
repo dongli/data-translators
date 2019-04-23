@@ -23,6 +23,9 @@ module profiler_mod
     real, allocatable :: wind_speed(:)
     real, allocatable :: wind_u(:)
     real, allocatable :: wind_v(:)
+    integer, allocatable :: pressure_qc(:)
+    integer, allocatable :: height_qc(:)
+    integer, allocatable :: wind_qc(:)
   contains
     procedure :: init => profiler_profile_init
     procedure :: set_from_hash => profiler_profile_set_from_hash
@@ -31,11 +34,14 @@ module profiler_mod
 
   type profiler_profile_hash_type
     type(hash_table_type) pressure
+    type(hash_table_type) pressure_qc
     type(hash_table_type) height
+    type(hash_table_type) height_qc
     type(hash_table_type) wind_u
     type(hash_table_type) wind_v
     type(hash_table_type) wind_speed
     type(hash_table_type) wind_direction
+    type(hash_table_type) wind_qc
   contains
     procedure :: init => profiler_profile_hash_init
   end type profiler_profile_hash_type
@@ -83,11 +89,14 @@ contains
     this%num_level = num_level
     call profiler_profile_final(this)
     allocate(this%pressure(num_level))
+    allocate(this%pressure_qc(num_level))
     allocate(this%height(num_level))
-    allocate(this%wind_direction(num_level))
-    allocate(this%wind_speed(num_level))
+    allocate(this%height_qc(num_level))
     allocate(this%wind_u(num_level))
     allocate(this%wind_v(num_level))
+    allocate(this%wind_speed(num_level))
+    allocate(this%wind_direction(num_level))
+    allocate(this%wind_qc(num_level))
 
   end subroutine profiler_profile_init
 
@@ -114,8 +123,15 @@ contains
         class default
           this%pressure(i) = real_missing_value
         end select
+        select type (value => hash%pressure_qc%value(level_iterator%key))
+        type is (integer)
+          this%pressure_qc(i) = value
+        class default
+          this%pressure_qc(i) = int_missing_value
+        end select
       else
         this%pressure(i) = real_missing_value
+        this%pressure_qc(i) = int_missing_value
       end if
       ! height (m)
       select type (value => hash%height%value(level_iterator%key))
@@ -124,19 +140,11 @@ contains
       class default
         this%height(i) = real_missing_value
       end select
-      ! wind direction (degree)
-      select type (value => hash%wind_direction%value(level_iterator%key))
-      type is (real)
-        this%wind_direction(i) = value
+      select type (value => hash%height_qc%value(level_iterator%key))
+      type is (integer)
+        this%height_qc(i) = value
       class default
-        this%wind_direction(i) = real_missing_value
-      end select
-      ! wind speed (m/s)
-      select type (value => hash%wind_speed%value(level_iterator%key))
-      type is (real)
-        this%wind_speed(i) = value
-      class default
-        this%wind_speed(i) = real_missing_value
+        this%height_qc(i) = int_missing_value
       end select
       ! wind u component (m/s)
       select type (value => hash%wind_u%value(level_iterator%key))
@@ -152,6 +160,26 @@ contains
       class default
         this%wind_v(i) = real_missing_value
       end select
+      ! wind speed (m/s)
+      select type (value => hash%wind_speed%value(level_iterator%key))
+      type is (real)
+        this%wind_speed(i) = value
+      class default
+        this%wind_speed(i) = real_missing_value
+      end select
+      ! wind direction (degree)
+      select type (value => hash%wind_direction%value(level_iterator%key))
+      type is (real)
+        this%wind_direction(i) = value
+      class default
+        this%wind_direction(i) = real_missing_value
+      end select
+      select type (value => hash%wind_qc%value(level_iterator%key))
+      type is (integer)
+        this%wind_qc(i) = value
+      class default
+        this%wind_qc(i) = int_missing_value
+      end select
       i = i + 1
       call level_iterator%next()
     end do
@@ -166,11 +194,14 @@ contains
     type(profiler_profile_type), intent(inout) :: this
 
     if (allocated(this%pressure))       deallocate(this%pressure)
+    if (allocated(this%pressure_qc))    deallocate(this%pressure_qc)
     if (allocated(this%height))         deallocate(this%height)
-    if (allocated(this%wind_direction)) deallocate(this%wind_direction)
-    if (allocated(this%wind_speed))     deallocate(this%wind_speed)
+    if (allocated(this%height_qc))      deallocate(this%height_qc)
     if (allocated(this%wind_u))         deallocate(this%wind_u)
     if (allocated(this%wind_v))         deallocate(this%wind_v)
+    if (allocated(this%wind_speed))     deallocate(this%wind_speed)
+    if (allocated(this%wind_direction)) deallocate(this%wind_direction)
+    if (allocated(this%wind_qc))        deallocate(this%wind_qc)
 
   end subroutine profiler_profile_final
 
@@ -179,11 +210,14 @@ contains
     class(profiler_profile_hash_type), intent(inout) :: this
 
     this%pressure       = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%pressure_qc    = hash_table(chunk_size=1000, max_load_factor=0.9)
     this%height         = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%height_qc      = hash_table(chunk_size=1000, max_load_factor=0.9)
     this%wind_u         = hash_table(chunk_size=1000, max_load_factor=0.9)
     this%wind_v         = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_direction = hash_table(chunk_size=1000, max_load_factor=0.9)
     this%wind_speed     = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_direction = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_qc        = hash_table(chunk_size=1000, max_load_factor=0.9)
 
   end subroutine profiler_profile_hash_init
 
@@ -208,35 +242,43 @@ contains
     print *, 'Station ', record%station%name
     print *, 'Time ', record%time%isoformat()
     write(*, '(6A15)') 'P', 'Z', 'U', 'V', 'WD', 'WS'
+    write(*, '(A15, A5)', advance='no') 'P', ''
+    write(*, '(A15, A5)', advance='no') 'P', ''
+    write(*, '(A15, A5)', advance='no') 'U', ''
+    write(*, '(A15, A5)', advance='no') 'V', ''
+    write(*, '(A15, A5)', advance='no') 'WD', ''
+    write(*, '(A15, A5)', advance='no') 'WS', ''
+    write(*, *)
     do i = 1, record%pro%num_level
       if (is_missing(record%pro%pressure(i))) then
-        write(*, '(A15)', advance='no') '             --'
+        write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1)', advance='no') record%pro%pressure(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%pressure(i), record%pro%pressure_qc(i)
       end if
       if (is_missing(record%pro%height(i))) then 
+        write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1)', advance='no') record%pro%height(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%height(i), record%pro%height_qc(i)
       end if
       if (is_missing(record%pro%wind_u(i))) then 
-        write(*, '(A15)', advance='no') '             --'
+        write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1)', advance='no') record%pro%wind_u(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_u(i), record%pro%wind_qc(i)
       end if
       if (is_missing(record%pro%wind_v(i))) then 
-        write(*, '(A15)', advance='no') '             --'
+        write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1)', advance='no') record%pro%wind_v(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_v(i), record%pro%wind_qc(i)
       end if
       if (is_missing(record%pro%wind_direction(i))) then 
-        write(*, '(A15)', advance='no') '             --'
+        write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1)', advance='no') record%pro%wind_direction(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_direction(i), record%pro%wind_qc(i)
       end if
       if (is_missing(record%pro%wind_speed(i))) then 
-        write(*, '(A15)', advance='no') '             --'
+        write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1)', advance='no') record%pro%wind_speed(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_speed(i), record%pro%wind_qc(i)
       end if
       write(*, *)
     end do

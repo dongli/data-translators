@@ -68,10 +68,10 @@ contains
     type(datetime_type) time
     real wd, wd_qc
     real ws, ws_qc
-    real wind_wave_height, wind_wave_height_qc
-    real wind_wave_period, wind_wave_period_qc
-    real surge_wave_height, surge_wave_height_qc
-    real surge_wave_period, surge_wave_period_qc
+    real wvh, wvh_qc
+    real wvp, wvp_qc
+    real svh, svh_qc
+    real svp, svp_qc
     real surge_wave_direction, surge_wave_direction_qc
     real vis, vis_qc
     real cld, cld_qc
@@ -118,21 +118,21 @@ contains
         case ('Q_WIN_S')
           read(value, *) ws_qc
         case ('WinWave_Heigh')
-          read(value, *) wind_wave_height
+          read(value, *) wvh
         case ('Q_WinWave_Heigh')
-          read(value, *) wind_wave_height_qc
+          read(value, *) wvh_qc
         case ('WinWave_CYC')
-          read(value, *) wind_wave_period
+          read(value, *) wvp
         case ('Q_WinWave_CYC')
-          read(value, *) wind_wave_period_qc
+          read(value, *) wvp_qc
         case ('SeaWave_1st_Heigh')
-          read(value, *) surge_wave_height
+          read(value, *) svh
         case ('Q_SeaWave_1st_Heigh')
-          read(value, *) surge_wave_height_qc
+          read(value, *) svh_qc
         case ('SeaWave_1st_CYC')
-          read(value, *) surge_wave_period
+          read(value, *) svp
         case ('Q_SeaWave_1st_CYC')
-          read(value, *) surge_wave_period_qc
+          read(value, *) svp_qc
         case ('SeaWave_1st_D')
           read(value, *) surge_wave_direction
         case ('Q_SeaWave_1st_D')
@@ -154,10 +154,10 @@ contains
       ws  = merge(real_missing_value, ws,  is_missing(ws,  src='cimiss'))
       vis = merge(real_missing_value, vis, is_missing(vis, src='cimiss'))
       cld = merge(real_missing_value, cld, is_missing(cld, src='cimiss'))
-      wind_wave_height  = merge(real_missing_value, wind_wave_height,  is_missing(wind_wave_height,  src='cimiss'))
-      wind_wave_period  = merge(real_missing_value, wind_wave_period,  is_missing(wind_wave_period,  src='cimiss'))
-      surge_wave_height = merge(real_missing_value, surge_wave_height, is_missing(surge_wave_height, src='cimiss'))
-      surge_wave_period = merge(real_missing_value, surge_wave_period, is_missing(surge_wave_period, src='cimiss'))
+      wvh = merge(real_missing_value, wvh,  is_missing(wvh,  src='cimiss'))
+      wvp = merge(real_missing_value, wvp,  is_missing(wvp,  src='cimiss'))
+      svh = merge(real_missing_value, svh, is_missing(svh, src='cimiss'))
+      svp = merge(real_missing_value, svp, is_missing(svp, src='cimiss'))
       surge_wave_direction = merge(real_missing_value, surge_wave_direction, is_missing(surge_wave_direction, src='cimiss'))
       ! Create ship and record.
       if (dummy_ships%hashed(ship_name)) then
@@ -183,20 +183,20 @@ contains
       record%ship_wind_speed = ws
       record%ship_wind_u = wind_u_component(ws, wd)
       record%ship_wind_v = wind_v_component(ws, wd)
-      record%ship_wind_wave_height = wind_wave_height
-      record%ship_wind_wave_period = wind_wave_period
-      record%ship_surge_wave_height = surge_wave_height
-      record%ship_surge_wave_period = surge_wave_period
+      record%ship_wind_wave_height = wvh
+      record%ship_wind_wave_period = wvp
+      record%ship_surge_wave_height = svh
+      record%ship_surge_wave_period = svp
       record%ship_surge_wave_direction = surge_wave_direction
       record%ship_visibility = vis
       record%ship_cloud_cover = cld
       ! TODO: How to map CIMISS QC to PrepBUFR QC?
       record%ship_wind_direction_qc = wd_qc
       record%ship_wind_speed_qc = ws_qc
-      record%ship_wind_wave_height_qc = wind_wave_height_qc
-      record%ship_wind_wave_period_qc = wind_wave_period_qc
-      record%ship_surge_wave_height_qc = surge_wave_height_qc
-      record%ship_surge_wave_period_qc = surge_wave_period_qc
+      record%ship_wind_wave_height_qc = wvh_qc
+      record%ship_wind_wave_period_qc = wvp_qc
+      record%ship_surge_wave_height_qc = svh_qc
+      record%ship_surge_wave_period_qc = svp_qc
       record%ship_surge_wave_direction_qc = surge_wave_direction_qc
       record%ship_visibility_qc = vis_qc
       record%ship_cloud_cover_qc = cld_qc

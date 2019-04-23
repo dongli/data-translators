@@ -35,25 +35,25 @@ module ship_mod
     real    :: ship_cloud_cover          = real_missing_value ! Cloud cover (%)
     real    :: ship_ice_cover            = real_missing_value
 
-    integer :: ship_pressure_qc          = int_missing_value
-    integer :: ship_air_temperature_qc   = int_missing_value
-    integer :: ship_sea_temperature_qc   = int_missing_value
-    integer :: ship_dewpoint_qc          = int_missing_value
-    integer :: ship_relative_humidity_qc = int_missing_value
-    integer :: ship_specific_humidity_qc = int_missing_value
-    integer :: ship_wind_u_qc            = int_missing_value
-    integer :: ship_wind_v_qc            = int_missing_value
-    integer :: ship_wind_direction_qc    = int_missing_value
-    integer :: ship_wind_speed_qc        = int_missing_value
-    integer :: ship_wind_qc              = int_missing_value
-    integer :: ship_wind_wave_height_qc  = int_missing_value
-    integer :: ship_wind_wave_period_qc  = int_missing_value
-    integer :: ship_surge_wave_height_qc = int_missing_value
-    integer :: ship_surge_wave_period_qc = int_missing_value
+    integer :: ship_pressure_qc             = int_missing_value
+    integer :: ship_air_temperature_qc      = int_missing_value
+    integer :: ship_sea_temperature_qc      = int_missing_value
+    integer :: ship_dewpoint_qc             = int_missing_value
+    integer :: ship_relative_humidity_qc    = int_missing_value
+    integer :: ship_specific_humidity_qc    = int_missing_value
+    integer :: ship_wind_u_qc               = int_missing_value
+    integer :: ship_wind_v_qc               = int_missing_value
+    integer :: ship_wind_direction_qc       = int_missing_value
+    integer :: ship_wind_speed_qc           = int_missing_value
+    integer :: ship_wind_qc                 = int_missing_value
+    integer :: ship_wind_wave_height_qc     = int_missing_value
+    integer :: ship_wind_wave_period_qc     = int_missing_value
+    integer :: ship_surge_wave_height_qc    = int_missing_value
+    integer :: ship_surge_wave_period_qc    = int_missing_value
     integer :: ship_surge_wave_direction_qc = int_missing_value
-    integer :: ship_visibility_qc        = int_missing_value
-    integer :: ship_cloud_cover_qc       = int_missing_value
-    integer :: ship_ice_cover_qc         = int_missing_value
+    integer :: ship_visibility_qc           = int_missing_value
+    integer :: ship_cloud_cover_qc          = int_missing_value
+    integer :: ship_ice_cover_qc            = int_missing_value
   end type ship_record_type
 
 contains

@@ -80,7 +80,6 @@ contains
         end if
         time = base_time + timedelta(hours=hdr(6))
         lon = hdr(2)
-        if (lon > 180) lon = lon - 360
         lat = hdr(3)
         if (ships%hashed(ship_name)) then
           select type (value => ships%value(ship_name))
