@@ -182,45 +182,27 @@ contains
       record%time = time
       record%lon = lon
       record%lat = lat
-      record%ship_pressure = p
-      record%ship_pressure_qc = p_qc
-      record%ship_air_temperature = Ta
-      record%ship_air_temperature_qc = Ta_qc
-      record%ship_sea_temperature = SST
-      record%ship_sea_temperature_qc = SST_qc
-      record%ship_dewpoint = Td
-      record%ship_dewpoint_qc = Td_qc
-      record%ship_relative_humidity = RH
-      record%ship_relative_humidity_qc = RH_qc
-      record%ship_wind_speed = ws
-      record%ship_wind_direction = wd
-      record%ship_wind_qc = ws_qc
+      record%pressure = p
+      record%pressure_qc = p_qc
+      record%air_temperature = Ta
+      record%air_temperature_qc = Ta_qc
+      record%sea_temperature = SST
+      record%sea_temperature_qc = SST_qc
+      record%dewpoint = Td
+      record%dewpoint_qc = Td_qc
+      record%relative_humidity = RH
+      record%relative_humidity_qc = RH_qc
+      record%wind_speed = ws
+      record%wind_direction = wd
+      record%wind_qc = ws_qc
 
       if (new_record) then
         call records%insert(ship_name // '@' // time%isoformat(), record)
       end if
-      ! if (ship_name == '40718') call debug_print(record)
+      ! if (ship_name == '40718') call record%print()
     end do
     close(10)
 
   end subroutine ship_cimiss_txt_read
-
-  subroutine debug_print(record)
-
-    type(ship_record_type), intent(in) :: record
-
-    print *, '--'
-    print *, record%ship%name, record%time%isoformat()
-    print *, 'lon: ', record%lon
-    print *, 'lat: ', record%lat
-    print *, 'p:   ', record%ship_pressure, record%ship_pressure_qc
-    print *, 'Ta:  ', record%ship_air_temperature, record%ship_air_temperature_qc
-    print *, 'Td:  ', record%ship_dewpoint, record%ship_dewpoint_qc
-    print *, 'SST: ', record%ship_sea_temperature, record%ship_sea_temperature_qc
-    print *, 'RH:  ', record%ship_relative_humidity, record%ship_relative_humidity_qc
-    print *, 'WS:  ', record%ship_wind_speed, record%ship_wind_qc
-    print *, 'WD:  ', record%ship_wind_direction, record%ship_wind_qc
-
-  end subroutine debug_print
 
 end module ship_cimiss_txt_mod

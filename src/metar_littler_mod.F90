@@ -35,9 +35,9 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (metar_record_type)
-        slp = sea_level_pressure(record%sfc_pressure, record%sfc_temperature, record%station%z)
-        T = add(record%sfc_temperature, freezing_point)
-        Td = add(record%sfc_dewpoint, freezing_point)
+        slp = sea_level_pressure(record%pressure, record%temperature, record%station%z)
+        T = add(record%temperature, freezing_point)
+        Td = add(record%dewpoint, freezing_point)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%station%lat)                    ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                    ! longitude
@@ -85,7 +85,7 @@ contains
         write(10, '(I7)',    advance='no') 0                                                    ! celing QC
         write(10, *)
         ! Record
-        write(10, '(F13.5)', advance='no') littler_value(record%sfc_pressure)                   ! pressure (Pa)
+        write(10, '(F13.5)', advance='no') littler_value(record%pressure)                       ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                                    ! pressure QC
         write(10, '(F13.5)', advance='no') littler_value(record%station%z)                      ! height
         write(10, '(I7)',    advance='no') 0                                                    ! height QC
@@ -93,15 +93,15 @@ contains
         write(10, '(I7)',    advance='no') 0                                                    ! temperature QC
         write(10, '(F13.5)', advance='no') littler_value(Td)                                    ! dewpoint (K)
         write(10, '(I7)',    advance='no') 0                                                    ! dewpoint QC
-        write(10, '(F13.5)', advance='no') littler_value(record%sfc_wind_speed)                 ! wind speed (m s^-1)
+        write(10, '(F13.5)', advance='no') littler_value(record%wind_speed)                     ! wind speed (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                    ! wind QC
-        write(10, '(F13.5)', advance='no') littler_value(record%sfc_wind_direction)             ! wind direction (degree)
+        write(10, '(F13.5)', advance='no') littler_value(record%wind_direction)                 ! wind direction (degree)
         write(10, '(I7)',    advance='no') 0                                                    ! wind QC
-        write(10, '(F13.5)', advance='no') littler_value(record%sfc_wind_u)                     ! wind u component (m s^-1)
+        write(10, '(F13.5)', advance='no') littler_value(record%wind_u)                         ! wind u component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                    ! wind u component QC
-        write(10, '(F13.5)', advance='no') littler_value(record%sfc_wind_v)                     ! wind v component (m s^-1)
+        write(10, '(F13.5)', advance='no') littler_value(record%wind_v)                         ! wind v component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                    ! wind v component QC
-        write(10, '(F13.5)', advance='no') littler_value(record%sfc_relative_humidity)          ! relative humidity (%)
+        write(10, '(F13.5)', advance='no') littler_value(record%relative_humidity)              ! relative humidity (%)
         write(10, '(I7)',    advance='no') 0                                                    ! relative humidity QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                        ! thickness (m)
         write(10, '(I7)',    advance='no') 0                                                    ! thickness QC

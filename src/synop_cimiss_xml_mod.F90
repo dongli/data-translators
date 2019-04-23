@@ -154,22 +154,22 @@ contains
       record%station => station
       record%time = time
       ! Set record.
-      record%sfc_pressure = multiply(p, 100.0)
-      record%sfc_temperature = T
-      record%sfc_dewpoint = Td
-      record%sfc_relative_humidity = rh
-      record%sfc_specific_humidity = sh
-      record%sfc_wind_direction = wd
-      record%sfc_wind_speed = ws
-      record%sfc_wind_u = wind_u_component(ws, wd)
-      record%sfc_wind_v = wind_v_component(ws, wd)
-      record%sfc_pressure_qc = merge(2, 3, p_qc == 0)
-      record%sfc_temperature_qc = merge(2, 3, T_qc == 0)
-      record%sfc_relative_humidity_qc = merge(2, 3, rh_qc == 0)
-      record%sfc_specific_humidity_qc = merge(2, 3, rh_qc == 0)
-      record%sfc_wind_qc = merge(2, 3, wd_qc == 0 .and. ws_qc == 0)
+      record%pressure = multiply(p, 100.0)
+      record%temperature = T
+      record%dewpoint = Td
+      record%relative_humidity = rh
+      record%specific_humidity = sh
+      record%wind_direction = wd
+      record%wind_speed = ws
+      record%wind_u = wind_u_component(ws, wd)
+      record%wind_v = wind_v_component(ws, wd)
+      record%pressure_qc = merge(2, 3, p_qc == 0)
+      record%temperature_qc = merge(2, 3, T_qc == 0)
+      record%relative_humidity_qc = merge(2, 3, rh_qc == 0)
+      record%specific_humidity_qc = merge(2, 3, rh_qc == 0)
+      record%wind_qc = merge(2, 3, wd_qc == 0 .and. ws_qc == 0)
       ! if (station_name == 'V8552') then
-      !   print *, station_name, p, T, rh, wd, ws, record%sfc_wind_u, record%sfc_wind_v
+      !   print *, record%print()
       ! end if
       call dummy_records%insert(station_name // '@' // time%isoformat(), record)
       call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)

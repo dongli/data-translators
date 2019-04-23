@@ -180,29 +180,29 @@ contains
         end select
         record%lon = lon
         record%lat = lat
-        record%ship_pressure = sea_sfc_pressure
-        record%ship_air_temperature = air_temperature
-        record%ship_sea_temperature = sea_sfc_temperature
-        record%ship_dewpoint = dewpoint
-        record%ship_relative_humidity = relative_humidity
-        record%ship_specific_humidity = specific_humidity
-        record%ship_wind_u = wind_u
-        record%ship_wind_v = wind_v
-        record%ship_wind_direction = wind_direction
-        record%ship_wind_speed = wind_speed
-        record%ship_ice_cover = ice_cover
+        record%pressure = sea_sfc_pressure
+        record%air_temperature = air_temperature
+        record%sea_temperature = sea_sfc_temperature
+        record%dewpoint = dewpoint
+        record%relative_humidity = relative_humidity
+        record%specific_humidity = specific_humidity
+        record%wind_u = wind_u
+        record%wind_v = wind_v
+        record%wind_direction = wind_direction
+        record%wind_speed = wind_speed
+        record%ice_cover = ice_cover
         ! TODO: How to map CIMISS QC to PrepBUFR QC?
-        record%ship_pressure_qc = sea_sfc_pressure_qc
-        record%ship_air_temperature_qc = air_temperature_qc
-        record%ship_sea_temperature_qc = sea_sfc_temperature_qc
-        record%ship_dewpoint_qc = dewpoint_qc
-        record%ship_relative_humidity_qc = relative_humidity_qc
-        record%ship_specific_humidity_qc = specific_humidity_qc
-        record%ship_wind_u_qc = wind_u_qc
-        record%ship_wind_v_qc = wind_v_qc
-        record%ship_wind_direction_qc = wind_direction_qc
-        record%ship_wind_speed_qc = wind_speed_qc
-        record%ship_ice_cover_qc = ice_cover_qc
+        record%pressure_qc = sea_sfc_pressure_qc
+        record%air_temperature_qc = air_temperature_qc
+        record%sea_temperature_qc = sea_sfc_temperature_qc
+        record%dewpoint_qc = dewpoint_qc
+        record%relative_humidity_qc = relative_humidity_qc
+        record%specific_humidity_qc = specific_humidity_qc
+        record%wind_u_qc = wind_u_qc
+        record%wind_v_qc = wind_v_qc
+        record%wind_direction_qc = wind_direction_qc
+        record%wind_speed_qc = wind_speed_qc
+        record%ice_cover_qc = ice_cover_qc
         call records%insert(site_name // '@' // time%isoformat(), record)
         call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       else

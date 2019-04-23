@@ -229,13 +229,13 @@ contains
           stop 1
         end if
         record_idx(j,platform_idx(i)+1) = record%seq_id
-        p(i) = record%sfc_pressure
-        T(i) = record%sfc_temperature
-        Td(i) = record%sfc_dewpoint
-        rh(i) = record%sfc_relative_humidity
-        wd(i) = record%sfc_wind_direction
-        ws(i) = record%sfc_wind_speed
-        r01(i) = record%sfc_rain_01h
+        p(i) = record%pressure
+        T(i) = record%temperature
+        Td(i) = record%dewpoint
+        rh(i) = record%relative_humidity
+        wd(i) = record%wind_direction
+        ws(i) = record%wind_speed
+        r01(i) = record%rain_01h
       end select
       i = i + 1
       call record_iterator%next()

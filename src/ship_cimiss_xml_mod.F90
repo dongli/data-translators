@@ -179,27 +179,27 @@ contains
       record%source = 'CIMISS'
       record%lon = lon
       record%lat = lat
-      record%ship_wind_direction = wd
-      record%ship_wind_speed = ws
-      record%ship_wind_u = wind_u_component(ws, wd)
-      record%ship_wind_v = wind_v_component(ws, wd)
-      record%ship_wind_wave_height = wvh
-      record%ship_wind_wave_period = wvp
-      record%ship_surge_wave_height = svh
-      record%ship_surge_wave_period = svp
-      record%ship_surge_wave_direction = surge_wave_direction
-      record%ship_visibility = vis
-      record%ship_cloud_cover = cld
+      record%wind_direction = wd
+      record%wind_speed = ws
+      record%wind_u = wind_u_component(ws, wd)
+      record%wind_v = wind_v_component(ws, wd)
+      record%wind_wave_height = wvh
+      record%wind_wave_period = wvp
+      record%surge_wave_height = svh
+      record%surge_wave_period = svp
+      record%surge_wave_direction = surge_wave_direction
+      record%visibility = vis
+      record%cloud_cover = cld
       ! TODO: How to map CIMISS QC to PrepBUFR QC?
-      record%ship_wind_direction_qc = wd_qc
-      record%ship_wind_speed_qc = ws_qc
-      record%ship_wind_wave_height_qc = wvh_qc
-      record%ship_wind_wave_period_qc = wvp_qc
-      record%ship_surge_wave_height_qc = svh_qc
-      record%ship_surge_wave_period_qc = svp_qc
-      record%ship_surge_wave_direction_qc = surge_wave_direction_qc
-      record%ship_visibility_qc = vis_qc
-      record%ship_cloud_cover_qc = cld_qc
+      record%wind_direction_qc = wd_qc
+      record%wind_speed_qc = ws_qc
+      record%wind_wave_height_qc = wvh_qc
+      record%wind_wave_period_qc = wvp_qc
+      record%surge_wave_height_qc = svh_qc
+      record%surge_wave_period_qc = svp_qc
+      record%surge_wave_direction_qc = surge_wave_direction_qc
+      record%visibility_qc = vis_qc
+      record%cloud_cover_qc = cld_qc
       call dummy_records%insert(ship_name // '@' // time%isoformat(), record)
       call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
     end select

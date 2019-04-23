@@ -117,54 +117,54 @@ contains
           new_record = .true.
         end if
 
-        if (is_missing(record%sfc_pressure)) then
-          call prepbufr_raw(obs(p_idx,1,:), record%sfc_pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%sfc_pressure_qc)
-          record%sfc_pressure = multiply(record%sfc_pressure, 100.0) ! Convert pressure from hPa to Pa.
-          record%sfc_pressure_stack(:max_num_event) = multiply(prepbufr_stack(obs(p_idx,1,:max_num_event)), 100.0)
-          record%sfc_pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(p_idx,1,:max_num_event))
-          record%sfc_pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(p_idx,1,:max_num_event))
+        if (is_missing(record%pressure)) then
+          call prepbufr_raw(obs(p_idx,1,:), record%pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%pressure_qc)
+          record%pressure = multiply(record%pressure, 100.0) ! Convert pressure from hPa to Pa.
+          record%pressure_stack(:max_num_event) = multiply(prepbufr_stack(obs(p_idx,1,:max_num_event)), 100.0)
+          record%pressure_stack_qc(:max_num_event) = prepbufr_codes(qc(p_idx,1,:max_num_event))
+          record%pressure_stack_pc(:max_num_event) = prepbufr_codes(pc(p_idx,1,:max_num_event))
         end if
-        if (is_missing(record%sfc_temperature)) then
-          call prepbufr_raw(obs(T_idx,1,:), record%sfc_temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%sfc_temperature_qc)
-          record%sfc_temperature_stack(:max_num_event) = prepbufr_stack(obs(T_idx,1,:max_num_event))
-          record%sfc_temperature_stack_qc(:max_num_event) = prepbufr_codes(qc(T_idx,1,:max_num_event))
-          record%sfc_temperature_stack_pc(:max_num_event) = prepbufr_codes(pc(T_idx,1,:max_num_event))
+        if (is_missing(record%temperature)) then
+          call prepbufr_raw(obs(T_idx,1,:), record%temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%temperature_qc)
+          record%temperature_stack(:max_num_event) = prepbufr_stack(obs(T_idx,1,:max_num_event))
+          record%temperature_stack_qc(:max_num_event) = prepbufr_codes(qc(T_idx,1,:max_num_event))
+          record%temperature_stack_pc(:max_num_event) = prepbufr_codes(pc(T_idx,1,:max_num_event))
         end if
-        if (is_missing(record%sfc_specific_humidity)) then
-          call prepbufr_raw(obs(Q_idx,1,:), record%sfc_specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%sfc_specific_humidity_qc)
-          record%sfc_specific_humidity_stack(:max_num_event) = prepbufr_stack(obs(Q_idx,1,:max_num_event))
-          record%sfc_specific_humidity_stack_qc(:max_num_event) = prepbufr_codes(qc(Q_idx,1,:max_num_event))
-          record%sfc_specific_humidity_stack_pc(:max_num_event) = prepbufr_codes(pc(Q_idx,1,:max_num_event))
+        if (is_missing(record%specific_humidity)) then
+          call prepbufr_raw(obs(Q_idx,1,:), record%specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%specific_humidity_qc)
+          record%specific_humidity_stack(:max_num_event) = prepbufr_stack(obs(Q_idx,1,:max_num_event))
+          record%specific_humidity_stack_qc(:max_num_event) = prepbufr_codes(qc(Q_idx,1,:max_num_event))
+          record%specific_humidity_stack_pc(:max_num_event) = prepbufr_codes(pc(Q_idx,1,:max_num_event))
         end if
-        if (is_missing(record%sfc_dewpoint)) then
-          call prepbufr_raw(obs(Td_idx,1,:), record%sfc_dewpoint)
+        if (is_missing(record%dewpoint)) then
+          call prepbufr_raw(obs(Td_idx,1,:), record%dewpoint)
         end if
-        if (is_missing(record%sfc_wind_u)) then
-          call prepbufr_raw(obs(u_idx,1,:), record%sfc_wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%sfc_wind_qc)
-          record%sfc_wind_u_stack(:max_num_event) = prepbufr_stack(obs(u_idx,1,:max_num_event))
-          record%sfc_wind_stack_qc(:max_num_event) = prepbufr_codes(qc(u_idx,1,:max_num_event))
+        if (is_missing(record%wind_u)) then
+          call prepbufr_raw(obs(u_idx,1,:), record%wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%wind_qc)
+          record%wind_u_stack(:max_num_event) = prepbufr_stack(obs(u_idx,1,:max_num_event))
+          record%wind_stack_qc(:max_num_event) = prepbufr_codes(qc(u_idx,1,:max_num_event))
         end if
-        if (is_missing(record%sfc_wind_v)) then
-          call prepbufr_raw(obs(v_idx,1,:), record%sfc_wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%sfc_wind_qc)
-          record%sfc_wind_v_stack(:max_num_event) = prepbufr_stack(obs(v_idx,1,:max_num_event))
-          record%sfc_wind_stack_pc(:max_num_event) = prepbufr_codes(pc(v_idx,1,:max_num_event))
+        if (is_missing(record%wind_v)) then
+          call prepbufr_raw(obs(v_idx,1,:), record%wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%wind_qc)
+          record%wind_v_stack(:max_num_event) = prepbufr_stack(obs(v_idx,1,:max_num_event))
+          record%wind_stack_pc(:max_num_event) = prepbufr_codes(pc(v_idx,1,:max_num_event))
         end if
-        if (is_missing(record%sfc_wind_direction)) then
-          call prepbufr_raw(obs(wd_idx,1,:), record%sfc_wind_direction, stack_qc=qc(wd_idx,1,:), stack_pc=pc(wd_idx,1,:), qc=record%sfc_wind_qc)
+        if (is_missing(record%wind_direction)) then
+          call prepbufr_raw(obs(wd_idx,1,:), record%wind_direction, stack_qc=qc(wd_idx,1,:), stack_pc=pc(wd_idx,1,:), qc=record%wind_qc)
         end if
-        if (is_missing(record%sfc_wind_speed)) then
-          call prepbufr_raw(obs(ws_idx,1,:), record%sfc_wind_speed, stack_qc=qc(ws_idx,1,:), stack_pc=pc(ws_idx,1,:), qc=record%sfc_wind_qc)
+        if (is_missing(record%wind_speed)) then
+          call prepbufr_raw(obs(ws_idx,1,:), record%wind_speed, stack_qc=qc(ws_idx,1,:), stack_pc=pc(ws_idx,1,:), qc=record%wind_qc)
         end if
-        if (is_missing(record%sfc_rain_01h)) call prepbufr_raw(obs(TP01_idx,1,:), record%sfc_rain_01h)
-        if (is_missing(record%sfc_rain_03h)) call prepbufr_raw(obs(TP03_idx,1,:), record%sfc_rain_03h)
-        if (is_missing(record%sfc_rain_06h)) call prepbufr_raw(obs(TP06_idx,1,:), record%sfc_rain_06h)
-        if (is_missing(record%sfc_rain_12h)) call prepbufr_raw(obs(TP12_idx,1,:), record%sfc_rain_12h)
-        if (is_missing(record%sfc_rain_24h)) call prepbufr_raw(obs(TP24_idx,1,:), record%sfc_rain_24h)
+        if (is_missing(record%rain_01h)) call prepbufr_raw(obs(TP01_idx,1,:), record%rain_01h)
+        if (is_missing(record%rain_03h)) call prepbufr_raw(obs(TP03_idx,1,:), record%rain_03h)
+        if (is_missing(record%rain_06h)) call prepbufr_raw(obs(TP06_idx,1,:), record%rain_06h)
+        if (is_missing(record%rain_12h)) call prepbufr_raw(obs(TP12_idx,1,:), record%rain_12h)
+        if (is_missing(record%rain_24h)) call prepbufr_raw(obs(TP24_idx,1,:), record%rain_24h)
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        ! else if (record%sfc_pressure_qc /= 2) then
-        !   call debug_print(record, hdr, obs, qc, pc)
+        else if (record%pressure_qc /= 2) then
+          call record%print()
         end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
@@ -212,13 +212,13 @@ contains
         hdr(5) = 181
         hdr(6) = 0.0
         call ufbint(10, hdr, 6, 1, iret, 'SID XOB YOB ELV TYP DHR')
-        obs(1,1,1) = divide(record%sfc_pressure, 100.0)
-        obs(2,1,1) = record%sfc_temperature
-        obs(3,1,1) = record%sfc_specific_humidity
+        obs(1,1,1) = divide(record%pressure, 100.0)
+        obs(2,1,1) = record%temperature
+        obs(3,1,1) = record%specific_humidity
         call ufbint(10, obs, 3, 1, iret, 'POB TOB QOB')
-        qc(1,1,1) = record%sfc_pressure_qc
-        qc(2,1,1) = record%sfc_temperature_qc
-        qc(3,1,1) = record%sfc_specific_humidity_qc
+        qc(1,1,1) = record%pressure_qc
+        qc(2,1,1) = record%temperature_qc
+        qc(3,1,1) = record%specific_humidity_qc
         call ufbint(10, qc,  3, 1, iret, 'PQM TQM QQM')
         pc(1,1,1) = 1
         pc(2,1,1) = 1
@@ -235,14 +235,14 @@ contains
         hdr(5) = 281
         hdr(6) = 0.0
         call ufbint(10, hdr, 6, 1, iret, 'SID XOB YOB ELV TYP DHR')
-        obs(1,1,1) = divide(record%sfc_pressure, 100.0)
-        obs(2,1,1) = record%sfc_wind_direction
-        obs(3,1,1) = record%sfc_wind_speed
-        obs(4,1,1) = record%sfc_wind_u
-        obs(5,1,1) = record%sfc_wind_v
+        obs(1,1,1) = divide(record%pressure, 100.0)
+        obs(2,1,1) = record%wind_direction
+        obs(3,1,1) = record%wind_speed
+        obs(4,1,1) = record%wind_u
+        obs(5,1,1) = record%wind_v
         call ufbint(10, obs, 5, 1, iret, 'POB DDO SOB UOB VOB')
-        qc(1,1,1) = record%sfc_pressure_qc
-        qc(2,1,1) = record%sfc_wind_qc
+        qc(1,1,1) = record%pressure_qc
+        qc(2,1,1) = record%wind_qc
         call ufbint(10, qc,  2, 1, iret, 'PQM WQM')
         pc(1,1,1) = 1
         pc(2,1,1) = 1
@@ -255,220 +255,5 @@ contains
     call closbf(10)
 
   end subroutine synop_prepbufr_write
-
-  subroutine debug_print(record, hdr, obs, qc, pc)
-
-    type(synop_record_type), intent(in) :: record
-    real(8), intent(in) :: hdr(max_num_var)
-    real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)
-
-    integer i
-
-    print *, '--'
-    print *, 'STATION NAME: ', trim(record%station%name)
-    print *, 'OBS TIME: ', trim(record%time%isoformat())
-    print *, 'DHR:', hdr(6), 'RPT:', hdr(7)
-    print *, 'LON:', record%station%lon, 'LAT:', record%station%lat, 'Z:', record%station%z
-    write(*, *) 'TEMPERATURE: '
-    if (is_missing(record%sfc_temperature)) then
-      write(*, *) '  VALUE: X'
-    else
-      write(*, *) '  VALUE: ', record%sfc_temperature
-    end if
-    write(*, '(A)', advance='no') '   VALUE STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_temperature_stack(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(F6.1, ", ")', advance='no') record%sfc_temperature_stack(i)
-      end if
-    end do
-    write(*, *)
-    if (is_missing(record%sfc_temperature_qc)) then
-      write(*, *) '  QC: X'
-    else
-      write(*, *) '  QC: ', record%sfc_temperature_qc
-    end if
-    write(*, '(A)', advance='no') '   QC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_temperature_stack_qc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_temperature_stack_qc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, '(A)', advance='no') '   PC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_temperature_stack_pc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_temperature_stack_pc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, *) 'SPECIFIC HUMIDITY: '
-    if (is_missing(record%sfc_specific_humidity)) then
-      write(*, *) '  VALUE: X'
-    else
-      write(*, *) '  VALUE: ', record%sfc_specific_humidity
-    end if
-    write(*, '(A)', advance='no') '   VALUE STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_specific_humidity_stack(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(F10.2, ", ")', advance='no') record%sfc_specific_humidity_stack(i)
-      end if
-    end do
-    write(*, *)
-    if (is_missing(record%sfc_specific_humidity_qc)) then
-      write(*, *) '  QC: X'
-    else
-      write(*, *) '  QC: ', record%sfc_specific_humidity_qc
-    end if
-    write(*, '(A)', advance='no') '   QC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_specific_humidity_stack_qc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_specific_humidity_stack_qc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, '(A)', advance='no') '   PC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_specific_humidity_stack_pc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_specific_humidity_stack_pc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, *) 'DEWPOINT: '
-    if (is_missing(record%sfc_dewpoint)) then
-      write(*, *) '  VALUE: X'
-    else
-      write(*, *) '  VALUE: ', record%sfc_dewpoint
-    end if
-    write(*, *) 'PRESSURE: '
-    if (is_missing(record%sfc_pressure)) then
-      write(*, *) '  VALUE: X'
-    else
-      write(*, *) '  VALUE: ', record%sfc_pressure
-    end if
-    write(*, '(A)', advance='no') '   VALUE STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_pressure_stack(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(F8.1, ", ")', advance='no') record%sfc_pressure_stack(i)
-      end if
-    end do
-    write(*, *)
-    if (is_missing(record%sfc_pressure_qc)) then
-      write(*, *) '  QC: X'
-    else
-      write(*, *) '  QC: ', record%sfc_pressure_qc
-    end if
-    write(*, '(A)', advance='no') '   QC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_pressure_stack_qc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_pressure_stack_qc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, '(A)', advance='no') '   PC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_pressure_stack_pc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_pressure_stack_pc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, *) 'WIND U: '
-    if (is_missing(record%sfc_wind_u)) then
-      write(*, *) '  VALUE: X'
-    else
-      write(*, '(A, F8.1)') '  VALUE: ', record%sfc_wind_u
-    end if
-    write(*, '(A)', advance='no') '   VALUE STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_wind_u_stack(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(F8.1, ", ")', advance='no') record%sfc_wind_u_stack(i)
-      end if
-    end do
-    write(*, *)
-    if (is_missing(record%sfc_wind_qc)) then
-      write(*, *) '  QC: X'
-    else
-      write(*, '(A, I2)') '  QC: ', record%sfc_wind_qc
-    end if
-    write(*, '(A)', advance='no') '   QC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_wind_stack_qc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_wind_stack_qc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, '(A)', advance='no') '   PC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_wind_stack_pc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_wind_stack_pc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, *) 'WIND V: '
-    if (is_missing(record%sfc_wind_v)) then
-      write(*, *) '  VALUE: X'
-    else
-      write(*, '(A, F8.1)') '  VALUE: ', record%sfc_wind_v
-    end if
-    write(*, '(A)', advance='no') '   VALUE STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_wind_v_stack(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(F8.1, ", ")', advance='no') record%sfc_wind_v_stack(i)
-      end if
-    end do
-    write(*, *)
-    if (is_missing(record%sfc_wind_qc)) then
-      write(*, *) '  QC: X'
-    else
-      write(*, '(A, I2)') '  QC: ', record%sfc_wind_qc
-    end if
-    write(*, '(A)', advance='no') '   QC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_wind_stack_qc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_wind_stack_qc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, '(A)', advance='no') '   PC STACK: '
-    do i = 1, 4
-      if (is_missing(record%sfc_wind_stack_pc(i))) then
-        write(*, '(A)', advance='no') 'X, '
-      else
-        write(*, '(I3, ", ")', advance='no') record%sfc_wind_stack_pc(i)
-      end if
-    end do
-    write(*, *)
-    write(*, *) 'RAIN: ', record%sfc_rain_01h, record%sfc_rain_03h, record%sfc_rain_06h, record%sfc_rain_12h, record%sfc_rain_24h
-
-  end subroutine debug_print
 
 end module synop_prepbufr_mod
