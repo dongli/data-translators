@@ -87,6 +87,7 @@ contains
         else
           allocate(station)
           lon = hdr(2)
+          if (lon > 180) lon = lon - 360
           lat = hdr(3)
           z = hdr(4)
           call station%init(station_name, lon, lat, z)

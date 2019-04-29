@@ -14,7 +14,7 @@ module metar_mod
     final :: metar_station_final
   end type metar_station_type
 
-  integer, parameter :: max_stack = 255
+  integer, parameter :: max_stack = 10
 
   type, extends(obs_static_record_base_type) :: metar_record_type
     type(metar_station_type), pointer :: station
@@ -34,7 +34,7 @@ module metar_mod
     real :: rain_24h          = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: cloud_amount      = real_missing_value ! Cloud amount (???)
 
-    integer :: type                     = int_missing_value
+    integer :: type                 = int_missing_value
     integer :: temperature_qc       = int_missing_value
     integer :: dewpoint_qc          = int_missing_value
     integer :: pressure_qc          = int_missing_value

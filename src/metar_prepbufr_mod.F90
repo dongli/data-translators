@@ -81,7 +81,7 @@ contains
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC WPC WPC WPC NUL  NUL  NUL  NUL  NUL')
         station_name = transfer(hdr(1), station_name)
         station_name = station_name(1:5)
-        if (.not. (hdr(5) == 187 .or. hdr(5) == 287) .or. len_trim(station_name) == 4) cycle
+        if (hdr(5) /= 187 .and. hdr(5) /= 287) cycle
         time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
@@ -91,6 +91,7 @@ contains
         else
           allocate(station)
           lon = hdr(2)
+          if (lon > 180) lon = lon - 360
           lat = hdr(3)
           z = hdr(4)
           call station%init(station_name, lon, lat, z)

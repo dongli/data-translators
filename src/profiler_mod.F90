@@ -233,52 +233,51 @@ contains
 
   end subroutine profiler_record_init
 
-  subroutine profiler_record_print(record)
+  subroutine profiler_record_print(this)
 
-    class(profiler_record_type), intent(in) :: record
+    class(profiler_record_type), intent(in) :: this
 
     integer i
 
-    print *, 'Station ', record%station%name
-    print *, 'Time ', record%time%isoformat()
-    write(*, '(6A15)') 'P', 'Z', 'U', 'V', 'WD', 'WS'
+    print *, 'Station ', this%station%name
+    print *, 'Time ', this%time%isoformat()
     write(*, '(A15, A5)', advance='no') 'P', ''
-    write(*, '(A15, A5)', advance='no') 'P', ''
+    write(*, '(A15, A5)', advance='no') 'H', ''
     write(*, '(A15, A5)', advance='no') 'U', ''
     write(*, '(A15, A5)', advance='no') 'V', ''
     write(*, '(A15, A5)', advance='no') 'WD', ''
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
-    do i = 1, record%pro%num_level
-      if (is_missing(record%pro%pressure(i))) then
+    do i = 1, this%pro%num_level
+      if (is_missing(this%pro%pressure(i))) then
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%pressure(i), record%pro%pressure_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%pressure(i), this%pro%pressure_qc(i)
       end if
-      if (is_missing(record%pro%height(i))) then 
+      if (is_missing(this%pro%height(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%height(i), record%pro%height_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%height(i), this%pro%height_qc(i)
       end if
-      if (is_missing(record%pro%wind_u(i))) then 
+      if (is_missing(this%pro%wind_u(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_u(i), record%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_u(i), this%pro%wind_qc(i)
       end if
-      if (is_missing(record%pro%wind_v(i))) then 
+      if (is_missing(this%pro%wind_v(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_v(i), record%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_v(i), this%pro%wind_qc(i)
       end if
-      if (is_missing(record%pro%wind_direction(i))) then 
+      if (is_missing(this%pro%wind_direction(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_direction(i), record%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_direction(i), this%pro%wind_qc(i)
       end if
-      if (is_missing(record%pro%wind_speed(i))) then 
+      if (is_missing(this%pro%wind_speed(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') record%pro%wind_speed(i), record%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_speed(i), this%pro%wind_qc(i)
       end if
       write(*, *)
     end do

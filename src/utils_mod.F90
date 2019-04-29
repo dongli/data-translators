@@ -114,7 +114,7 @@ contains
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) /= 3 .and. stack_qc(i) /= 7) then
+        if (stack_qc(i) < 4) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
@@ -122,7 +122,7 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1 .or. stack_qc(i) == 2) then
+        if (stack_pc(i) == 1 .or. stack_qc(i) < 4) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
@@ -156,7 +156,7 @@ contains
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) /= 3 .and. stack_qc(i) /= 7) then
+        if (stack_qc(i) < 4) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
@@ -164,7 +164,7 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1 .and. (stack_qc(i) == 2 .or. stack_qc(i) == 6)) then
+        if (stack_pc(i) == 1 .and. stack_qc(i) < 4) then
           ! Wind direction in GDAS is missing value when QC is 2, so we need to check if stack value is missing.
           ! If so, we use the previous one.
           if (stack(i) == missing_value_in_prepbufr) then
@@ -180,7 +180,7 @@ contains
           if (present(qc)) qc = stack_qc(i)
           exit
         else if (stack_pc(i) == missing_value_in_prepbufr) then
-          if (stack_qc(i) == 2 .or. stack_qc(i) == 6) then
+          if (stack_qc(i) < 4) then
             value = stack(i)
             if (present(qc)) qc = stack_qc(i)
           else

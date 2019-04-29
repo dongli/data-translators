@@ -33,28 +33,28 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE profiler AS (' // &
-      'station_name STRING, ' // &                !  1
-      'lon REAL, ' // &                           !  2
-      'lat REAL, ' // &                           !  3
-      'z REAL, ' // &                             !  4
-      'date STRING, ' // &                        !  5
-      'time STRING, ' // &                        !  6
-      'height REAL, ' // &                        !  7
-      'pressure REAL, ' // &                      !  8
-      'wind_u REAL, ' // &                        !  9
-      'wind_v REAL' // &                          ! 10
+      'station_name STRING, '                     // &
+      'lon REAL, '                                // &
+      'lat REAL, '                                // &
+      'z REAL, '                                  // &
+      'date STRING, '                             // &
+      'time STRING, '                             // &
+      'pressure REAL, '                           // &
+      'height REAL, '                             // &
+      'wind_u REAL, '                             // &
+      'wind_v REAL'                               // &
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO profiler (' // &
-      'station_name, ' // &                       !  1
-      'lon, ' // &                                !  2
-      'lat, ' // &                                !  3
-      'z, ' // &                                  !  4
-      'date, ' // &                               !  5
-      'time, ' // &                               !  6
-      'height, ' // &                             !  7
-      'pressure, ' // &                           !  8
-      'wind_u, ' // &                             !  9
-      'wind_v' // &                               ! 10
+      'station_name, '                            // &
+      'lon, '                                     // &
+      'lat, '                                     // &
+      'z, '                                       // &
+      'date, '                                    // &
+      'time, '                                    // &
+      'pressure, '                                // &
+      'height, '                                  // &
+      'wind_u, '                                  // &
+      'wind_v'                                    // &
       ') VALUES (' // odb_values_placeholder(10) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
@@ -69,8 +69,8 @@ contains
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
           col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
           col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
-          col = col + 1; if (.not. is_missing(record%pro%height(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%height(k)))
           col = col + 1; if (.not. is_missing(record%pro%pressure(k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%pressure(k)))
+          col = col + 1; if (.not. is_missing(record%pro%height(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%height(k)))
           col = col + 1; if (.not. is_missing(record%pro%wind_u(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%wind_u(k)))
           col = col + 1; if (.not. is_missing(record%pro%wind_v(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%wind_v(k)))
           call odbql_step(odb_stmt)

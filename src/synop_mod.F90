@@ -14,7 +14,7 @@ module synop_mod
     final :: synop_station_final
   end type synop_station_type
 
-  integer, parameter :: max_stack = 255
+  integer, parameter :: max_stack = 10
 
   type, extends(obs_static_record_base_type) :: synop_record_type
     type(synop_station_type), pointer :: station
@@ -34,7 +34,7 @@ module synop_mod
     real :: rain_24h          = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: cloud_amount      = real_missing_value ! Cloud amount (???)
 
-    integer :: type                     = int_missing_value
+    integer :: type                 = int_missing_value
     integer :: temperature_qc       = int_missing_value
     integer :: dewpoint_qc          = int_missing_value
     integer :: pressure_qc          = int_missing_value
@@ -95,10 +95,10 @@ contains
 
     integer i
 
-    print *, '--'
-    print *, 'STATION NAME: ', trim(this%station%name)
-    print *, 'OBS TIME: ', trim(this%time%isoformat())
-    print *, 'LON:', this%station%lon, 'LAT:', this%station%lat, 'Z:', this%station%z
+    write(*, *) '--'
+    write(*, *) 'STATION NAME: ', trim(this%station%name)
+    write(*, *) 'OBS TIME: ', trim(this%time%isoformat())
+    write(*, *) 'LON:', this%station%lon, 'LAT:', this%station%lat, 'Z:', this%station%z
     write(*, *) 'TEMPERATURE: '
     if (is_missing(this%temperature)) then
       write(*, *) '  VALUE: X'

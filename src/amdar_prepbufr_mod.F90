@@ -79,6 +79,7 @@ contains
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'NUL NUL  NUL  NUL  NUL PPC ZPC TPC QPC WPC WPC NUL NUL')
         flight_name = transfer(hdr(1), flight_name)
         lon = hdr(2)
+        if (lon > 180) lon = lon - 360
         lat = hdr(3)
         call prepbufr_raw(obs(p_idx,1,:), p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:))
         p = multiply(p, 100.0)
@@ -92,12 +93,13 @@ contains
           allocate(flight)
           call flight%init(flight_name)
           if (subset == 'AIRCAR') flight%number = transfer(hdr(9), flight%number)
+          flight%seq_id = flights%size
           call flights%insert(flight_name, flight)
         end if
         nullify(record)
         select type (value => records%last_value())
         type is (amdar_record_type)
-          ! Since recode may be split into two subsets, we need to check if previous record exists with the same time.
+          ! Since record may be split into two subsets, we need to check if previous record exists with the same time.
           record => value
           if (record%flight%name /= flight_name .or. record%time /= time .or. record%lon /= lon .or. record%lat /= lat .or. record%pressure /= p) then
             nullify(record)
@@ -108,6 +110,7 @@ contains
         if (.not. associated(record)) then
           allocate(record)
           record%seq_id = records%size
+          record%subtype = subset
           record%flight => flight
           record%time = time
           new_record = .true.
@@ -120,21 +123,37 @@ contains
           call prepbufr_raw(obs(p_idx,1,:), record%pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%pressure_qc)
           ! Convert pressure from hPa to Pa.
           record%pressure = multiply(record%pressure, 100.0)
+          record%pressure_stack   (:max_num_event) = prepbufr_stack(obs(p_idx,1,:max_num_event))
+          record%pressure_stack_qc(:max_num_event) = prepbufr_codes( qc(p_idx,1,:max_num_event))
+          record%pressure_stack_pc(:max_num_event) = prepbufr_codes( pc(p_idx,1,:max_num_event))
         end if
         if (is_missing(record%height)) then
           call prepbufr_raw(obs(z_idx,1,:), record%height, stack_qc=qc(z_idx,1,:), stack_pc=pc(z_idx,1,:), qc=record%height_qc)
+          record%height_stack   (:max_num_event) = prepbufr_stack(obs(z_idx,1,:max_num_event))
+          record%height_stack_qc(:max_num_event) = prepbufr_codes( qc(z_idx,1,:max_num_event))
+          record%height_stack_pc(:max_num_event) = prepbufr_codes( pc(z_idx,1,:max_num_event))
         end if
         if (is_missing(record%temperature)) then
           call prepbufr_raw(obs(T_idx,1,:), record%temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%temperature_qc)
+          record%temperature_stack   (:max_num_event) = prepbufr_stack(obs(T_idx,1,:max_num_event))
+          record%temperature_stack_qc(:max_num_event) = prepbufr_codes( qc(T_idx,1,:max_num_event))
+          record%temperature_stack_pc(:max_num_event) = prepbufr_codes( pc(T_idx,1,:max_num_event))
         end if
         if (is_missing(record%specific_humidity)) then
           call prepbufr_raw(obs(Q_idx,1,:), record%specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%specific_humidity_qc)
+          record%specific_humidity_stack   (:max_num_event) = prepbufr_stack(obs(Q_idx,1,:max_num_event))
+          record%specific_humidity_stack_qc(:max_num_event) = prepbufr_codes( qc(Q_idx,1,:max_num_event))
+          record%specific_humidity_stack_pc(:max_num_event) = prepbufr_codes( pc(Q_idx,1,:max_num_event))
         end if
         if (is_missing(record%wind_speed)) then
           call prepbufr_raw(obs(u_idx,1,:), record%wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%wind_qc)
           call prepbufr_raw(obs(v_idx,1,:), record%wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%wind_qc)
           record%wind_speed = wind_speed(record%wind_u, record%wind_v)
           record%wind_direction = wind_direction(record%wind_u, record%wind_v)
+          record%wind_u_stack (:max_num_event) = prepbufr_stack(obs(u_idx,1,:max_num_event))
+          record%wind_v_stack (:max_num_event) = prepbufr_stack(obs(v_idx,1,:max_num_event))
+          record%wind_stack_qc(:max_num_event) = prepbufr_codes( qc(u_idx,1,:max_num_event))
+          record%wind_stack_pc(:max_num_event) = prepbufr_codes( pc(u_idx,1,:max_num_event))
         end if
         if (is_missing(record%dewpoint)) then
           call prepbufr_raw(obs(Td_idx,1,:), record%dewpoint)
@@ -149,6 +168,8 @@ contains
 
         if (new_record) then
           call records%insert(flight_name // '@' // time%isoformat(), record)
+        ! else
+        !   call record%print()
         end if
         call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do
@@ -158,29 +179,5 @@ contains
     write(*, *) '[Notice]: Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
 
   end subroutine amdar_prepbufr_read
-
-  subroutine debug_print(record, hdr, obs, qc, pc)
-
-    type(amdar_record_type), intent(in) :: record
-    real(8), intent(in) :: hdr(max_num_var)
-    real(8), intent(in) :: obs(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: qc(max_num_var,max_num_lev,max_num_event)
-    real(8), intent(in) :: pc(max_num_var,max_num_lev,max_num_event)
-
-    print *, '--'
-    print *, record%flight%name, record%time%isoformat(), hdr(6), hdr(7)
-    print *, record%lon, record%lat, record%z
-    print *, 'T ', record%temperature
-    print *, 'T ', obs(T_idx,1,:)
-    print *, 'T ', qc(T_idx,1,:)
-    print *, 'T ', pc(T_idx,1,:)
-    print *, 'P ', record%pressure
-    print *, 'P ', obs(p_idx,1,:)
-    print *, 'P ', qc(p_idx,1,:)
-    print *, 'P ', pc(p_idx,1,:)
-    print *, 'W ', record%wind_u, record%wind_v
-    print *, 'TRBX ', record%turbulence_index
-
-  end subroutine debug_print
 
 end module amdar_prepbufr_mod
