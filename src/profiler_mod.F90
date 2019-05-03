@@ -26,6 +26,10 @@ module profiler_mod
     integer, allocatable :: pressure_qc(:)
     integer, allocatable :: height_qc(:)
     integer, allocatable :: wind_qc(:)
+    real, allocatable :: pressure_correct(:)
+    real, allocatable :: height_correct(:)
+    real, allocatable :: wind_u_correct(:)
+    real, allocatable :: wind_v_correct(:)
   contains
     procedure :: init => profiler_profile_init
     procedure :: set_from_hash => profiler_profile_set_from_hash
@@ -35,10 +39,14 @@ module profiler_mod
   type profiler_profile_hash_type
     type(hash_table_type) pressure
     type(hash_table_type) pressure_qc
+    type(hash_table_type) pressure_correct
     type(hash_table_type) height
     type(hash_table_type) height_qc
+    type(hash_table_type) height_correct
     type(hash_table_type) wind_u
+    type(hash_table_type) wind_u_correct
     type(hash_table_type) wind_v
+    type(hash_table_type) wind_v_correct
     type(hash_table_type) wind_speed
     type(hash_table_type) wind_direction
     type(hash_table_type) wind_qc
@@ -90,10 +98,14 @@ contains
     call profiler_profile_final(this)
     allocate(this%pressure(num_level))
     allocate(this%pressure_qc(num_level))
+    allocate(this%pressure_correct(num_level))
     allocate(this%height(num_level))
     allocate(this%height_qc(num_level))
+    allocate(this%height_correct(num_level))
     allocate(this%wind_u(num_level))
+    allocate(this%wind_u_correct(num_level))
     allocate(this%wind_v(num_level))
+    allocate(this%wind_v_correct(num_level))
     allocate(this%wind_speed(num_level))
     allocate(this%wind_direction(num_level))
     allocate(this%wind_qc(num_level))
@@ -129,9 +141,16 @@ contains
         class default
           this%pressure_qc(i) = int_missing_value
         end select
+        select type (value => hash%pressure_correct%value(level_iterator%key))
+        type is (real)
+          this%pressure_correct(i) = value
+        class default
+          this%pressure_correct(i) = real_missing_value
+        end select
       else
         this%pressure(i) = real_missing_value
         this%pressure_qc(i) = int_missing_value
+        this%pressure_correct(i) = real_missing_value
       end if
       ! height (m)
       select type (value => hash%height%value(level_iterator%key))
@@ -146,6 +165,12 @@ contains
       class default
         this%height_qc(i) = int_missing_value
       end select
+      select type (value => hash%height_correct%value(level_iterator%key))
+      type is (real)
+        this%height_correct(i) = value
+      class default
+        this%height_correct(i) = real_missing_value
+      end select
       ! wind u component (m/s)
       select type (value => hash%wind_u%value(level_iterator%key))
       type is (real)
@@ -153,12 +178,24 @@ contains
       class default
         this%wind_u(i) = real_missing_value
       end select
+      select type (value => hash%wind_u_correct%value(level_iterator%key))
+      type is (real)
+        this%wind_u_correct(i) = value
+      class default
+        this%wind_u_correct(i) = real_missing_value
+      end select
       ! wind v component (m/s)
       select type (value => hash%wind_v%value(level_iterator%key))
       type is (real)
         this%wind_v(i) = value
       class default
         this%wind_v(i) = real_missing_value
+      end select
+      select type (value => hash%wind_v_correct%value(level_iterator%key))
+      type is (real)
+        this%wind_v_correct(i) = value
+      class default
+        this%wind_v_correct(i) = real_missing_value
       end select
       ! wind speed (m/s)
       select type (value => hash%wind_speed%value(level_iterator%key))
@@ -193,15 +230,19 @@ contains
 
     type(profiler_profile_type), intent(inout) :: this
 
-    if (allocated(this%pressure))       deallocate(this%pressure)
-    if (allocated(this%pressure_qc))    deallocate(this%pressure_qc)
-    if (allocated(this%height))         deallocate(this%height)
-    if (allocated(this%height_qc))      deallocate(this%height_qc)
-    if (allocated(this%wind_u))         deallocate(this%wind_u)
-    if (allocated(this%wind_v))         deallocate(this%wind_v)
-    if (allocated(this%wind_speed))     deallocate(this%wind_speed)
-    if (allocated(this%wind_direction)) deallocate(this%wind_direction)
-    if (allocated(this%wind_qc))        deallocate(this%wind_qc)
+    if (allocated(this%pressure))         deallocate(this%pressure)
+    if (allocated(this%pressure_qc))      deallocate(this%pressure_qc)
+    if (allocated(this%pressure_correct)) deallocate(this%pressure_correct)
+    if (allocated(this%height))           deallocate(this%height)
+    if (allocated(this%height_qc))        deallocate(this%height_qc)
+    if (allocated(this%height_correct))   deallocate(this%height_correct)
+    if (allocated(this%wind_u))           deallocate(this%wind_u)
+    if (allocated(this%wind_u_correct))   deallocate(this%wind_u_correct)
+    if (allocated(this%wind_v))           deallocate(this%wind_v)
+    if (allocated(this%wind_v_correct))   deallocate(this%wind_v_correct)
+    if (allocated(this%wind_speed))       deallocate(this%wind_speed)
+    if (allocated(this%wind_direction))   deallocate(this%wind_direction)
+    if (allocated(this%wind_qc))          deallocate(this%wind_qc)
 
   end subroutine profiler_profile_final
 
@@ -209,15 +250,19 @@ contains
 
     class(profiler_profile_hash_type), intent(inout) :: this
 
-    this%pressure       = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%pressure_qc    = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%height         = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%height_qc      = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_u         = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_v         = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_speed     = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_direction = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_qc        = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%pressure         = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%pressure_qc      = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%pressure_correct = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%height           = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%height_qc        = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%height_correct   = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_u           = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_u_correct   = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_v           = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_v_correct   = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_speed       = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_direction   = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wind_qc          = hash_table(chunk_size=1000, max_load_factor=0.9)
 
   end subroutine profiler_profile_hash_init
 

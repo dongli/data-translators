@@ -123,20 +123,24 @@ contains
           if (.not. record%pro_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
             call record%pro_hash%pressure%insert(key, p)
             call record%pro_hash%pressure_qc%insert(key, p_qc)
+            call record%pro_hash%pressure_correct%insert(key, prepbufr_correct(obs(p_idx,i,:), qc(p_idx,i,:), pc(p_idx,i,:)))
           end if
           call prepbufr_raw(obs(z_idx,i,:), h, stack_qc=qc(z_idx,i,:), stack_pc=pc(z_idx,i,:), qc=h_qc)
           if (.not. record%pro_hash%height%hashed(key) .and. .not. is_missing(h)) then
             call record%pro_hash%height%insert(key, h)
             call record%pro_hash%height_qc%insert(key, h_qc)
+            call record%pro_hash%height_correct%insert(key, prepbufr_correct(obs(z_idx,i,:), qc(z_idx,i,:), pc(z_idx,i,:)))
           end if
           call prepbufr_raw(obs(u_idx,i,:), u, stack_qc=qc(u_idx,i,:), stack_pc=pc(u_idx,i,:), qc=uv_qc)
           if (.not. record%pro_hash%wind_u%hashed(key) .and. .not. is_missing(u)) then
             call record%pro_hash%wind_u%insert(key, u)
             call record%pro_hash%wind_qc%insert(key, uv_qc)
+            call record%pro_hash%wind_u_correct%insert(key, prepbufr_correct(obs(u_idx,i,:), qc(u_idx,i,:), pc(u_idx,i,:)))
           end if
           call prepbufr_raw(obs(v_idx,i,:), v, stack_qc=qc(v_idx,i,:), stack_pc=pc(v_idx,i,:))
           if (.not. record%pro_hash%wind_v%hashed(key) .and. .not. is_missing(v)) then
             call record%pro_hash%wind_v%insert(key, v)
+            call record%pro_hash%wind_v_correct%insert(key, prepbufr_correct(obs(v_idx,i,:), qc(v_idx,i,:), pc(v_idx,i,:)))
           end if
           call prepbufr_raw(obs(wd_idx,i,:), wd, stack_qc=qc(wd_idx,i,:), stack_pc=pc(wd_idx,i,:))
           if (.not. record%pro_hash%wind_direction%hashed(key) .and. .not. is_missing(wd)) then
@@ -163,9 +167,9 @@ contains
         call record%pro%init(record%pro_hash%pressure%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        if (record%station%name == '54511') then
-          call record%print()
-        end if
+        ! if (record%station%name == '54511') then
+        !   call record%print()
+        ! end if
       end select
       call record_iterator%next()
     end do
@@ -174,4 +178,4 @@ contains
 
   end subroutine profiler_prepbufr_read
 
-end module
+end module profiler_prepbufr_mod

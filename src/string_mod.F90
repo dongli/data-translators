@@ -5,6 +5,7 @@ module string_mod
   private
 
   public to_string
+  public to_integer
   public pad_string
   public count_substring
 
@@ -120,6 +121,14 @@ contains
     res = merge('true ', 'false', x)
 
   end function logical_to_string
+
+  integer function to_integer(x) result(res)
+
+    character(*), intent(in) :: x
+
+    read(x, *) res
+
+  end function to_integer
 
   function pad_string(x, w) result(res)
 

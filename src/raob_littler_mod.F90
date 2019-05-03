@@ -36,8 +36,8 @@ contains
       j = 0
       select type (record => record_iterator%value)
       type is (raob_record_type)
-        slp = sea_level_pressure(record%snd_sfc_pressure, record%snd_sfc_temperature, record%station%z)
-        T = add(record%snd_sfc_temperature, freezing_point)
+        slp = sea_level_pressure(record%sfc_pressure, record%sfc_temperature, record%station%z)
+        T = add(record%sfc_temperature, freezing_point)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%station%lat)                  ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                  ! longitude
@@ -65,7 +65,7 @@ contains
         write(10, '(I7)',    advance='no') 0                                                  ! ground_t QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! SST
         write(10, '(I7)',    advance='no') 0                                                  ! SST QC
-        write(10, '(F13.5)', advance='no') littler_value(record%snd_sfc_pressure)             ! psfc
+        write(10, '(F13.5)', advance='no') littler_value(record%sfc_pressure)             ! psfc
         write(10, '(I7)',    advance='no') 0                                                  ! psfc QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! precip
         write(10, '(I7)',    advance='no') 0                                                  ! precip QC
@@ -85,70 +85,70 @@ contains
         write(10, '(I7)',    advance='no') 0                                                  ! celing QC
         write(10, *)
         ! Records
-        do k = 1, record%snd_man%num_level
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%pressure(k))
+        do k = 1, record%man%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%man%pressure(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%height(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%man%height(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_man%temperature(k), freezing_point))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%man%temperature(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_man%dewpoint(k), freezing_point))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%man%dewpoint(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_speed(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%man%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_direction(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%man%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_u(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%man%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%wind_v(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%man%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_man%relative_humidity(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
-          write(10, '(I7)', advance='no') 0
-          write(10, *)
-          j = j + 1
-        end do
-        do k = 1, record%snd_sigt%num_level
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%pressure(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%height(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_sigt%temperature(k), freezing_point))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_sigt%dewpoint(k), freezing_point))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%wind_speed(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%wind_direction(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%wind_u(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%wind_v(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigt%relative_humidity(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%man%relative_humidity(k))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
           write(10, *)
           j = j + 1
         end do
-        do k = 1, record%snd_sigw%num_level
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigw%pressure(k))
+        do k = 1, record%sigt%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%pressure(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigw%height(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%height(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(add(record%sigt%temperature(k), freezing_point))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(add(record%sigt%dewpoint(k), freezing_point))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%wind_speed(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%wind_direction(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%wind_u(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%wind_v(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%sigt%relative_humidity(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          write(10, '(I7)', advance='no') 0
+          write(10, *)
+          j = j + 1
+        end do
+        do k = 1, record%sigw%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%sigw%pressure(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%sigw%height(k))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigw%wind_speed(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%sigw%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigw%wind_direction(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%sigw%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigw%wind_u(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%sigw%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_sigw%wind_v(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%sigw%wind_v(k))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
@@ -157,24 +157,24 @@ contains
           write(10, *)
           j = j + 1
         end do
-        do k = 1, record%snd_trop%num_level
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%pressure(k))
+        do k = 1, record%trop%num_level
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%pressure(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%height(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%height(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_trop%temperature(k), freezing_point))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%trop%temperature(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(add(record%snd_trop%dewpoint(k), freezing_point))
+          write(10, '(F13.5)', advance='no') littler_value(add(record%trop%dewpoint(k), freezing_point))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_speed(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%wind_speed(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_direction(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%wind_direction(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_u(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%wind_u(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%wind_v(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%wind_v(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%snd_trop%relative_humidity(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%trop%relative_humidity(k))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0

@@ -31,6 +31,12 @@ module raob_mod
     integer, allocatable :: temperature_qc(:)
     integer, allocatable :: specific_humidity_qc(:)
     integer, allocatable :: wind_qc(:)
+    real, allocatable :: pressure_correct(:)
+    real, allocatable :: height_correct(:)
+    real, allocatable :: temperature_correct(:)
+    real, allocatable :: specific_humidity_correct(:)
+    real, allocatable :: wind_u_correct(:)
+    real, allocatable :: wind_v_correct(:)
   contains
     procedure :: init => raob_profile_init
     procedure :: set_from_hash => raob_profile_set_from_hash
@@ -53,32 +59,43 @@ module raob_mod
     type(hash_table_type) temperature_qc
     type(hash_table_type) specific_humidity_qc
     type(hash_table_type) wind_qc
+    type(hash_table_type) pressure_correct
+    type(hash_table_type) height_correct
+    type(hash_table_type) temperature_correct
+    type(hash_table_type) specific_humidity_correct
+    type(hash_table_type) wind_u_correct
+    type(hash_table_type) wind_v_correct
   contains
     procedure :: init => raob_profile_hash_init
   end type raob_profile_hash_type
 
   type, extends(obs_static_record_base_type) :: raob_record_type
     type(raob_station_type), pointer :: station
-    real :: snd_sfc_pressure          = real_missing_value
-    real :: snd_sfc_temperature       = real_missing_value
-    real :: snd_sfc_dewpoint          = real_missing_value
-    real :: snd_sfc_specific_humidity = real_missing_value
-    real :: snd_sfc_wind_direction    = real_missing_value
-    real :: snd_sfc_wind_speed        = real_missing_value
-    real :: snd_sfc_wind_u            = real_missing_value
-    real :: snd_sfc_wind_v            = real_missing_value
-    integer :: snd_sfc_pressure_qc          = int_missing_value
-    integer :: snd_sfc_temperature_qc       = int_missing_value
-    integer :: snd_sfc_specific_humidity_qc = int_missing_value
-    integer :: snd_sfc_wind_qc              = int_missing_value
-    type(raob_profile_type) snd_man
-    type(raob_profile_type) snd_sigt
-    type(raob_profile_type) snd_sigw
-    type(raob_profile_type) snd_trop
-    type(raob_profile_hash_type), pointer :: snd_man_hash => null()
-    type(raob_profile_hash_type), pointer :: snd_sigt_hash => null()
-    type(raob_profile_hash_type), pointer :: snd_sigw_hash => null()
-    type(raob_profile_hash_type), pointer :: snd_trop_hash => null()
+    real :: sfc_pressure          = real_missing_value
+    real :: sfc_temperature       = real_missing_value
+    real :: sfc_dewpoint          = real_missing_value
+    real :: sfc_specific_humidity = real_missing_value
+    real :: sfc_wind_direction    = real_missing_value
+    real :: sfc_wind_speed        = real_missing_value
+    real :: sfc_wind_u            = real_missing_value
+    real :: sfc_wind_v            = real_missing_value
+    integer :: sfc_pressure_qc            = int_missing_value
+    integer :: sfc_temperature_qc         = int_missing_value
+    integer :: sfc_specific_humidity_qc   = int_missing_value
+    integer :: sfc_wind_qc                = int_missing_value
+    real :: sfc_pressure_correct          = real_missing_value
+    real :: sfc_temperature_correct       = real_missing_value
+    real :: sfc_specific_humidity_correct = real_missing_value
+    real :: sfc_wind_u_correct            = real_missing_value
+    real :: sfc_wind_v_correct            = real_missing_value
+    type(raob_profile_type) man
+    type(raob_profile_type) sigt
+    type(raob_profile_type) sigw
+    type(raob_profile_type) trop
+    type(raob_profile_hash_type), pointer :: man_hash => null()
+    type(raob_profile_hash_type), pointer :: sigt_hash => null()
+    type(raob_profile_hash_type), pointer :: sigw_hash => null()
+    type(raob_profile_hash_type), pointer :: trop_hash => null()
   contains
     procedure :: init => raob_record_init
     procedure :: print => raob_record_print
@@ -119,18 +136,24 @@ contains
     call raob_profile_final(this)
     allocate(this%pressure(num_level))
     allocate(this%pressure_qc(num_level))
+    allocate(this%pressure_correct(num_level))
     allocate(this%height(num_level))
     allocate(this%height_qc(num_level))
+    allocate(this%height_correct(num_level))
     allocate(this%temperature(num_level))
     allocate(this%temperature_qc(num_level))
+    allocate(this%temperature_correct(num_level))
     allocate(this%dewpoint(num_level))
     allocate(this%specific_humidity(num_level))
     allocate(this%specific_humidity_qc(num_level))
+    allocate(this%specific_humidity_correct(num_level))
     allocate(this%relative_humidity(num_level))
     allocate(this%wind_direction(num_level))
     allocate(this%wind_speed(num_level))
     allocate(this%wind_u(num_level))
+    allocate(this%wind_u_correct(num_level))
     allocate(this%wind_v(num_level))
+    allocate(this%wind_v_correct(num_level))
     allocate(this%wind_qc(num_level))
 
   end subroutine raob_profile_init
@@ -159,6 +182,12 @@ contains
       class default
         this%pressure_qc(i) = int_missing_value
       end select
+      select type (value => hash%pressure_correct%value(level_iterator%key))
+      type is (real)
+        this%pressure_correct(i) = value
+      class default
+        this%pressure_correct(i) = real_missing_value
+      end select
       ! height (m)
       select type (value => hash%height%value(level_iterator%key))
       type is (real)
@@ -172,6 +201,12 @@ contains
       class default
         this%height_qc(i) = int_missing_value
       end select
+      select type (value => hash%height_correct%value(level_iterator%key))
+      type is (real)
+        this%height_correct(i) = value
+      class default
+        this%height_correct(i) = real_missing_value
+      end select
       ! temperature (degC)
       select type (value => hash%temperature%value(level_iterator%key))
       type is (real)
@@ -184,6 +219,12 @@ contains
         this%temperature_qc(i) = value
       class default
         this%temperature_qc(i) = int_missing_value
+      end select
+      select type (value => hash%temperature_correct%value(level_iterator%key))
+      type is (real)
+        this%temperature_correct(i) = value
+      class default
+        this%temperature_correct(i) = real_missing_value
       end select
       ! dewpoint (degC)
       select type (value => hash%dewpoint%value(level_iterator%key))
@@ -204,6 +245,12 @@ contains
         this%specific_humidity_qc(i) = value
       class default
         this%specific_humidity_qc(i) = int_missing_value
+      end select
+      select type (value => hash%specific_humidity_correct%value(level_iterator%key))
+      type is (real)
+        this%specific_humidity_correct(i) = value
+      class default
+        this%specific_humidity_correct(i) = real_missing_value
       end select
       ! relative humidity (%)
       select type (value => hash%relative_humidity%value(level_iterator%key))
@@ -233,12 +280,24 @@ contains
       class default
         this%wind_u(i) = real_missing_value
       end select
+      select type (value => hash%wind_u_correct%value(level_iterator%key))
+      type is (real)
+        this%wind_u_correct(i) = value
+      class default
+        this%wind_u_correct(i) = real_missing_value
+      end select
       ! wind v component (m/s)
       select type (value => hash%wind_v%value(level_iterator%key))
       type is (real)
         this%wind_v(i) = value
       class default
         this%wind_v(i) = real_missing_value
+      end select
+      select type (value => hash%wind_v_correct%value(level_iterator%key))
+      type is (real)
+        this%wind_v_correct(i) = value
+      class default
+        this%wind_v_correct(i) = real_missing_value
       end select
       select type (value => hash%wind_qc%value(level_iterator%key))
       type is (integer)
@@ -259,21 +318,27 @@ contains
 
     type(raob_profile_type), intent(inout) :: this
 
-    if (allocated(this%pressure))             deallocate(this%pressure)
-    if (allocated(this%pressure_qc))          deallocate(this%pressure_qc)
-    if (allocated(this%height))               deallocate(this%height)
-    if (allocated(this%height_qc))            deallocate(this%height_qc)
-    if (allocated(this%temperature))          deallocate(this%temperature)
-    if (allocated(this%temperature_qc))       deallocate(this%temperature_qc)
-    if (allocated(this%dewpoint))             deallocate(this%dewpoint)
-    if (allocated(this%specific_humidity))    deallocate(this%specific_humidity)
-    if (allocated(this%specific_humidity_qc)) deallocate(this%specific_humidity_qc)
-    if (allocated(this%relative_humidity))    deallocate(this%relative_humidity)
-    if (allocated(this%wind_direction))       deallocate(this%wind_direction)
-    if (allocated(this%wind_speed))           deallocate(this%wind_speed)
-    if (allocated(this%wind_u))               deallocate(this%wind_u)
-    if (allocated(this%wind_v))               deallocate(this%wind_v)
-    if (allocated(this%wind_qc))              deallocate(this%wind_qc)
+    if (allocated(this%pressure))                  deallocate(this%pressure)
+    if (allocated(this%pressure_qc))               deallocate(this%pressure_qc)
+    if (allocated(this%pressure_correct))          deallocate(this%pressure_correct)
+    if (allocated(this%height))                    deallocate(this%height)
+    if (allocated(this%height_qc))                 deallocate(this%height_qc)
+    if (allocated(this%height_correct))            deallocate(this%height_correct)
+    if (allocated(this%temperature))               deallocate(this%temperature)
+    if (allocated(this%temperature_qc))            deallocate(this%temperature_qc)
+    if (allocated(this%temperature_correct))       deallocate(this%temperature_correct)
+    if (allocated(this%dewpoint))                  deallocate(this%dewpoint)
+    if (allocated(this%specific_humidity))         deallocate(this%specific_humidity)
+    if (allocated(this%specific_humidity_qc))      deallocate(this%specific_humidity_qc)
+    if (allocated(this%specific_humidity_correct)) deallocate(this%specific_humidity_correct)
+    if (allocated(this%relative_humidity))         deallocate(this%relative_humidity)
+    if (allocated(this%wind_direction))            deallocate(this%wind_direction)
+    if (allocated(this%wind_speed))                deallocate(this%wind_speed)
+    if (allocated(this%wind_u))                    deallocate(this%wind_u)
+    if (allocated(this%wind_u_correct))            deallocate(this%wind_u_correct)
+    if (allocated(this%wind_v))                    deallocate(this%wind_v)
+    if (allocated(this%wind_v_correct))            deallocate(this%wind_v_correct)
+    if (allocated(this%wind_qc))                   deallocate(this%wind_qc)
 
   end subroutine raob_profile_final
 
@@ -281,21 +346,27 @@ contains
 
     class(raob_profile_hash_type), intent(inout) :: this
 
-    this%pressure             = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%pressure_qc          = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%height               = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%height_qc            = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%temperature          = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%temperature_qc       = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%dewpoint             = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%specific_humidity    = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%specific_humidity_qc = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%relative_humidity    = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%wind_direction       = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%wind_speed           = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%wind_u               = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%wind_v               = hash_table(chunk_size=100, max_load_factor=0.9)
-    this%wind_qc              = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%pressure                  = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%pressure_qc               = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%pressure_correct          = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%height                    = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%height_qc                 = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%height_correct            = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%temperature               = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%temperature_qc            = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%temperature_correct       = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%dewpoint                  = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%specific_humidity         = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%specific_humidity_qc      = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%specific_humidity_correct = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%relative_humidity         = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_direction            = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_speed                = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_u                    = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_u_correct            = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_v                    = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_v_correct            = hash_table(chunk_size=100, max_load_factor=0.9)
+    this%wind_qc                   = hash_table(chunk_size=100, max_load_factor=0.9)
 
   end subroutine raob_profile_hash_init
 
@@ -305,10 +376,10 @@ contains
     logical, intent(in), optional :: alloc_hash
 
     if (present(alloc_hash) .and. alloc_hash) then
-      allocate(this%snd_man_hash);  call this%snd_man_hash %init()
-      allocate(this%snd_sigt_hash); call this%snd_sigt_hash%init()
-      allocate(this%snd_sigw_hash); call this%snd_sigw_hash%init()
-      allocate(this%snd_trop_hash); call this%snd_trop_hash%init()
+      allocate(this%man_hash);  call this%man_hash %init()
+      allocate(this%sigt_hash); call this%sigt_hash%init()
+      allocate(this%sigw_hash); call this%sigw_hash%init()
+      allocate(this%trop_hash); call this%trop_hash%init()
     end if
 
   end subroutine raob_record_init
@@ -331,59 +402,59 @@ contains
     write(*, '(A15, A5)', advance='no') 'WD', ''
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
-    if (is_missing(this%snd_sfc_pressure)) then
+    if (is_missing(this%sfc_pressure)) then
       write(*, '(A15)', advance='no') 'X'
       write(*, '(" (", A2, ")")', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_pressure
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_pressure_qc
+      write(*, '(F15.1)', advance='no') this%sfc_pressure
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_pressure_qc
     end if
-    if (is_missing(this%snd_sfc_temperature)) then
+    if (is_missing(this%sfc_temperature)) then
       write(*, '(A15)', advance='no') 'X'
       write(*, '(" (", A2, ")")', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_temperature
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_temperature_qc
+      write(*, '(F15.1)', advance='no') this%sfc_temperature
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_temperature_qc
     end if
-    if (is_missing(this%snd_sfc_specific_humidity)) then
+    if (is_missing(this%sfc_specific_humidity)) then
       write(*, '(A15)', advance='no') 'X'
       write(*, '(" (", A2, ")")', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_specific_humidity
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_specific_humidity_qc
+      write(*, '(F15.1)', advance='no') this%sfc_specific_humidity
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_specific_humidity_qc
     end if
-    if (is_missing(this%snd_sfc_dewpoint)) then
+    if (is_missing(this%sfc_dewpoint)) then
       write(*, '(A15)', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_dewpoint
+      write(*, '(F15.1)', advance='no') this%sfc_dewpoint
     end if
-    if (is_missing(this%snd_sfc_wind_u)) then
-      write(*, '(A15)', advance='no') 'X'
-      write(*, '(" (", A2, ")")', advance='no') 'X'
-    else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_wind_u
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_wind_qc
-    end if
-    if (is_missing(this%snd_sfc_wind_v)) then
+    if (is_missing(this%sfc_wind_u)) then
       write(*, '(A15)', advance='no') 'X'
       write(*, '(" (", A2, ")")', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_wind_v
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_wind_qc
+      write(*, '(F15.1)', advance='no') this%sfc_wind_u
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_wind_qc
     end if
-    if (is_missing(this%snd_sfc_wind_direction)) then
+    if (is_missing(this%sfc_wind_v)) then
       write(*, '(A15)', advance='no') 'X'
       write(*, '(" (", A2, ")")', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_wind_direction
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_wind_qc
+      write(*, '(F15.1)', advance='no') this%sfc_wind_v
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_wind_qc
     end if
-    if (is_missing(this%snd_sfc_wind_speed)) then
+    if (is_missing(this%sfc_wind_direction)) then
       write(*, '(A15)', advance='no') 'X'
       write(*, '(" (", A2, ")")', advance='no') 'X'
     else
-      write(*, '(F15.1)', advance='no') this%snd_sfc_wind_speed
-      write(*, '(" (", I2, ")")', advance='no') this%snd_sfc_wind_qc
+      write(*, '(F15.1)', advance='no') this%sfc_wind_direction
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_wind_qc
+    end if
+    if (is_missing(this%sfc_wind_speed)) then
+      write(*, '(A15)', advance='no') 'X'
+      write(*, '(" (", A2, ")")', advance='no') 'X'
+    else
+      write(*, '(F15.1)', advance='no') this%sfc_wind_speed
+      write(*, '(" (", I2, ")")', advance='no') this%sfc_wind_qc
     end if
     write(*, *)
     print *, '- Mandatory levels:'
@@ -398,72 +469,72 @@ contains
     write(*, '(A15, A5)', advance='no') 'WD', ''
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
-    do i = 1, this%snd_man%num_level
-      if (is_missing(this%snd_man%pressure(i))) then
+    do i = 1, this%man%num_level
+      if (is_missing(this%man%pressure(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%pressure(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%pressure_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%pressure(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%pressure_qc(i)
       end if
-      if (is_missing(this%snd_man%height(i))) then
+      if (is_missing(this%man%height(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%height(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%height_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%height(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%height_qc(i)
       end if
-      if (is_missing(this%snd_man%temperature(i))) then
+      if (is_missing(this%man%temperature(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%temperature(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%temperature_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%temperature(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%temperature_qc(i)
       end if
-      if (is_missing(this%snd_man%specific_humidity(i))) then
+      if (is_missing(this%man%specific_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%specific_humidity(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%specific_humidity_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%specific_humidity(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%specific_humidity_qc(i)
       end if
-      if (is_missing(this%snd_man%dewpoint(i))) then
+      if (is_missing(this%man%dewpoint(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%dewpoint(i)
+        write(*, '(F15.1)', advance='no') this%man%dewpoint(i)
       end if
-      if (is_missing(this%snd_man%relative_humidity(i))) then
+      if (is_missing(this%man%relative_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%relative_humidity(i)
+        write(*, '(F15.1)', advance='no') this%man%relative_humidity(i)
       end if
-      if (is_missing(this%snd_man%wind_u(i))) then
-        write(*, '(A15)', advance='no') 'X'
-        write(*, '(" (", A2, ")")', advance='no') 'X'
-      else
-        write(*, '(F15.1)', advance='no') this%snd_man%wind_u(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%wind_qc(i)
-      end if
-      if (is_missing(this%snd_man%wind_v(i))) then
+      if (is_missing(this%man%wind_u(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%wind_v(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%wind_u(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%wind_qc(i)
       end if
-      if (is_missing(this%snd_man%wind_direction(i))) then
+      if (is_missing(this%man%wind_v(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%wind_direction(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%wind_v(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%wind_qc(i)
       end if
-      if (is_missing(this%snd_man%wind_speed(i))) then
+      if (is_missing(this%man%wind_direction(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_man%wind_speed(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_man%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%man%wind_direction(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%wind_qc(i)
+      end if
+      if (is_missing(this%man%wind_speed(i))) then
+        write(*, '(A15)', advance='no') 'X'
+        write(*, '(" (", A2, ")")', advance='no') 'X'
+      else
+        write(*, '(F15.1)', advance='no') this%man%wind_speed(i)
+        write(*, '(" (", I2, ")")', advance='no') this%man%wind_qc(i)
       end if
       write(*, *)
     end do
@@ -479,72 +550,72 @@ contains
     write(*, '(A15, A5)', advance='no') 'WD', ''
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
-    do i = 1, this%snd_sigt%num_level
-      if (is_missing(this%snd_sigt%pressure(i))) then
+    do i = 1, this%sigt%num_level
+      if (is_missing(this%sigt%pressure(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%pressure(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%pressure_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%pressure(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%pressure_qc(i)
       end if
-      if (is_missing(this%snd_sigt%height(i))) then
+      if (is_missing(this%sigt%height(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%height(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%height_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%height(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%height_qc(i)
       end if
-      if (is_missing(this%snd_sigt%temperature(i))) then
+      if (is_missing(this%sigt%temperature(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%temperature(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%temperature_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%temperature(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%temperature_qc(i)
       end if
-      if (is_missing(this%snd_sigt%specific_humidity(i))) then
+      if (is_missing(this%sigt%specific_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%specific_humidity(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%specific_humidity_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%specific_humidity(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%specific_humidity_qc(i)
       end if
-      if (is_missing(this%snd_sigt%dewpoint(i))) then
+      if (is_missing(this%sigt%dewpoint(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%dewpoint(i)
+        write(*, '(F15.1)', advance='no') this%sigt%dewpoint(i)
       end if
-      if (is_missing(this%snd_sigt%relative_humidity(i))) then
+      if (is_missing(this%sigt%relative_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%relative_humidity(i)
+        write(*, '(F15.1)', advance='no') this%sigt%relative_humidity(i)
       end if
-      if (is_missing(this%snd_sigt%wind_u(i))) then
-        write(*, '(A15)', advance='no') 'X'
-        write(*, '(" (", A2, ")")', advance='no') 'X'
-      else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%wind_u(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%wind_qc(i)
-      end if
-      if (is_missing(this%snd_sigt%wind_v(i))) then
+      if (is_missing(this%sigt%wind_u(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%wind_v(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%wind_u(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%wind_qc(i)
       end if
-      if (is_missing(this%snd_sigt%wind_direction(i))) then
+      if (is_missing(this%sigt%wind_v(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%wind_direction(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%wind_v(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%wind_qc(i)
       end if
-      if (is_missing(this%snd_sigt%wind_speed(i))) then
+      if (is_missing(this%sigt%wind_direction(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigt%wind_speed(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigt%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigt%wind_direction(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%wind_qc(i)
+      end if
+      if (is_missing(this%sigt%wind_speed(i))) then
+        write(*, '(A15)', advance='no') 'X'
+        write(*, '(" (", A2, ")")', advance='no') 'X'
+      else
+        write(*, '(F15.1)', advance='no') this%sigt%wind_speed(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigt%wind_qc(i)
       end if
       write(*, *)
     end do
@@ -560,72 +631,72 @@ contains
     write(*, '(A15, A5)', advance='no') 'WD', ''
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
-    do i = 1, this%snd_sigw%num_level
-      if (is_missing(this%snd_sigw%pressure(i))) then
+    do i = 1, this%sigw%num_level
+      if (is_missing(this%sigw%pressure(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%pressure(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%pressure_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%pressure(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%pressure_qc(i)
       end if
-      if (is_missing(this%snd_sigw%height(i))) then
+      if (is_missing(this%sigw%height(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%height(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%height_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%height(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%height_qc(i)
       end if
-      if (is_missing(this%snd_sigw%temperature(i))) then
+      if (is_missing(this%sigw%temperature(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%temperature(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%temperature_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%temperature(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%temperature_qc(i)
       end if
-      if (is_missing(this%snd_sigw%specific_humidity(i))) then
+      if (is_missing(this%sigw%specific_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%specific_humidity(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%specific_humidity_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%specific_humidity(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%specific_humidity_qc(i)
       end if
-      if (is_missing(this%snd_sigw%dewpoint(i))) then
+      if (is_missing(this%sigw%dewpoint(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%dewpoint(i)
+        write(*, '(F15.1)', advance='no') this%sigw%dewpoint(i)
       end if
-      if (is_missing(this%snd_sigw%relative_humidity(i))) then
+      if (is_missing(this%sigw%relative_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%relative_humidity(i)
+        write(*, '(F15.1)', advance='no') this%sigw%relative_humidity(i)
       end if
-      if (is_missing(this%snd_sigw%wind_u(i))) then
-        write(*, '(A15)', advance='no') 'X'
-        write(*, '(" (", A2, ")")', advance='no') 'X'
-      else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%wind_u(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%wind_qc(i)
-      end if
-      if (is_missing(this%snd_sigw%wind_v(i))) then
+      if (is_missing(this%sigw%wind_u(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%wind_v(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%wind_u(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%wind_qc(i)
       end if
-      if (is_missing(this%snd_sigw%wind_direction(i))) then
+      if (is_missing(this%sigw%wind_v(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%wind_direction(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%wind_v(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%wind_qc(i)
       end if
-      if (is_missing(this%snd_sigw%wind_speed(i))) then
+      if (is_missing(this%sigw%wind_direction(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_sigw%wind_speed(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_sigw%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%sigw%wind_direction(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%wind_qc(i)
+      end if
+      if (is_missing(this%sigw%wind_speed(i))) then
+        write(*, '(A15)', advance='no') 'X'
+        write(*, '(" (", A2, ")")', advance='no') 'X'
+      else
+        write(*, '(F15.1)', advance='no') this%sigw%wind_speed(i)
+        write(*, '(" (", I2, ")")', advance='no') this%sigw%wind_qc(i)
       end if
       write(*, *)
     end do
@@ -641,72 +712,72 @@ contains
     write(*, '(A15, A5)', advance='no') 'WD', ''
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
-    do i = 1, this%snd_trop%num_level
-      if (is_missing(this%snd_trop%pressure(i))) then
+    do i = 1, this%trop%num_level
+      if (is_missing(this%trop%pressure(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%pressure(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%pressure_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%pressure(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%pressure_qc(i)
       end if
-      if (is_missing(this%snd_trop%height(i))) then
+      if (is_missing(this%trop%height(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%height(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%height_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%height(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%height_qc(i)
       end if
-      if (is_missing(this%snd_trop%temperature(i))) then
+      if (is_missing(this%trop%temperature(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%temperature(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%temperature_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%temperature(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%temperature_qc(i)
       end if
-      if (is_missing(this%snd_trop%specific_humidity(i))) then
+      if (is_missing(this%trop%specific_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%specific_humidity(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%specific_humidity_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%specific_humidity(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%specific_humidity_qc(i)
       end if
-      if (is_missing(this%snd_trop%dewpoint(i))) then
+      if (is_missing(this%trop%dewpoint(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%dewpoint(i)
+        write(*, '(F15.1)', advance='no') this%trop%dewpoint(i)
       end if
-      if (is_missing(this%snd_trop%relative_humidity(i))) then
+      if (is_missing(this%trop%relative_humidity(i))) then
         write(*, '(A15)', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%relative_humidity(i)
+        write(*, '(F15.1)', advance='no') this%trop%relative_humidity(i)
       end if
-      if (is_missing(this%snd_trop%wind_u(i))) then
-        write(*, '(A15)', advance='no') 'X'
-        write(*, '(" (", A2, ")")', advance='no') 'X'
-      else
-        write(*, '(F15.1)', advance='no') this%snd_trop%wind_u(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%wind_qc(i)
-      end if
-      if (is_missing(this%snd_trop%wind_v(i))) then
+      if (is_missing(this%trop%wind_u(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%wind_v(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%wind_u(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%wind_qc(i)
       end if
-      if (is_missing(this%snd_trop%wind_direction(i))) then
+      if (is_missing(this%trop%wind_v(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%wind_direction(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%wind_v(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%wind_qc(i)
       end if
-      if (is_missing(this%snd_trop%wind_speed(i))) then
+      if (is_missing(this%trop%wind_direction(i))) then
         write(*, '(A15)', advance='no') 'X'
         write(*, '(" (", A2, ")")', advance='no') 'X'
       else
-        write(*, '(F15.1)', advance='no') this%snd_trop%wind_speed(i)
-        write(*, '(" (", I2, ")")', advance='no') this%snd_trop%wind_qc(i)
+        write(*, '(F15.1)', advance='no') this%trop%wind_direction(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%wind_qc(i)
+      end if
+      if (is_missing(this%trop%wind_speed(i))) then
+        write(*, '(A15)', advance='no') 'X'
+        write(*, '(" (", A2, ")")', advance='no') 'X'
+      else
+        write(*, '(F15.1)', advance='no') this%trop%wind_speed(i)
+        write(*, '(" (", I2, ")")', advance='no') this%trop%wind_qc(i)
       end if
       write(*, *)
     end do

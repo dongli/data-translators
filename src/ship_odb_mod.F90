@@ -40,10 +40,12 @@ contains
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE ship AS (' // &
       'platform_id STRING, '               // &
+      'platform_type STRING, '             // &
+      'source STRING, '                    // &
       'lon REAL, '                         // &
       'lat REAL, '                         // &
-      'date STRING, '                      // &
-      'time STRING, '                      // &
+      'date INTEGER, '                     // &
+      'time INTEGER, '                     // &
       'pressure REAL, '                    // &
       'air_temperature REAL, '             // &
       'sea_temperature REAL, '             // &
@@ -56,6 +58,8 @@ contains
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO ship (' // &
       'platform_id, '                      // &
+      'platform_type, '                    // &
+      'source, '                           // &
       'lon, '                              // &
       'lat, '                              // &
       'date, '                             // &
@@ -69,7 +73,7 @@ contains
       'wind_u, '                           // &
       'wind_v, '                           // &
       'cloud'                              // &
-      ') VALUES (' // odb_values_placeholder(14) // ');', -1, odb_stmt, odb_unparsed_sql)
+      ') VALUES (' // odb_values_placeholder(16) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -77,10 +81,12 @@ contains
       type is (ship_record_type)
         col = 0
         col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%ship%name), len_trim(record%ship%name))
+        col = col + 1;
+        col = col + 1;
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
-        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
         col = col + 1; if (.not. is_missing(record%pressure))          call odbql_bind_double(odb_stmt, col, dble(record%pressure))
         col = col + 1; if (.not. is_missing(record%air_temperature))   call odbql_bind_double(odb_stmt, col, dble(record%air_temperature))
         col = col + 1; if (.not. is_missing(record%sea_temperature))   call odbql_bind_double(odb_stmt, col, dble(record%sea_temperature))

@@ -34,27 +34,37 @@ contains
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE raob AS (' // &
       'platform_id STRING, '                // &
+      'platform_type STRING, '              // &
+      'source STRING, '                     // &
       'lon REAL, '                          // &
       'lat REAL, '                          // &
       'z REAL, '                            // &
       'level_type STRING, '                 // &
-      'date STRING, '                       // &
-      'time STRING, '                       // &
+      'date INTEGER, '                      // &
+      'time INTEGER, '                      // &
       'pressure REAL, '                     // &
       'pressure_qc INTEGER, '               // &
+      'pressure_correct REAL, '             // &
       'height REAL, '                       // &
       'height_qc INTEGER, '                 // &
+      'height_correct REAL, '               // &
       'temperature REAL, '                  // &
       'temperature_qc INTEGER, '            // &
+      'temperature_correct REAL, '          // &
       'dewpoint REAL, '                     // &
       'specific_humidity REAL, '            // &
       'specific_humidity_qc INTEGER, '      // &
+      'specific_humidity_correct REAL, '    // &
       'wind_u REAL, '                       // &
+      'wind_u_correct REAL, '               // &
       'wind_v REAL, '                       // &
+      'wind_v_correct REAL, '               // &
       'wind_qc INTEGER'                     // &
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO raob (' // &
       'platform_id, '                       // &
+      'platform_type, '                     // &
+      'source, '                            // &
       'lon, '                               // &
       'lat, '                               // &
       'z, '                                 // &
@@ -63,17 +73,23 @@ contains
       'time, '                              // &
       'pressure, '                          // &
       'pressure_qc, '                       // &
+      'pressure_correct, '                  // &
       'height, '                            // &
       'height_qc, '                         // &
+      'height_correct, '                    // &
       'temperature, '                       // &
       'temperature_qc, '                    // &
+      'temperature_correct, '               // &
       'dewpoint, '                          // &
       'specific_humidity, '                 // &
       'specific_humidity_qc, '              // &
+      'specific_humidity_correct, '         // &
       'wind_u, '                            // &
+      'wind_u_correct, '                    // &
       'wind_v, '                            // &
+      'wind_v_correct, '                    // &
       'wind_qc'                             // &
-      ') VALUES (' // trim(odb_values_placeholder(19)) // ');', -1, odb_stmt, odb_unparsed_sql)
+      ') VALUES (' // trim(odb_values_placeholder(27)) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -82,123 +98,163 @@ contains
         ! Surface level
         col = 0
         col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
+        col = col + 1;
+        col = col + 1;
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
         col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sfc', 3)
-        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
-        col = col + 1; if (.not. is_missing(record%snd_sfc_pressure))             call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_pressure))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_pressure_qc))          call odbql_bind_int   (odb_stmt, col, record%snd_sfc_pressure_qc)
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+        col = col + 1; if (.not. is_missing(record%sfc_pressure))             call odbql_bind_double(odb_stmt, col, dble(record%sfc_pressure))
+        col = col + 1; if (.not. is_missing(record%sfc_pressure_qc))          call odbql_bind_int   (odb_stmt, col, record%sfc_pressure_qc)
+        col = col + 1; if (.not. is_missing(record%sfc_pressure_correct))     call odbql_bind_double(odb_stmt, col, dble(record%sfc_pressure_correct))
         col = col + 1;
         col = col + 1;
-        col = col + 1; if (.not. is_missing(record%snd_sfc_temperature))          call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_temperature))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_temperature_qc))       call odbql_bind_int   (odb_stmt, col, record%snd_sfc_temperature_qc)
-        col = col + 1; if (.not. is_missing(record%snd_sfc_dewpoint))             call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_dewpoint))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_specific_humidity))    call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_specific_humidity))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_specific_humidity_qc)) call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_specific_humidity_qc))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_wind_u))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_wind_u))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_wind_v))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_wind_v))
-        col = col + 1; if (.not. is_missing(record%snd_sfc_wind_qc))              call odbql_bind_double(odb_stmt, col, dble(record%snd_sfc_wind_qc))
+        col = col + 1;
+        col = col + 1; if (.not. is_missing(record%sfc_temperature))          call odbql_bind_double(odb_stmt, col, dble(record%sfc_temperature))
+        col = col + 1; if (.not. is_missing(record%sfc_temperature_qc))       call odbql_bind_int   (odb_stmt, col, record%sfc_temperature_qc)
+        col = col + 1; if (.not. is_missing(record%sfc_temperature_correct))  call odbql_bind_double(odb_stmt, col, dble(record%sfc_temperature_correct))
+        col = col + 1; if (.not. is_missing(record%sfc_dewpoint))             call odbql_bind_double(odb_stmt, col, dble(record%sfc_dewpoint))
+        col = col + 1; if (.not. is_missing(record%sfc_specific_humidity))    call odbql_bind_double(odb_stmt, col, dble(record%sfc_specific_humidity))
+        col = col + 1; if (.not. is_missing(record%sfc_specific_humidity_qc)) call odbql_bind_double(odb_stmt, col, dble(record%sfc_specific_humidity_qc))
+        col = col + 1; if (.not. is_missing(record%sfc_specific_humidity_correct)) call odbql_bind_double(odb_stmt, col, dble(record%sfc_specific_humidity_correct))
+        col = col + 1; if (.not. is_missing(record%sfc_wind_u))               call odbql_bind_double(odb_stmt, col, dble(record%sfc_wind_u))
+        col = col + 1; if (.not. is_missing(record%sfc_wind_u_correct))       call odbql_bind_double(odb_stmt, col, dble(record%sfc_wind_u_correct))
+        col = col + 1; if (.not. is_missing(record%sfc_wind_v))               call odbql_bind_double(odb_stmt, col, dble(record%sfc_wind_v))
+        col = col + 1; if (.not. is_missing(record%sfc_wind_v_correct))       call odbql_bind_double(odb_stmt, col, dble(record%sfc_wind_v_correct))
+        col = col + 1; if (.not. is_missing(record%sfc_wind_qc))              call odbql_bind_double(odb_stmt, col, dble(record%sfc_wind_qc))
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
         ! Mandatory levels
-        do k = 1, record%snd_man%num_level
+        do k = 1, record%man%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
+          col = col + 1;
+          col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
           col = col + 1; call odbql_bind_text  (odb_stmt, col, 'man', 3)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
-          col = col + 1; if (.not. is_missing(record%snd_man%pressure(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_man%pressure(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%pressure_qc(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_man%pressure_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%height(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_man%height(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%height_qc(k)))            call odbql_bind_double(odb_stmt, col, dble(record%snd_man%height_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%temperature(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_man%temperature(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%temperature_qc(k)))       call odbql_bind_double(odb_stmt, col, dble(record%snd_man%temperature_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%dewpoint(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_man%dewpoint(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%specific_humidity(k)))    call odbql_bind_double(odb_stmt, col, dble(record%snd_man%specific_humidity(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%specific_humidity_qc(k))) call odbql_bind_double(odb_stmt, col, dble(record%snd_man%specific_humidity_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%wind_u(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_man%wind_u(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%wind_v(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_man%wind_v(k)))
-          col = col + 1; if (.not. is_missing(record%snd_man%wind_qc(k)))              call odbql_bind_double(odb_stmt, col, dble(record%snd_man%wind_qc(k)))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+          col = col + 1; if (.not. is_missing(record%man%pressure(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%man%pressure(k)))
+          col = col + 1; if (.not. is_missing(record%man%pressure_qc(k)))               call odbql_bind_int   (odb_stmt, col, record%man%pressure_qc(k))
+          col = col + 1; if (.not. is_missing(record%man%pressure_correct(k)))          call odbql_bind_double(odb_stmt, col, dble(record%man%pressure_correct(k)))
+          col = col + 1; if (.not. is_missing(record%man%height(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%man%height(k)))
+          col = col + 1; if (.not. is_missing(record%man%height_qc(k)))                 call odbql_bind_int   (odb_stmt, col, record%man%height_qc(k))
+          col = col + 1; if (.not. is_missing(record%man%height_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%man%height_correct(k)))
+          col = col + 1; if (.not. is_missing(record%man%temperature(k)))               call odbql_bind_double(odb_stmt, col, dble(record%man%temperature(k)))
+          col = col + 1; if (.not. is_missing(record%man%temperature_qc(k)))            call odbql_bind_int   (odb_stmt, col, record%man%temperature_qc(k))
+          col = col + 1; if (.not. is_missing(record%man%temperature_correct(k)))       call odbql_bind_double(odb_stmt, col, dble(record%man%temperature_correct(k)))
+          col = col + 1; if (.not. is_missing(record%man%dewpoint(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%man%dewpoint(k)))
+          col = col + 1; if (.not. is_missing(record%man%specific_humidity(k)))         call odbql_bind_double(odb_stmt, col, dble(record%man%specific_humidity(k)))
+          col = col + 1; if (.not. is_missing(record%man%specific_humidity_qc(k)))      call odbql_bind_int   (odb_stmt, col, record%man%specific_humidity_qc(k))
+          col = col + 1; if (.not. is_missing(record%man%specific_humidity_correct(k))) call odbql_bind_double(odb_stmt, col, dble(record%man%specific_humidity_correct(k)))
+          col = col + 1; if (.not. is_missing(record%man%wind_u(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%man%wind_u(k)))
+          col = col + 1; if (.not. is_missing(record%man%wind_u_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%man%wind_u_correct(k)))
+          col = col + 1; if (.not. is_missing(record%man%wind_v(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%man%wind_v(k)))
+          col = col + 1; if (.not. is_missing(record%man%wind_v_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%man%wind_v_correct(k)))
+          col = col + 1; if (.not. is_missing(record%man%wind_qc(k)))                   call odbql_bind_double(odb_stmt, col, dble(record%man%wind_qc(k)))
           call odbql_step(odb_stmt)
           call odb_all_bind_null(odb_stmt, col)
         end do
         ! Significant temperature levels
-        do k = 1, record%snd_sigt%num_level
+        do k = 1, record%sigt%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
+          col = col + 1;
+          col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
           col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sigt', 4)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
-          col = col + 1; if (.not. is_missing(record%snd_sigt%pressure(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%pressure(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%pressure_qc(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%pressure_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%height(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%height(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%height_qc(k)))            call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%height_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%temperature(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%temperature(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%temperature_qc(k)))       call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%temperature_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%dewpoint(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%dewpoint(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%specific_humidity(k)))    call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%specific_humidity(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%specific_humidity_qc(k))) call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%specific_humidity_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%wind_u(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%wind_u(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%wind_v(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%wind_v(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigt%wind_qc(k)))              call odbql_bind_double(odb_stmt, col, dble(record%snd_sigt%wind_qc(k)))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+          col = col + 1; if (.not. is_missing(record%sigt%pressure(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%sigt%pressure(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%pressure_qc(k)))               call odbql_bind_int   (odb_stmt, col, record%sigt%pressure_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigt%pressure_correct(k)))          call odbql_bind_double(odb_stmt, col, dble(record%sigt%pressure_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%height(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%sigt%height(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%height_qc(k)))                 call odbql_bind_int   (odb_stmt, col, record%sigt%height_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigt%height_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%sigt%height_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%temperature(k)))               call odbql_bind_double(odb_stmt, col, dble(record%sigt%temperature(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%temperature_qc(k)))            call odbql_bind_int   (odb_stmt, col, record%sigt%temperature_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigt%temperature_correct(k)))       call odbql_bind_double(odb_stmt, col, dble(record%sigt%temperature_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%dewpoint(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%sigt%dewpoint(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%specific_humidity(k)))         call odbql_bind_double(odb_stmt, col, dble(record%sigt%specific_humidity(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%specific_humidity_qc(k)))      call odbql_bind_int   (odb_stmt, col, record%sigt%specific_humidity_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigt%specific_humidity_correct(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%specific_humidity_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%wind_u(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%sigt%wind_u(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%wind_u_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%sigt%wind_u_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%wind_v(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%sigt%wind_v(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%wind_v_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%sigt%wind_v_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigt%wind_qc(k)))                   call odbql_bind_int   (odb_stmt, col, record%sigt%wind_qc(k))
           call odbql_step(odb_stmt)
           call odb_all_bind_null(odb_stmt, col)
         end do
         ! Significant wind levels
-        do k = 1, record%snd_sigw%num_level
+        do k = 1, record%sigw%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
+          col = col + 1;
+          col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
           col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sigw', 4)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
-          col = col + 1; if (.not. is_missing(record%snd_sigw%pressure(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%pressure(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%pressure_qc(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%pressure_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%height(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%height(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%height_qc(k)))            call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%height_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%temperature(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%temperature(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%temperature_qc(k)))       call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%temperature_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%dewpoint(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%dewpoint(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%specific_humidity(k)))    call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%specific_humidity(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%specific_humidity_qc(k))) call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%specific_humidity_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%wind_u(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%wind_u(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%wind_v(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%wind_v(k)))
-          col = col + 1; if (.not. is_missing(record%snd_sigw%wind_qc(k)))              call odbql_bind_double(odb_stmt, col, dble(record%snd_sigw%wind_qc(k)))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+          col = col + 1; if (.not. is_missing(record%sigw%pressure(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%sigw%pressure(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%pressure_qc(k)))               call odbql_bind_int   (odb_stmt, col, record%sigw%pressure_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigw%pressure_correct(k)))          call odbql_bind_double(odb_stmt, col, dble(record%sigw%pressure_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%height(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%sigw%height(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%height_qc(k)))                 call odbql_bind_int   (odb_stmt, col, record%sigw%height_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigw%height_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%sigw%height_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%temperature(k)))               call odbql_bind_double(odb_stmt, col, dble(record%sigw%temperature(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%temperature_qc(k)))            call odbql_bind_int   (odb_stmt, col, record%sigw%temperature_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigw%temperature_correct(k)))       call odbql_bind_double(odb_stmt, col, dble(record%sigw%temperature_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%dewpoint(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%sigw%dewpoint(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%specific_humidity(k)))         call odbql_bind_double(odb_stmt, col, dble(record%sigw%specific_humidity(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%specific_humidity_qc(k)))      call odbql_bind_int   (odb_stmt, col, record%sigw%specific_humidity_qc(k))
+          col = col + 1; if (.not. is_missing(record%sigw%specific_humidity_correct(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%specific_humidity_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%wind_u(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%sigw%wind_u(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%wind_u_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%sigw%wind_u_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%wind_v(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%sigw%wind_v(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%wind_v_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%sigw%wind_v_correct(k)))
+          col = col + 1; if (.not. is_missing(record%sigw%wind_qc(k)))                   call odbql_bind_int   (odb_stmt, col, record%sigw%wind_qc(k))
           call odbql_step(odb_stmt)
           call odb_all_bind_null(odb_stmt, col)
         end do
         ! Tropopause levels
-        do k = 1, record%snd_trop%num_level
+        do k = 1, record%trop%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
+          col = col + 1;
+          col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
           col = col + 1; call odbql_bind_text  (odb_stmt, col, 'trop', 4)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
-          col = col + 1; if (.not. is_missing(record%snd_trop%pressure(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%pressure(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%pressure_qc(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%pressure_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%height(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%height(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%height_qc(k)))            call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%height_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%temperature(k)))          call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%temperature(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%temperature_qc(k)))       call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%temperature_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%dewpoint(k)))             call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%dewpoint(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%specific_humidity(k)))    call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%specific_humidity(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%specific_humidity_qc(k))) call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%specific_humidity_qc(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%wind_u(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%wind_u(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%wind_v(k)))               call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%wind_v(k)))
-          col = col + 1; if (.not. is_missing(record%snd_trop%wind_qc(k)))              call odbql_bind_double(odb_stmt, col, dble(record%snd_trop%wind_qc(k)))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+          col = col + 1; if (.not. is_missing(record%trop%pressure(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%trop%pressure(k)))
+          col = col + 1; if (.not. is_missing(record%trop%pressure_qc(k)))               call odbql_bind_int   (odb_stmt, col, record%trop%pressure_qc(k))
+          col = col + 1; if (.not. is_missing(record%trop%pressure_correct(k)))          call odbql_bind_double(odb_stmt, col, dble(record%trop%pressure_correct(k)))
+          col = col + 1; if (.not. is_missing(record%trop%height(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%trop%height(k)))
+          col = col + 1; if (.not. is_missing(record%trop%height_qc(k)))                 call odbql_bind_int   (odb_stmt, col, record%trop%height_qc(k))
+          col = col + 1; if (.not. is_missing(record%trop%height_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%trop%height_correct(k)))
+          col = col + 1; if (.not. is_missing(record%trop%temperature(k)))               call odbql_bind_double(odb_stmt, col, dble(record%trop%temperature(k)))
+          col = col + 1; if (.not. is_missing(record%trop%temperature_qc(k)))            call odbql_bind_int   (odb_stmt, col, record%trop%temperature_qc(k))
+          col = col + 1; if (.not. is_missing(record%trop%temperature_correct(k)))       call odbql_bind_double(odb_stmt, col, dble(record%trop%temperature_correct(k)))
+          col = col + 1; if (.not. is_missing(record%trop%dewpoint(k)))                  call odbql_bind_double(odb_stmt, col, dble(record%trop%dewpoint(k)))
+          col = col + 1; if (.not. is_missing(record%trop%specific_humidity(k)))         call odbql_bind_double(odb_stmt, col, dble(record%trop%specific_humidity(k)))
+          col = col + 1; if (.not. is_missing(record%trop%specific_humidity_qc(k)))      call odbql_bind_int   (odb_stmt, col, record%trop%specific_humidity_qc(k))
+          col = col + 1; if (.not. is_missing(record%trop%specific_humidity_correct(k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%specific_humidity_correct(k)))
+          col = col + 1; if (.not. is_missing(record%trop%wind_u(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%trop%wind_u(k)))
+          col = col + 1; if (.not. is_missing(record%trop%wind_u_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%trop%wind_u_correct(k)))
+          col = col + 1; if (.not. is_missing(record%trop%wind_v(k)))                    call odbql_bind_double(odb_stmt, col, dble(record%trop%wind_v(k)))
+          col = col + 1; if (.not. is_missing(record%trop%wind_v_correct(k)))            call odbql_bind_double(odb_stmt, col, dble(record%trop%wind_v_correct(k)))
+          col = col + 1; if (.not. is_missing(record%trop%wind_qc(k)))                   call odbql_bind_int   (odb_stmt, col, record%trop%wind_qc(k))
           call odbql_step(odb_stmt)
           call odb_all_bind_null(odb_stmt, col)
         end do

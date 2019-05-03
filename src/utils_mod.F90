@@ -250,6 +250,25 @@ contains
 
   end function prepbufr_value_count
 
+  real function prepbufr_correct(stack, stack_qc, stack_pc) result(res)
+
+    real(8), intent(in) :: stack(:)
+    real(8), intent(in) :: stack_qc(:)
+    real(8), intent(in) :: stack_pc(:)
+
+    integer n, i
+
+    n = prepbufr_value_count(stack)
+    ! Skip virtual temperature change.
+    i = merge(2, 1, stack_pc(1) == 8)
+    if (stack_qc(i) < 4) then
+      res = stack(i) - stack(n)
+    else
+      res = real_missing_value
+    end if
+
+  end function prepbufr_correct
+
   subroutine bufr_value(bufr_id, subset_id, var_name, value)
 
     integer, intent(in) :: bufr_id

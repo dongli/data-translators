@@ -35,11 +35,13 @@ contains
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE amdar AS (' // &
       'platform_id STRING, '                   // &
+      'platform_type STRING, '                 // &
       'flight_number STRING, '                 // &
+      'source STRING, '                        // &
       'lon REAL, '                             // &
       'lat REAL, '                             // &
-      'date STRING, '                          // &
-      'time STRING, '                          // &
+      'date INTEGER, '                         // &
+      'time INTEGER, '                         // &
       'pressure REAL, '                        // &
       'pressure_qc INTEGER, '                  // &
       'height REAL, '                          // &
@@ -55,7 +57,9 @@ contains
       ') ON "' //trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
       'platform_id, '                          // &
+      'platform_type, '                        // &
       'flight_number, '                        // &
+      'source, '                               // &
       'lon, '                                  // &
       'lat, '                                  // &
       'date, '                                 // &
@@ -72,7 +76,7 @@ contains
       'wind_v, '                               // &
       'wind_qc, '                              // &
       'turbulence_index'                       // &
-      ') VALUES (' // trim(odb_values_placeholder(18)) // ');', -1, odb_stmt, odb_unparsed_sql)
+      ') VALUES (' // trim(odb_values_placeholder(20)) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -80,11 +84,13 @@ contains
       type is (amdar_record_type)
         col = 0
         col = col + 1; call odbql_bind_text  (odb_stmt, col, record%flight%name, len_trim(record%flight%name))
+        col = col + 1;
         col = col + 1; call odbql_bind_text  (odb_stmt, col, record%flight%number, len_trim(record%flight%number))
+        col = col + 1;
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
-        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%Y%m%d')), 8)
-        col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%time%format('%H%M%S')), 6)
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
         col = col + 1; if (.not. is_missing(record%pressure))             call odbql_bind_double(odb_stmt, col, dble(record%pressure))
         col = col + 1; if (.not. is_missing(record%pressure_qc))          call odbql_bind_double(odb_stmt, col, dble(record%pressure_qc))
         col = col + 1; if (.not. is_missing(record%height))               call odbql_bind_double(odb_stmt, col, dble(record%height))
