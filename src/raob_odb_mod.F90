@@ -98,7 +98,7 @@ contains
         ! Surface level
         col = 0
         col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-        col = col + 1;
+        col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
         col = col + 1;
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
@@ -130,7 +130,7 @@ contains
         do k = 1, record%man%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1;
+          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
           col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
@@ -163,7 +163,7 @@ contains
         do k = 1, record%sigt%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1;
+          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
           col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
@@ -196,7 +196,7 @@ contains
         do k = 1, record%sigw%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1;
+          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
           col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
@@ -229,7 +229,7 @@ contains
         do k = 1, record%trop%num_level
           col = 0
           col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1;
+          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
           col = col + 1;
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))

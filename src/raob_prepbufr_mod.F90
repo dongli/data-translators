@@ -80,7 +80,7 @@ contains
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'NUL PPC TPC QPC NUL WPC WPC WPC WPC ZPC')
         station_name = transfer(hdr(1), station_name)
         ! Filter out non-RAOB observations.
-        if (.not. (hdr(5) == 120 .or. hdr(5) == 220) .or. len_trim(station_name) /= 5) cycle
+        if (hdr(5) /= 120 .and. hdr(5) /= 220 .and. hdr(5) /= 132 .and. hdr(5) /= 232 .and. hdr(5) /= 221) cycle
         time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
@@ -112,6 +112,14 @@ contains
           allocate(record)
           call record%init(alloc_hash=.true.)
           record%seq_id = records%size
+          select case (int(hdr(5)))
+          case (120, 220)
+            record%platform_type = 'RAOB'
+          case (132, 232)
+            record%platform_type = 'DROPSONDE'
+          case (221)
+            record%platform_type = 'PIBAL'
+          end select
           record%station => station
           record%time = time
           new_record = .true.

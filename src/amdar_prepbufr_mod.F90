@@ -110,7 +110,14 @@ contains
         if (.not. associated(record)) then
           allocate(record)
           record%seq_id = records%size
-          record%subtype = subset
+          select case (int(hdr(5)))
+          case (130, 230)
+            record%platform_type = 'AIREP'
+          case (131, 231)
+            record%platform_type = 'AMDAR'
+          case (133, 233)
+            record%platform_type = 'ACARS'
+          end select
           record%flight => flight
           record%time = time
           new_record = .true.
@@ -123,37 +130,27 @@ contains
           call prepbufr_raw(obs(p_idx,1,:), record%pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%pressure_qc)
           ! Convert pressure from hPa to Pa.
           record%pressure = multiply(record%pressure, 100.0)
-          record%pressure_stack   (:max_num_event) = prepbufr_stack(obs(p_idx,1,:max_num_event))
-          record%pressure_stack_qc(:max_num_event) = prepbufr_codes( qc(p_idx,1,:max_num_event))
-          record%pressure_stack_pc(:max_num_event) = prepbufr_codes( pc(p_idx,1,:max_num_event))
+          record%pressure_correct = multiply(prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:)), 100.0)
         end if
         if (is_missing(record%height)) then
           call prepbufr_raw(obs(z_idx,1,:), record%height, stack_qc=qc(z_idx,1,:), stack_pc=pc(z_idx,1,:), qc=record%height_qc)
-          record%height_stack   (:max_num_event) = prepbufr_stack(obs(z_idx,1,:max_num_event))
-          record%height_stack_qc(:max_num_event) = prepbufr_codes( qc(z_idx,1,:max_num_event))
-          record%height_stack_pc(:max_num_event) = prepbufr_codes( pc(z_idx,1,:max_num_event))
+          record%height_correct = prepbufr_correct(obs(z_idx,1,:), qc(z_idx,1,:), pc(z_idx,1,:))
         end if
         if (is_missing(record%temperature)) then
           call prepbufr_raw(obs(T_idx,1,:), record%temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%temperature_qc)
-          record%temperature_stack   (:max_num_event) = prepbufr_stack(obs(T_idx,1,:max_num_event))
-          record%temperature_stack_qc(:max_num_event) = prepbufr_codes( qc(T_idx,1,:max_num_event))
-          record%temperature_stack_pc(:max_num_event) = prepbufr_codes( pc(T_idx,1,:max_num_event))
+          record%temperature_correct = prepbufr_correct(obs(T_idx,1,:), qc(T_idx,1,:), pc(T_idx,1,:))
         end if
         if (is_missing(record%specific_humidity)) then
           call prepbufr_raw(obs(Q_idx,1,:), record%specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%specific_humidity_qc)
-          record%specific_humidity_stack   (:max_num_event) = prepbufr_stack(obs(Q_idx,1,:max_num_event))
-          record%specific_humidity_stack_qc(:max_num_event) = prepbufr_codes( qc(Q_idx,1,:max_num_event))
-          record%specific_humidity_stack_pc(:max_num_event) = prepbufr_codes( pc(Q_idx,1,:max_num_event))
+          record%specific_humidity_correct = prepbufr_correct(obs(Q_idx,1,:), qc(Q_idx,1,:), pc(Q_idx,1,:))
         end if
         if (is_missing(record%wind_speed)) then
           call prepbufr_raw(obs(u_idx,1,:), record%wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%wind_qc)
           call prepbufr_raw(obs(v_idx,1,:), record%wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%wind_qc)
           record%wind_speed = wind_speed(record%wind_u, record%wind_v)
           record%wind_direction = wind_direction(record%wind_u, record%wind_v)
-          record%wind_u_stack (:max_num_event) = prepbufr_stack(obs(u_idx,1,:max_num_event))
-          record%wind_v_stack (:max_num_event) = prepbufr_stack(obs(v_idx,1,:max_num_event))
-          record%wind_stack_qc(:max_num_event) = prepbufr_codes( qc(u_idx,1,:max_num_event))
-          record%wind_stack_pc(:max_num_event) = prepbufr_codes( pc(u_idx,1,:max_num_event))
+          record%wind_u_correct = prepbufr_correct(obs(u_idx,1,:), qc(u_idx,1,:), pc(u_idx,1,:))
+          record%wind_v_correct = prepbufr_correct(obs(v_idx,1,:), qc(v_idx,1,:), pc(v_idx,1,:))
         end if
         if (is_missing(record%dewpoint)) then
           call prepbufr_raw(obs(Td_idx,1,:), record%dewpoint)
