@@ -15,16 +15,20 @@ var_info = {
 	'T':  { 'name': 'temperature', 'title': 'Temperature (degC)' },
 	'Td': { 'name': 'dewpoint', 'title': 'Dewpoint (degC)' },
 	'RH': { 'name': 'relative_humidity', 'title': 'Relative humidity (%)' },
-	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' }
+	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' },
+	'count': { 'name': 'record_count', 'title': 'Observation count' }
 }
 
-parser = argparse.ArgumentParser(description="Plot SYNOP temperature time series.", formatter_class=argparse.RawTextHelpFormatter)
+parser = argparse.ArgumentParser(description="Plot time series from one ODB file.", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-i', '--input',  help='Input ODB file path')
 parser.add_argument('-s', '--station', help='Station (platform) ID')
 parser.add_argument('-v', '--var', help='Variable to plot', choices=var_info.keys())
 args = parser.parse_args()
 
-odb_ddl = f"select {var_info[args.var]['name']} as var, date, time where platform_id='{args.station}' order by date, time"
+if args.station:
+	odb_ddl = f"select {var_info[args.var]['name']} as var, date, time where platform_id='{args.station}' order by date, time"
+else:
+	odb_ddl = f"select {var_info[args.var]['name']} as var, date, time order by date, time"
 
 cmd = f'odb sql "{odb_ddl}" -i {args.input}'
 res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -41,6 +45,7 @@ if type(lines) == list and len(lines) > 4:
 			time.append(pendulum.from_format("{}{:06}".format(date1, int(time1)), 'YYYYMMDDHHmmss').format('YYYY-MM-DD HH:mm:ss'))
 	var = np.array(var)
 else:
+	print(lines)
 	print('[Error]: Bad data!')
 	exit(1)
 
@@ -54,10 +59,16 @@ graph = mgraph(
 	graph_line_thickness=3
 )
 
-output = output(
-	output_formats=['pdf'],
-	output_name=f'{args.input}.{args.station}.{args.var}'
-)
+if args.station:
+	output = output(
+		output_formats=['pdf'],
+		output_name=f'{args.input}.{args.station}.{args.var}'
+	)
+else:
+	output = output(
+		output_formats=['pdf'],
+		output_name=f'{args.input}.{args.var}'
+	)
 
 page = mmap(
 	layout='positional',
@@ -104,7 +115,7 @@ axis_h = maxis(
 )
 
 title = mtext(
-	text_lines=[f'Station {args.station}']
+	text_lines=[f'Station {args.station}' if args.station else '']
 )
 
 plot(output, page, axis_v, axis_h, data, graph, title)
