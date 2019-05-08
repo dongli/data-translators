@@ -25,7 +25,7 @@ var_info = {
 	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' }
 }
 
-parser = argparse.ArgumentParser(description="Plot vertical profile.", formatter_class=argparse.RawTextHelpFormatter)
+parser = argparse.ArgumentParser(description="Plot RAOB vertical profile.", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-i', '--input',  help='Input ODB file path')
 parser.add_argument('-s', '--station', help='Station (platform) ID')
 parser.add_argument('-l', '--level-type', dest='level_type', help='Level type', choices=('man', 'sigt', 'sigw', 'trop'))
@@ -38,7 +38,7 @@ max_date = args.time.add(minutes=2).format('YYYYMMDD')
 min_time = args.time.subtract(minutes=2).format('HHmmss')
 max_time = args.time.add(minutes=2).format('HHmmss')
 
-odb_ddl = f"select temperature as T, pressure as p where date>={min_date} and date<={max_date} and time>={min_time} and time<={max_time} and level_type='{args.level_type}' and platform_id='{args.station}'"
+odb_ddl = f"select {var_info[args.var]['name']} as var, pressure as p where date>={min_date} and date<={max_date} and time>={min_time} and time<={max_time} and level_type='{args.level_type}' and platform_id='{args.station}'"
 
 cmd = f'odb sql "{odb_ddl}" -i {args.input}'
 res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -46,21 +46,25 @@ res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.
 lines = res.stdout.decode('utf-8').split('\n')
 
 if type(lines) == list and len(lines) > 4:
-	T = []
+	var = []
 	p = []
 	for i, line in enumerate(lines):
 		if i > 0 and line != '':
-			T1, p1 = line.split()
-			T.append(float(T1))
+			var1, p1 = line.split()
+			var.append(float(var1))
 			p.append(float(p1))
-	T = np.array(T)
+	var = np.array(var)
 	p = np.array(p) / 100.
 else:
+	print(cmd)
+	print(res.stdout.decode('utf-8'))
 	print('[Error]: Bad data!')
 	exit(1)
 
+print(var, p)
+
 data = minput(
-	input_x_values=T,
+	input_x_values=var,
 	input_y_values=p
 )
 
@@ -81,10 +85,10 @@ page = mmap(
 	page_x_position=10.,
 	page_y_position=2.,
 	subpage_map_projection='cartesian',
-	subpage_x_min=np.min(T) - (np.max(T) - np.min(T)) * 0.1,
-	subpage_x_max=np.max(T) + (np.max(T) - np.min(T)) * 0.1,
-	subpage_y_min=1020.,
-	subpage_y_max=np.max(p) * 1.1,
+	subpage_x_min=np.min(var) - (np.max(var) - np.min(var)) * 0.1,
+	subpage_x_max=np.max(var) + (np.max(var) - np.min(var)) * 0.1,
+	subpage_y_min=np.max(p) * 1.1,
+	subpage_y_max=100.,
 	page_id_line='off'
 )
 
