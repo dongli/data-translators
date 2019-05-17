@@ -66,13 +66,18 @@ contains
     real lat, lon
     integer year, month, day, hour, minute
     type(datetime_type) time
+    real t, t_qc
+    real td, td_qc
+    real rh, rh_qc
+    real p, p_qc
+    real sst, sst_qc
     real wd, wd_qc
     real ws, ws_qc
     real wvh, wvh_qc
     real wvp, wvp_qc
     real svh, svh_qc
     real svp, svp_qc
-    real surge_wave_direction, surge_wave_direction_qc
+    real svd, svd_qc
     real vis, vis_qc
     real cld, cld_qc
     integer i
@@ -109,6 +114,26 @@ contains
           read(value, *) hour
         case ('Min')
           read(value, *) minute
+        case ('TEM')
+          read(value, *) t
+        case ('Q_TEM')
+          read(value, *) t_qc
+        case ('DPT')
+          read(value, *) td
+        case ('Q_DPT')
+          read(value, *) td_qc
+        case ('RHU')
+          read(value, *) rh
+        case ('Q_RHU')
+          read(value, *) rh_qc
+        case ('PRS_Sea')
+          read(value, *) p
+        case ('Q_PRS_Sea')
+          read(value, *) p_qc
+        case ('SST')
+          read(value, *) sst
+        case ('Q_SST')
+          read(value, *) sst_qc
         case ('WIN_D')
           read(value, *) wd
         case ('Q_WIN_D')
@@ -134,9 +159,9 @@ contains
         case ('Q_SeaWave_1st_CYC')
           read(value, *) svp_qc
         case ('SeaWave_1st_D')
-          read(value, *) surge_wave_direction
+          read(value, *) svd
         case ('Q_SeaWave_1st_D')
-          read(value, *) surge_wave_direction_qc
+          read(value, *) svd_qc
         case ('VIS')
           read(value, *) vis
         case ('Q_VIS')
@@ -150,15 +175,40 @@ contains
       time = create_datetime(year, month, day, hour, minute)
       lon = merge(real_missing_value, lon, is_missing(lon, src='cimiss'))
       lat = merge(real_missing_value, lat, is_missing(lat, src='cimiss'))
+      t   = merge(real_missing_value, t,   is_missing(t,   src='cimiss'))
+      td  = merge(real_missing_value, td,  is_missing(td,  src='cimiss'))
+      rh  = merge(real_missing_value, rh,  is_missing(rh,  src='cimiss'))
+      p   = merge(real_missing_value, p,   is_missing(p,   src='cimiss'))
+      sst = merge(real_missing_value, sst, is_missing(sst, src='cimiss'))
       wd  = merge(real_missing_value, wd,  is_missing(wd,  src='cimiss'))
       ws  = merge(real_missing_value, ws,  is_missing(ws,  src='cimiss'))
       vis = merge(real_missing_value, vis, is_missing(vis, src='cimiss'))
       cld = merge(real_missing_value, cld, is_missing(cld, src='cimiss'))
-      wvh = merge(real_missing_value, wvh,  is_missing(wvh,  src='cimiss'))
-      wvp = merge(real_missing_value, wvp,  is_missing(wvp,  src='cimiss'))
+      wvh = merge(real_missing_value, wvh, is_missing(wvh, src='cimiss'))
+      wvp = merge(real_missing_value, wvp, is_missing(wvp, src='cimiss'))
       svh = merge(real_missing_value, svh, is_missing(svh, src='cimiss'))
       svp = merge(real_missing_value, svp, is_missing(svp, src='cimiss'))
-      surge_wave_direction = merge(real_missing_value, surge_wave_direction, is_missing(surge_wave_direction, src='cimiss'))
+      svd = merge(real_missing_value, svd, is_missing(svd, src='cimiss'))
+
+      ! FIXME: CIMISS temperature units may be Kelvin!
+      if (.not. is_missing(t) .and. t > 200) then
+        t = t - freezing_point
+        if (t > 100) then
+          write(*, *) '[Warning]: Bad temperature value ', t, 'for ', trim(ship_name), '!'
+          t = real_missing_value
+        else
+          write(*, *) '[Warning]: Convert temperature units from K to degC for ', trim(ship_name), '.'
+        end if
+      end if
+      if (.not. is_missing(td) .and. td > 200) then
+        td = td - freezing_point
+        if (td > 100) then
+          write(*, *) '[Warning]: Bad dewpoint value ', td, 'for ', trim(ship_name), '!'
+          td = real_missing_value
+        else
+          write(*, *) '[Warning]: Convert dewpoint units from K to degC for ', trim(ship_name), '.'
+        end if
+      end if
       ! Create ship and record.
       if (dummy_ships%hashed(ship_name)) then
         select type (value => dummy_ships%value(ship_name))
@@ -179,6 +229,11 @@ contains
       record%source = 'CIMISS'
       record%lon = lon
       record%lat = lat
+      record%air_temperature = t
+      record%sea_temperature = sst
+      record%dewpoint = td
+      record%relative_humidity = rh
+      record%pressure = p
       record%wind_direction = wd
       record%wind_speed = ws
       record%wind_u = wind_u_component(ws, wd)
@@ -187,17 +242,22 @@ contains
       record%wind_wave_period = wvp
       record%surge_wave_height = svh
       record%surge_wave_period = svp
-      record%surge_wave_direction = surge_wave_direction
+      record%surge_wave_direction = svd
       record%visibility = vis
       record%cloud_cover = cld
       ! TODO: How to map CIMISS QC to PrepBUFR QC?
+      record%air_temperature_qc = t_qc
+      record%sea_temperature_qc = sst_qc
+      record%dewpoint_qc = td_qc
+      record%relative_humidity_qc = rh_qc
+      record%pressure_qc = p_qc
       record%wind_direction_qc = wd_qc
       record%wind_speed_qc = ws_qc
       record%wind_wave_height_qc = wvh_qc
       record%wind_wave_period_qc = wvp_qc
       record%surge_wave_height_qc = svh_qc
       record%surge_wave_period_qc = svp_qc
-      record%surge_wave_direction_qc = surge_wave_direction_qc
+      record%surge_wave_direction_qc = svd_qc
       record%visibility_qc = vis_qc
       record%cloud_cover_qc = cld_qc
       call dummy_records%insert(ship_name // '@' // time%isoformat(), record)

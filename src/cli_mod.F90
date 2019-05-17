@@ -64,7 +64,13 @@ contains
       i = i + 1
       if (res == '-i') then
         call get_command_argument(i, res)
-        return
+        inquire(file=res, exist=file_exist)
+        if (file_exist) then
+          return
+        else
+          write(*, *) '[Error]: Data file ' // trim(res) // ' does not exist!'
+          stop 1
+        end if
       end if
     end do
     write(*, *) '[Error]: No input data file is provided!'
