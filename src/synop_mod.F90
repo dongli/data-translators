@@ -119,7 +119,7 @@ contains
     if (is_missing(this%pressure)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.2)', advance='no') '  VALUE: ', this%pressure
+      write(*, '(A, F10.2)', advance='no') '  VALUE: ', this%pressure
       if (is_missing(this%pressure_correct)) then
         write(*, *)
       else

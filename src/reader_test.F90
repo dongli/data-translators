@@ -19,32 +19,19 @@ program reader_test
 
   call test_case_create('Test SYNOP reader')
 
-  call synop_prepbufr_read('../sample-data/gdas-prepbufr/prepqc.gdas.2015120100', sites, records)
+  call synop_prepbufr_read('./gdas.20190515/gdas.t00z.prepbufr.nr', sites, records)
 
   record_iterator = linked_list_iterator(records)
   do while (.not. record_iterator%ended())
     select type (record => record_iterator%value)
     type is (synop_record_type)
-      if (record%station%name == '03220') then
-        call assert_equal(record%sfc_temperature,                     4.0,                      __FILE__, __LINE__)
-        call assert_equal(record%sfc_temperature_stack(:3),           [4.69999981, 4.0, 4.0],   __FILE__, __LINE__)
-        call assert_equal(record%sfc_temperature_stack_qc(:3),        [9, 9, 2],                __FILE__, __LINE__)
-        call assert_equal(record%sfc_temperature_stack_pc(:3),        [8, 4, 1],                __FILE__, __LINE__)
-        call assert_equal(record%sfc_specific_humidity,               4352.0,                   __FILE__, __LINE__)
-        call assert_equal(record%sfc_specific_humidity_stack(:3),     [4352.0, 4352.0, 4352.0], __FILE__, __LINE__)
-        call assert_equal(record%sfc_specific_humidity_stack_qc(:3),  [9, 9, 2],                __FILE__, __LINE__)
-        call assert_equal(record%sfc_specific_humidity_stack_pc(:3),  [8, 4, 1],                __FILE__, __LINE__)
-        call assert_equal(record%sfc_dewpoint,                        2.0,                      __FILE__, __LINE__)
-        call assert_equal(record%sfc_pressure,                        1011.09998,               __FILE__, __LINE__)
-        call assert_equal(record%sfc_pressure_stack(:1),              [1011.09998],             __FILE__, __LINE__)
-        call assert_equal(record%sfc_pressure_stack_qc(:1),           [2],                      __FILE__, __LINE__)
-        call assert_equal(record%sfc_pressure_stack_pc(:1),           [1],                      __FILE__, __LINE__)
-        call assert_equal(record%sfc_wind_speed,                      real_missing_value,       __FILE__, __LINE__)
-        call assert_equal(record%sfc_wind_direction,                  real_missing_value,       __FILE__, __LINE__)
-        call assert_equal(record%sfc_wind_u_stack(1),                 real_missing_value,       __FILE__, __LINE__)
-        call assert_equal(record%sfc_wind_v_stack(1),                 real_missing_value,       __FILE__, __LINE__)
-        call assert_equal(record%sfc_wind_stack_qc(1),                int_missing_value,        __FILE__, __LINE__)
-        call assert_equal(record%sfc_wind_stack_pc(1),                int_missing_value,        __FILE__, __LINE__)
+      if (record%station%name == '54511') then
+        call assert_equal(record%temperature,          19.2,          __FILE__, __LINE__)
+        call assert_equal(record%specific_humidity,    9032.0,        __FILE__, __LINE__)
+        call assert_equal(record%dewpoint,             12.5,          __FILE__, __LINE__)
+        call assert_equal(record%pressure,             100360.00,     __FILE__, __LINE__)
+        call assert_equal(record%wind_u,               -2.0,          __FILE__, __LINE__)
+        call assert_equal(record%wind_v,               0.0,           __FILE__, __LINE__)
         exit
       end if
       call record_iterator%next()
@@ -52,6 +39,10 @@ program reader_test
   end do
 
   call test_case_report('Test SYNOP reader')
+
+  call test_case_create('Test METAR reader')
+
+  call metar_prepbufr_read('./gdas.20190515/gdas.t00z.prepbufr.nr', sites, records)
 
   call test_case_final()
 

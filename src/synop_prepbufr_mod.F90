@@ -156,7 +156,7 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        ! else if (record%pressure_qc /= 2) then
+        ! else if (station_name == '54511') then
         !   call record%print()
         end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)

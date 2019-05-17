@@ -11,14 +11,7 @@ endif ()
 
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   add_subdirectory(lib/datetime)
-endif ()
-
-if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   add_subdirectory(lib/container)
-  include_directories(${CMAKE_BINARY_DIR}/fortran_container)
-endif ()
-
-if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   add_subdirectory(lib/unit-test)
   include_directories(${UNIT_TEST_INCLUDE_DIR})
 endif ()
