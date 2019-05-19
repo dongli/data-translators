@@ -361,13 +361,14 @@ contains
     call closbf(10)
 
     ! Transfer read type to final type for easy use.
+    num_level = 0
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (raob_record_type)
         call record%man %init(record%man_hash %pressure%size)
-        call record%sigt%init(record%sigt_hash %pressure%size)
-        call record%sigw%init(record%sigw_hash %pressure%size)
+        call record%sigt%init(record%sigt_hash%pressure%size)
+        call record%sigw%init(record%sigw_hash%pressure%size)
         call record%trop%init(record%trop_hash%pressure%size)
         call record%man %set_from_hash(record%man_hash)
         call record%sigt%set_from_hash(record%sigt_hash)
@@ -377,11 +378,12 @@ contains
         ! if (record%station%name == '48839') then
         !   call record%print()
         ! end if
+        num_level = num_level + record%man%num_level + record%sigt%num_level + record%sigw%num_level + record%trop%num_level
       end select
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', level size is ' // trim(to_string(num_level)) // '.'
 
   end subroutine raob_prepbufr_read
 

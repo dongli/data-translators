@@ -7,12 +7,13 @@ import re
 import pendulum
 import subprocess
 
-def parse_time(string):
-	match = re.match(r'(\d{4}\d{2}\d{2}\d{2})(\d{2})?', string)
-	if match.group(2):
-		return pendulum.from_format(string, 'YYYYMMDDHHmm')
+def parse_time_range(string):
+	match = re.match(r'(\d{4}\d{2}\d{2}\d{2}\d{2})-(\d{4}\d{2}\d{2}\d{2}\d{2})', string)
+	if match:
+		return (pendulum.from_format(match[1], 'YYYYMMDDHHmm'), pendulum.from_format(match[2], 'YYYYMMDDHHmm'))
 	else:
-		return pendulum.from_format(string, 'YYYYMMDDHH')
+		print(f'[Error]: Failed to parse time range "{string}"!')
+		exit(1)
 
 os.environ['LC_ALL'] = 'C'
 
@@ -30,15 +31,15 @@ parser.add_argument('-i', '--input',  help='Input ODB file path')
 parser.add_argument('-s', '--station', help='Station (platform) ID')
 parser.add_argument('-l', '--level-type', dest='level_type', help='Level type', choices=('man', 'sigt', 'sigw', 'trop'))
 parser.add_argument('-v', '--var', help='Variable name', choices=var_info.keys())
-parser.add_argument('-t', '--time', help='Observation time (YYYYMMDDHHmm)', type=parse_time)
+parser.add_argument('-t', '--time-range', dest='time_range', help='Observation time range (YYYYMMDDHHmm-YYYYMMDDHHmm)', type=parse_time_range)
 args = parser.parse_args()
 
-min_date = args.time.subtract(minutes=2).format('YYYYMMDD')
-max_date = args.time.add(minutes=2).format('YYYYMMDD')
-min_time = args.time.subtract(minutes=2).format('HHmmss')
-max_time = args.time.add(minutes=2).format('HHmmss')
+min_date = args.time_range[0].format('YYYYMMDD')
+max_date = args.time_range[1].format('YYYYMMDD')
+min_time = args.time_range[0].format('HHmmss')
+max_time = args.time_range[1].format('HHmmss')
 
-odb_ddl = f"select {var_info[args.var]['name']} as var, pressure as p where date>={min_date} and date<={max_date} and time>={min_time} and time<={max_time} and level_type='{args.level_type}' and platform_id='{args.station}'"
+odb_ddl = f"select {var_info[args.var]['name']} as var, pressure as p where platform_id='{args.station}' and level_type='{args.level_type}' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0"
 
 cmd = f'odb sql "{odb_ddl}" -i {args.input}'
 res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -60,8 +61,6 @@ else:
 	print(res.stdout.decode('utf-8'))
 	print('[Error]: Bad data!')
 	exit(1)
-
-print(var, p)
 
 data = minput(
 	input_x_values=var,
@@ -119,7 +118,7 @@ axis_h = maxis(
 )
 
 title = mtext(
-	text_lines=[f'Station {args.station}', args.time.isoformat()]
+	text_lines=[f'Station {args.station}', f'{args.time_range[0].isoformat()} - {args.time_range[1].isoformat()}']
 )
 
 plot(output, page, axis_v, axis_h, data, graph, title)

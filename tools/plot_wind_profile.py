@@ -9,25 +9,26 @@ import subprocess
 
 os.environ['LC_ALL'] = 'C'
 
-def parse_time(string):
-	match = re.match(r'(\d{4}\d{2}\d{2}\d{2})(\d{2})?', string)
-	if match.group(2):
-		return pendulum.from_format(string, 'YYYYMMDDHHmm')
+def parse_time_range(string):
+	match = re.match(r'(\d{4}\d{2}\d{2}\d{2}\d{2})-(\d{4}\d{2}\d{2}\d{2}\d{2})', string)
+	if match:
+		return (pendulum.from_format(match[1], 'YYYYMMDDHHmm'), pendulum.from_format(match[2], 'YYYYMMDDHHmm'))
 	else:
-		return pendulum.from_format(string, 'YYYYMMDDHH')
+		print(f'[Error]: Failed to parse time range "{string}"!')
+		exit(1)
 
 parser = argparse.ArgumentParser(description="Plot vertical wind profile.", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-i', '--input', help='Input ODB file path')
 parser.add_argument('-s', '--station', help='Station (platform) ID')
-parser.add_argument('-t', '--time', help='Observation time (YYYYMMDDHH[mm]', type=parse_time)
+parser.add_argument('-t', '--time-range', dest='time_range', help='Observation time range (YYYYMMDDHHmm-YYYYMMDDHHmm)', type=parse_time_range)
 args = parser.parse_args()
 
-min_date = args.time.subtract(minutes=2).format('YYYYMMDD')
-max_date = args.time.add(minutes=2).format('YYYYMMDD')
-min_time = args.time.subtract(minutes=2).format('HHmmss')
-max_time = args.time.add(minutes=2).format('HHmmss')
+min_date = args.time_range[0].format('YYYYMMDD')
+max_date = args.time_range[1].format('YYYYMMDD')
+min_time = args.time_range[0].format('HHmmss')
+max_time = args.time_range[1].format('HHmmss')
 
-odb_ddl = f"select wind_u as u, wind_v as v, pressure as p where platform_id='{args.station}' and date>={min_date} and date<={max_date} and time>={min_time} and time<={max_time}"
+odb_ddl = f"select wind_u as u, wind_v as v, pressure as p where platform_id='{args.station}' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0"
 
 cmd = f'odb sql "{odb_ddl}" -i {args.input}'
 res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -41,6 +42,7 @@ if type(lines) == list and len(lines) > 4:
 	for i, line in enumerate(lines):
 		if i > 0 and line != '':
 			u1, v1, p1 = line.split()
+			if u1 == 'NULL' or v1 == 'NULL': continue
 			u.append(float(u1))
 			v.append(float(v1))
 			p.append(float(p1))
@@ -66,7 +68,7 @@ graph = mgraph(
 
 output = output(
 	output_formats=['pdf'],
-	output_name=f'{args.input}.wind'
+	output_name=f'{args.input}.{args.station}.wind'
 )
 
 page = mmap(
@@ -108,7 +110,7 @@ axis_h = maxis(
 )
 
 title = mtext(
-	text_lines=[f'Station {args.station}', args.time.isoformat()]
+	text_lines=[f'Station {args.station}', f'{args.time_range[0].isoformat()} - {args.time_range[1].isoformat()}']
 )
 
 plot(output, page, axis_v, axis_h, data, graph, title)
