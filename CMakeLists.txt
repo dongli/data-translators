@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(data-translators)
+project(data-translators Fortran)
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (CMAKE_Fortran_FLAGS "-ffree-line-length-none -g -fbacktrace")
