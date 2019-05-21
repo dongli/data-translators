@@ -8,6 +8,8 @@ endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   SET(CMAKE_Fortran_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
 endif ()
+set (CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}")
+include_directories("${CMAKE_BINARY_DIR}")
 
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   add_subdirectory(lib/datetime)
@@ -82,8 +84,6 @@ if (NOT ${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   set(DATA_TRANSLATORS_INC ${DATA_TRANSLATORS_INC} PARENT_SCOPE)
   set(DATA_TRANSLATORS_LIB ${DATA_TRANSLATORS_LIB} PARENT_SCOPE)
 endif ()
-
-set(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/.mods")
 
 add_library(data_translators
   src/obs_base_mod.F90
