@@ -1,114 +1,75 @@
 #!/usr/bin/env python3
 
 import argparse
-from Magics.macro import *
+from glob import glob
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
 import re
 import pendulum
-import subprocess
+from datetime import datetime, timedelta
+from subprocess import run, PIPE
 
-os.environ['LC_ALL'] = 'C'
-
-def parse_time(string):
-	match = re.match(r'(\d{4}\d{2}\d{2}\d{2})(\d{2})?', string)
-	if match.group(2):
-		return pendulum.from_format(string, 'YYYYMMDDHHmm')
+def parse_time_range(string):
+	match = re.match(r'(\d{4}\d{2}\d{2}\d{2}\d{2})-(\d{4}\d{2}\d{2}\d{2}\d{2})', string)
+	if match:
+		return (pendulum.from_format(match[1], 'YYYYMMDDHHmm'), pendulum.from_format(match[2], 'YYYYMMDDHHmm'))
 	else:
-		return pendulum.from_format(string, 'YYYYMMDDHH')
+		print(f'[Error]: Failed to parse time range "{string}"!')
+		exit(1)
 
-parser = argparse.ArgumentParser(description="Plot vertical wind profile.", formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-i', '--input', help='Input ODB file path')
-parser.add_argument('-s', '--station', help='Station (platform) ID')
-parser.add_argument('-t', '--time', help='Observation time (YYYYMMDDHH[mm]', type=parse_time)
+parser = argparse.ArgumentParser(description="Plot wind profile with time axis from ODB file.", formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-i', '--input', help='Input ODB file')
+parser.add_argument('-s', '--station', help='Station ID')
+parser.add_argument('-t', '--time-range', dest='time_range', help='Observation time range (YYYYMMDDHHmm-YYYYMMDDHHmm)', type=parse_time_range)
 args = parser.parse_args()
 
-min_date = args.time.subtract(minutes=2).format('YYYYMMDD')
-max_date = args.time.add(minutes=2).format('YYYYMMDD')
-min_time = args.time.subtract(minutes=2).format('HHmmss')
-max_time = args.time.add(minutes=2).format('HHmmss')
+min_date = args.time_range[0].format('YYYYMMDD')
+max_date = args.time_range[1].format('YYYYMMDD')
+min_time = args.time_range[0].format('HHmmss')
+max_time = args.time_range[1].format('HHmmss')
 
-odb_ddl = f"select wind_u as u, wind_v as v, pressure as p where platform_id='{args.station}' and date>={min_date} and date<={max_date} and time>={min_time} and time<={max_time}"
-
-cmd = f'odb sql "{odb_ddl}" -i {args.input}'
-res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-lines = res.stdout.decode('utf-8').split('\n')
-
-if type(lines) == list and len(lines) > 4:
-	u = []
-	v = []
-	p = []
-	for i, line in enumerate(lines):
-		if i > 0 and line != '':
-			u1, v1, p1 = line.split()
-			u.append(float(u1))
-			v.append(float(v1))
-			p.append(float(p1))
-	u = np.array(u)
-	v = np.array(v)
-	p = np.array(p) / 100.
-else:
-	print('[Error]: Bad data!')
+cmd = f'odb sql "select wind_u as u, wind_v as v, pressure as p, date, time where platform_id=\'{args.station}\' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0 order by date, time, pressure" -T -i {args.input}'
+res = run(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+if res.returncode != 0:
+	print(f'[Error]: Failed to run {cmd}!')
 	exit(1)
 
-data = minput(
-	input_x_component_values=u,
-	input_x_values=[0.] * len(p),
-	input_y_component_values=v,
-	input_y_values=p
-)
+X = []
+Y = []
+U = []
+V = []
+for line in res.stdout.decode('utf-8').strip().split('\n'):
+	tmp = line.split()
+	u = float(tmp[0])         if tmp[0] != 'NULL' else -999999
+	v = float(tmp[1])         if tmp[1] != 'NULL' else -999999
+	p = float(tmp[2]) / 100.0 if tmp[2] != 'NULL' else -999999
+	if tmp[3] != 'NULL' and tmp[4] != 'NULL':
+		d = int(tmp[3])
+		t = int(tmp[4])
+		time = datetime(int(d / 10000), int((d % 10000) / 100), int(d % 100), int(t / 10000), int((t % 10000) / 100), int(t % 100), int(t % 100))
+	X.append(time)
+	Y.append(p)
+	U.append(u)
+	V.append(v)
 
-graph = mgraph(
-	graph_type='flag',
-	graph_flag_length=1.,
-	legend='on'
-)
+U = np.array(U)
+V = np.array(V)
 
-output = output(
-	output_formats=['pdf'],
-	output_name=f'{args.input}.wind'
-)
+pdf = PdfPages(f'{args.input}.pdf')
 
-page = mmap(
-	page_x_length=10.,
-	layout='positional',
-	page_x_position=10.,
-	subpage_map_projection='cartesian',
-	subpage_x_min=-1.,
-	subpage_x_max=1.,
-	subpage_y_min=1020.,
-	subpage_y_max=100.,
-	page_id_line='off'
-)
+fig = plt.figure(figsize=(8, 5))
+plt.title(f'Station {args.station}')
+plt.gca().xaxis_date()
+plt.gca().set_xlim(X[0] - timedelta(hours=1), X[-1] + timedelta(hours=1))
+plt.gca().invert_yaxis()
+plt.gca().set_xlabel('Time')
+plt.gca().set_ylabel('Pressure (hPa)')
+im = plt.barbs(X, Y, U, V, np.sqrt(U ** 2 + V ** 2), zorder=2, pivot='middle', sizes={ 'emptybarb': 0.01 })
+plt.grid(True, zorder=1)
+plt.gcf().autofmt_xdate()
+plt.colorbar(im)
+pdf.savefig()
 
-axis_v = maxis(
-	axis_orientation='vertical',
-	axis_grid='on',
-	axis_tick_label_height=0.4,
-	axis_tick_label_colour='charcoal',
-	axis_grid_colour='charcoal',
-	axis_grid_line_style='dash',
-	axis_title='on',
-	axis_title_text='Pressure (hPa)',
-	axis_title_font='arial',
-	axis_title_height=0.8
-)
-
-axis_h = maxis(
-	axis_orientation='horizontal',
-	axis_tick_label='off',
-	axis_grid='on',
-	axis_grid_colour='charcoal',
-	axis_grid_thickness=1.,
-	axis_grid_line_style='dash',
-	axis_title='on',
-	axis_title_text='Wind vector',
-	axis_title_font='arial',
-	axis_title_font_style='bold'
-)
-
-title = mtext(
-	text_lines=[f'Station {args.station}', args.time.isoformat()]
-)
-
-plot(output, page, axis_v, axis_h, data, graph, title)
+pdf.close()

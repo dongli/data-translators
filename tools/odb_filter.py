@@ -33,7 +33,10 @@ def table_columns(file_path):
 columns = table_columns(file_paths[0])
 
 def create_header(sql, columns):
-	select_sql = re.search('select\s+(.*)\s*(where)?', sql)[1]
+	try:
+		select_sql = re.search('select\s+(.*)\s*(?=where)', sql)[1]
+	except:
+		select_sql = re.search('select\s+(.*)', sql)[1]
 	header = []
 	for match in re.findall('(\w+)\s*(\([^\)]*\))?,?\s*', select_sql):
 		if match[0] in columns:
@@ -51,6 +54,9 @@ def create_header(sql, columns):
 			else:
 				print('[Error]: Under construction!')
 				exit(1)
+	if len(header) == 0 and select_sql.strip() == '*':
+		for key, value in columns.items():
+			header.append(f'{key}@{value["table"]}:{value["type"]}')
 	return '\t'.join(header)
 
 header = create_header(args.sql, columns)
