@@ -251,8 +251,13 @@ contains
       record%dewpoint_qc = td_qc
       record%relative_humidity_qc = rh_qc
       record%pressure_qc = p_qc
-      record%wind_direction_qc = wd_qc
-      record%wind_speed_qc = ws_qc
+      if (wd_qc /= 0) then
+        record%wind_qc = wd_qc
+      else if (ws_qc /= 0) then
+        record%wind_qc = ws_qc
+      else
+        record%wind_qc = 0
+      end if
       record%wind_wave_height_qc = wvh_qc
       record%wind_wave_period_qc = wvp_qc
       record%surge_wave_height_qc = svh_qc

@@ -65,6 +65,7 @@ contains
     integer wind_v_qc
     integer specific_humidity_qc
     integer encoding_type_qc
+    integer wind_qc ! FIXME: Merge wind_*_qc into one QC mark.
  
     ships = hash_table(chunk_size=50000, max_load_factor=0.9)
     call records%clear()
@@ -141,8 +142,15 @@ contains
         wind_speed_qc = merge(int_missing_value, wind_speed_qc, is_missing(wind_speed_qc, src='cimiss'))
         sea_sfc_temperature_qc = merge(int_missing_value, sea_sfc_temperature_qc, is_missing(sea_sfc_temperature_qc, src='cimiss'))
         ice_cover_qc = merge(int_missing_value, ice_cover_qc, is_missing(ice_cover_qc, src='cimiss'))
-        wind_u_qc = merge(int_missing_value, wind_u_qc, is_missing(wind_u_qc, src='cimiss'))
-        wind_v_qc = merge(int_missing_value, wind_v_qc, is_missing(wind_v_qc, src='cimiss'))
+        if (is_missing(wind_u_qc, src='cimiss') .or. is_missing(wind_v_qc, src='cimiss')) then
+          wind_qc = int_missing_value
+        else if (wind_u_qc /= 0) then
+          wind_qc = wind_u_qc
+        else if (wind_v_qc /= 0) then
+          wind_qc = wind_v_qc
+        else
+          wind_qc = 0
+        end if
         specific_humidity_qc = merge(int_missing_value, specific_humidity_qc, is_missing(specific_humidity_qc, src='cimiss'))
         encoding_type_qc = merge(int_missing_value, encoding_type_qc, is_missing(encoding_type_qc, src='cimiss'))
         ! Create ship and record.
@@ -198,10 +206,7 @@ contains
         record%dewpoint_qc = dewpoint_qc
         record%relative_humidity_qc = relative_humidity_qc
         record%specific_humidity_qc = specific_humidity_qc
-        record%wind_u_qc = wind_u_qc
-        record%wind_v_qc = wind_v_qc
-        record%wind_direction_qc = wind_direction_qc
-        record%wind_speed_qc = wind_speed_qc
+        record%wind_qc = wind_qc
         record%ice_cover_qc = ice_cover_qc
         call records%insert(site_name // '@' // time%isoformat(), record)
         call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)

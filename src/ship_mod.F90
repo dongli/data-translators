@@ -41,10 +41,6 @@ module ship_mod
     integer :: dewpoint_qc             = int_missing_value
     integer :: relative_humidity_qc    = int_missing_value
     integer :: specific_humidity_qc    = int_missing_value
-    integer :: wind_u_qc               = int_missing_value
-    integer :: wind_v_qc               = int_missing_value
-    integer :: wind_direction_qc       = int_missing_value
-    integer :: wind_speed_qc           = int_missing_value
     integer :: wind_qc                 = int_missing_value
     integer :: wind_wave_height_qc     = int_missing_value
     integer :: wind_wave_period_qc     = int_missing_value
