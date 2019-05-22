@@ -66,7 +66,7 @@ contains
       msg_count = msg_count + 1
       if (subset /= 'PROFLR') cycle
       write(sdate, "(I10)") idate
-      time = create_datetime(sdate, '%Y%m%d%H')
+      base_time = create_datetime(sdate, '%Y%m%d%H')
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
         !                                                                    1   2   3   4   5   6   7   8
@@ -77,8 +77,8 @@ contains
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'NUL PPC ZPC WPC WPC DFP NUL')
         station_name = transfer(hdr(1), station_name)
         ! Filter out non-profiler observations.
-        if (hdr(5) /= 227 .and. hdr(5) /= 229) cycle
-        time = time + timedelta(hours=hdr(6))
+        if (hdr(5) /= 223 .and. hdr(5) /= 227 .and. hdr(5) /= 228 .and. hdr(5) /= 229) cycle
+        time = base_time + timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (profiler_station_type)
@@ -167,9 +167,9 @@ contains
         call record%pro%init(record%pro_hash%pressure%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        ! if (record%station%name == '54511') then
-        !   call record%print()
-        ! end if
+        if (record%station%name == '54511') then
+          call record%print()
+        end if
       end select
       call record_iterator%next()
     end do

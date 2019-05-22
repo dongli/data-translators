@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from subprocess import run, PIPE
 
 def parse_time_range(string):
-	match = re.match(r'(\d{4}\d{2}\d{2}\d{2}\d{2})-(\d{4}\d{2}\d{2}\d{2}\d{2})', string)
+	match = re.match(r'^(\d{4}\d{2}\d{2}\d{2}\d{2})-(\d{4}\d{2}\d{2}\d{2}\d{2})$', string)
 	if match:
 		return (pendulum.from_format(match[1], 'YYYYMMDDHHmm'), pendulum.from_format(match[2], 'YYYYMMDDHHmm'))
 	else:
