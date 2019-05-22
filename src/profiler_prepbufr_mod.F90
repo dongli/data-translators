@@ -1,5 +1,6 @@
 module profiler_prepbufr_mod
 
+  use cli_mod
   use profiler_mod
   use datetime
   use hash_table_mod
@@ -167,7 +168,7 @@ contains
         call record%pro%init(record%pro_hash%pressure%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        if (record%station%name == '54511') then
+        if (cli_verbose_platform /= '' .and. record%station%name == cli_verbose_platform) then
           call record%print()
         end if
       end select
