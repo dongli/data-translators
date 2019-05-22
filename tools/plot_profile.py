@@ -27,12 +27,19 @@ var_info = {
 }
 
 parser = argparse.ArgumentParser(description="Plot RAOB vertical profile.", formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-i', '--input',  help='Input ODB file path')
+parser.add_argument('-i', '--input', help='Input ODB file path')
+parser.add_argument('-o', '--output', help='Output figure path')
 parser.add_argument('-s', '--station', help='Station (platform) ID')
-parser.add_argument('-l', '--level-type', dest='level_type', help='Level type', choices=('man', 'sigt', 'sigw', 'trop'))
+parser.add_argument('-l', '--level-type', dest='level_type', help='Level type of RAOB data', choices=('man', 'sigt', 'sigw', 'trop'))
 parser.add_argument('-v', '--var', help='Variable name', choices=var_info.keys())
 parser.add_argument('-t', '--time-range', dest='time_range', help='Observation time range (YYYYMMDDHHmm-YYYYMMDDHHmm)', type=parse_time_range)
 args = parser.parse_args()
+
+if not args.output:
+	if args.level_type:
+		args.output = f'{os.path.basename(args.input)}.{args.station}.{args.level_type}.{args.var}'
+	else:
+		args.output = f'{os.path.basename(args.input)}.{args.station}.{args.var}'
 
 min_date = args.time_range[0].format('YYYYMMDD')
 max_date = args.time_range[1].format('YYYYMMDD')
@@ -74,7 +81,7 @@ graph = mgraph(
 
 output = output(
 	output_formats=['pdf'],
-	output_name=f'{args.input}.{args.station}.{args.var}'
+	output_name=args.output
 )
 
 page = mmap(

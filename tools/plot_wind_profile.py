@@ -3,9 +3,9 @@
 import argparse
 from glob import glob
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 from matplotlib.backends.backend_pdf import PdfPages
 import numpy as np
+import os
 import re
 import pendulum
 from datetime import datetime, timedelta
@@ -21,16 +21,27 @@ def parse_time_range(string):
 
 parser = argparse.ArgumentParser(description="Plot wind profile with time axis from ODB file.", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-i', '--input', help='Input ODB file')
+parser.add_argument('-o', '--output', help='Output figure path')
 parser.add_argument('-s', '--station', help='Station ID')
+parser.add_argument('-l', '--level-type', dest='level_type', help='Level type of RAOB data', choices=('man', 'sigt', 'sigw', 'trop'))
 parser.add_argument('-t', '--time-range', dest='time_range', help='Observation time range (YYYYMMDDHHmm-YYYYMMDDHHmm)', type=parse_time_range)
 args = parser.parse_args()
+
+if not args.output:
+	if args.level_type:
+		args.output = f'{os.path.basename(args.input)}.{args.station}.wind.{args.level_type}.pdf'
+	else:
+		args.output = f'{os.path.basename(args.input)}.{args.station}.wind.pdf'
 
 min_date = args.time_range[0].format('YYYYMMDD')
 max_date = args.time_range[1].format('YYYYMMDD')
 min_time = args.time_range[0].format('HHmmss')
 max_time = args.time_range[1].format('HHmmss')
 
-cmd = f'odb sql "select wind_u as u, wind_v as v, pressure as p, date, time where platform_id=\'{args.station}\' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0 order by date, time, pressure" -T -i {args.input}'
+if args.level_type:
+	cmd = f'odb sql "select wind_u as u, wind_v as v, pressure as p, date, time where platform_id=\'{args.station}\' and level_type=\'{args.level_type}\' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0 order by date, time, pressure" -T -i {args.input}'
+else:
+	cmd = f'odb sql "select wind_u as u, wind_v as v, pressure as p, date, time where platform_id=\'{args.station}\' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0 order by date, time, pressure" -T -i {args.input}'
 res = run(cmd, shell=True, stdout=PIPE, stderr=PIPE)
 if res.returncode != 0:
 	print(f'[Error]: Failed to run {cmd}!')
@@ -57,7 +68,7 @@ for line in res.stdout.decode('utf-8').strip().split('\n'):
 U = np.array(U)
 V = np.array(V)
 
-pdf = PdfPages(f'{args.input}.pdf')
+pdf = PdfPages(args.output)
 
 fig = plt.figure(figsize=(8, 5))
 plt.title(f'Station {args.station}')

@@ -15,15 +15,21 @@ var_info = {
 	'T':  { 'name': 'temperature', 'title': 'Temperature (degC)' },
 	'Td': { 'name': 'dewpoint', 'title': 'Dewpoint (degC)' },
 	'RH': { 'name': 'relative_humidity', 'title': 'Relative humidity (%)' },
-	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' },
-	'count': { 'name': 'record_count', 'title': 'Observation count' }
+	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' }
 }
 
 parser = argparse.ArgumentParser(description="Plot time series from one ODB file.", formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-i', '--input',  help='Input ODB file path')
+parser.add_argument('-i', '--input', help='Input ODB file path')
+parser.add_argument('-o', '--output', help='Output figure path')
 parser.add_argument('-s', '--station', help='Station (platform) ID')
 parser.add_argument('-v', '--var', help='Variable to plot', choices=var_info.keys())
 args = parser.parse_args()
+
+if not args.output:
+	if args.station:
+		args.output = f'{os.path.basename(args.input)}.{args.station}.{args.var}'
+	else:
+		args.output = f'{os.path.basename(args.input)}.{args.var}'
 
 if args.station:
 	odb_ddl = f"select {var_info[args.var]['name']} as var, date, time where platform_id='{args.station}' order by date, time"
@@ -59,16 +65,10 @@ graph = mgraph(
 	graph_line_thickness=3
 )
 
-if args.station:
-	output = output(
-		output_formats=['pdf'],
-		output_name=f'{args.input}.{args.station}.{args.var}'
-	)
-else:
-	output = output(
-		output_formats=['pdf'],
-		output_name=f'{args.input}.{args.var}'
-	)
+output = output(
+	output_formats=['pdf'],
+	output_name=args.output
+)
 
 page = mmap(
 	layout='positional',

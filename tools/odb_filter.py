@@ -33,10 +33,13 @@ def table_columns(file_path):
 columns = table_columns(file_paths[0])
 
 def create_header(sql, columns):
-	try:
-		select_sql = re.search('select\s+(.*)\s*(?=where)', sql)[1]
-	except:
-		select_sql = re.search('select\s+(.*)', sql)[1]
+	if sql:
+		try:
+			select_sql = re.search('select\s+(.*)\s*(?=where)', sql)[1]
+		except:
+			select_sql = re.search('select\s+(.*)', sql)[1]
+	else:
+		select_sql = '*'
 	header = []
 	for match in re.findall('(\w+)\s*(\([^\)]*\))?,?\s*', select_sql):
 		if match[0] in columns:
@@ -54,6 +57,9 @@ def create_header(sql, columns):
 			else:
 				print('[Error]: Under construction!')
 				exit(1)
+		else:
+			print('[Error]: Not matched!')
+			exit(1)
 	if len(header) == 0 and select_sql.strip() == '*':
 		for key, value in columns.items():
 			header.append(f'{key}@{value["table"]}:{value["type"]}')
@@ -70,7 +76,10 @@ else:
 	print(header)
 
 def odb_sql(file_path):
-	res = run(f'odb sql \'{args.sql}\' -T -i {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
+	if args.sql:
+		res = run(f'odb sql \'{args.sql}\' -T -i {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
+	else:
+		res = run(f'odb sql \'select *\' -T -i {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
 	return res
 
 def gather_results(results):
