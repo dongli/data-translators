@@ -3,11 +3,13 @@
 import argparse
 from Magics.macro import *
 import numpy as np
+import numpy.ma as ma
 import re
 import pendulum
 import subprocess
 
 os.environ['LC_ALL'] = 'C'
+missing_value = -1e10
 
 var_info = {
 	'u':  { 'name': 'wind_u', 'title': 'Wind U component (m/s)' },
@@ -47,7 +49,7 @@ if type(lines) == list and len(lines) > 4:
 	for i, line in enumerate(lines):
 		if i > 0 and line != '':
 			var1, date1, time1 = line.split()
-			var.append(float(var1))
+			var.append(float(var1) if var1 != 'NULL' else missing_value)
 			time.append(pendulum.from_format("{}{:06}".format(date1, int(time1)), 'YYYYMMDDHHmmss').format('YYYY-MM-DD HH:mm:ss'))
 	var = np.array(var)
 else:
@@ -62,13 +64,17 @@ data = minput(
 
 graph = mgraph(
 	graph_type='curve',
-	graph_line_thickness=3
+	graph_line_thickness=3,
+	graph_x_suppress_below=missing_value
 )
 
 output = output(
 	output_formats=['pdf'],
 	output_name=args.output
 )
+
+min_var = np.min(ma.masked_values(var, missing_value))
+max_var = np.max(ma.masked_values(var, missing_value))
 
 page = mmap(
 	layout='positional',
@@ -81,8 +87,8 @@ page = mmap(
 	subpage_y_axis_type='regular',
 	subpage_x_date_min=time[0],
 	subpage_x_date_max=time[-1],
-	subpage_y_min=np.min(var) - (np.max(var) - np.min(var)) * 0.1,
-	subpage_y_max=np.max(var) + (np.max(var) - np.min(var)) * 0.1,
+	subpage_y_min=min_var - (max_var - min_var) * 0.1,
+	subpage_y_max=max_var + (max_var - min_var) * 0.1,
 	page_id_line='off'
 )
 

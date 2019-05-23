@@ -19,6 +19,8 @@ def parse_time_range(string):
 		print(f'[Error]: Failed to parse time range "{string}"!')
 		exit(1)
 
+missing_value = -1e10
+
 parser = argparse.ArgumentParser(description="Plot wind profile with time axis from ODB file.", formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-i', '--input', help='Input ODB file')
 parser.add_argument('-o', '--output', help='Output figure path')
@@ -53,13 +55,13 @@ U = []
 V = []
 for line in res.stdout.decode('utf-8').strip().split('\n'):
 	tmp = line.split()
-	u = float(tmp[0])         if tmp[0] != 'NULL' else -999999
-	v = float(tmp[1])         if tmp[1] != 'NULL' else -999999
-	p = float(tmp[2]) / 100.0 if tmp[2] != 'NULL' else -999999
-	if tmp[3] != 'NULL' and tmp[4] != 'NULL':
-		d = int(tmp[3])
-		t = int(tmp[4])
-		time = datetime(int(d / 10000), int((d % 10000) / 100), int(d % 100), int(t / 10000), int((t % 10000) / 100), int(t % 100), int(t % 100))
+	if tmp[2] == 'NULL' or tmp[3] == 'NULL' or tmp[4] == 'NULL': continue
+	u = float(tmp[0])         if tmp[0] != 'NULL' else missing_value
+	v = float(tmp[1])         if tmp[1] != 'NULL' else missing_value
+	p = float(tmp[2]) / 100.0
+	d = int(tmp[3])
+	t = int(tmp[4])
+	time = datetime(int(d / 10000), int((d % 10000) / 100), int(d % 100), int(t / 10000), int((t % 10000) / 100), int(t % 100), int(t % 100))
 	X.append(time)
 	Y.append(p)
 	U.append(u)

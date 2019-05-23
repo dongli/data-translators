@@ -3,6 +3,7 @@
 import argparse
 from Magics.macro import *
 import numpy as np
+import numpy.ma as ma
 import re
 import pendulum
 import subprocess
@@ -16,6 +17,7 @@ def parse_time_range(string):
 		exit(1)
 
 os.environ['LC_ALL'] = 'C'
+missing_value = -1e10
 
 var_info = {
 	'u':  { 'name': 'wind_u', 'title': 'Wind U component (m/s)' },
@@ -46,7 +48,7 @@ max_date = args.time_range[1].format('YYYYMMDD')
 min_time = args.time_range[0].format('HHmmss')
 max_time = args.time_range[1].format('HHmmss')
 
-odb_ddl = f"select {var_info[args.var]['name']} as var, pressure as p where platform_id='{args.station}' and level_type='{args.level_type}' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0"
+odb_ddl = f"select {var_info[args.var]['name']} as var, pressure as p where platform_id='{args.station}' and level_type='{args.level_type}' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0 order by pressure"
 
 cmd = f'odb sql "{odb_ddl}" -i {args.input}'
 res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -59,7 +61,11 @@ if type(lines) == list and len(lines) > 4:
 	for i, line in enumerate(lines):
 		if i > 0 and line != '':
 			var1, p1 = line.split()
-			var.append(float(var1))
+			if p1 == 'NULL': continue
+			if var1 == 'NULL':
+				var.append(missing_value)
+			else:
+				var.append(float(var1))
 			p.append(float(p1))
 	var = np.array(var)
 	p = np.array(p) / 100.
@@ -76,13 +82,17 @@ data = minput(
 
 graph = mgraph(
 	graph_type='curve',
-	graph_line_thickness=3
+	graph_line_thickness=3,
+	graph_x_suppress_below=missing_value
 )
 
 output = output(
 	output_formats=['pdf'],
 	output_name=args.output
 )
+
+min_var = np.min(ma.masked_values(var, missing_value))
+max_var = np.max(ma.masked_values(var, missing_value))
 
 page = mmap(
 	layout='positional',
@@ -91,10 +101,10 @@ page = mmap(
 	page_x_position=10.,
 	page_y_position=2.,
 	subpage_map_projection='cartesian',
-	subpage_x_min=np.min(var) - (np.max(var) - np.min(var)) * 0.1,
-	subpage_x_max=np.max(var) + (np.max(var) - np.min(var)) * 0.1,
+	subpage_x_min=min_var - (max_var - min_var) * 0.1,
+	subpage_x_max=max_var + (max_var - min_var) * 0.1,
 	subpage_y_min=np.max(p) * 1.1,
-	subpage_y_max=100.,
+	subpage_y_max=np.min(p) * 0.9,
 	page_id_line='off'
 )
 
