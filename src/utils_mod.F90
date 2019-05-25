@@ -56,6 +56,24 @@ contains
 
   end function subtract
 
+  real function subtract_wind_direction(a, b) result(res)
+
+    real, intent(in) :: a
+    real, intent(in) :: b
+
+    if (is_missing(a) .or. is_missing(b)) then
+      res = real_missing_value
+    else if (a >= b) then
+      res = a - b
+      if (res > 0 .and. 360 - res < res) then
+        res = res - 360
+      else if (res < 0) then
+        res = res + 360
+      end if
+    end if
+
+  end function subtract_wind_direction
+
   real function multiply_scalar(a, b) result(res)
 
     real, intent(in) :: a
