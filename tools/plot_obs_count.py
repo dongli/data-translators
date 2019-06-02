@@ -20,8 +20,8 @@ var_info = {
 	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' }
 }
 
-parser = argparse.ArgumentParser(description="Plot observation count across multiple ODB files.", formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument('-i', '--input', help='Input ODB file path pattern')
+parser = argparse.ArgumentParser(description="Plot observation count in ODB file.", formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument('-i', '--input', help='Input ODB file path')
 parser.add_argument('-o', '--output', help='Output figure path')
 parser.add_argument('-v', '--var', help='Variable to plot', choices=var_info.keys())
 args = parser.parse_args()
