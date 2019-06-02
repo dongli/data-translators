@@ -69,7 +69,7 @@ header = create_header(args.sql, columns)
 
 # Write column header.
 if args.output:
-	tmp = tempfile.NamedTemporaryFile(mode='w')
+	tmp = tempfile.NamedTemporaryFile(mode='w', dir='.')
 	tmp.write(header)
 	tmp.write('\n')
 else:
