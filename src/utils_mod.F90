@@ -132,7 +132,10 @@ contains
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) < 4) then
+        if (stack_qc(i) == 13) then
+          ! Bad value, just exit.
+          exit
+        else if (stack_qc(i) < 4) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
@@ -140,7 +143,10 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1 .or. stack_qc(i) < 4) then
+        if (stack_qc(i) == 13) then
+          ! Bad value, just exit.
+          exit
+        else if (stack_pc(i) == 1 .or. stack_qc(i) < 4) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
@@ -174,7 +180,10 @@ contains
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) < 4) then
+        if (stack_qc(i) == 13) then
+          ! Bad value, just exit.
+          exit
+        else if (stack_qc(i) < 4) then
           value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
@@ -182,7 +191,10 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1 .and. stack_qc(i) < 4) then
+        if (stack_qc(i) == 13) then
+          ! Bad value, just exit.
+          exit
+        else if (stack_pc(i) == 1 .and. stack_qc(i) < 4) then
           ! Wind direction in GDAS is missing value when QC is 2, so we need to check if stack value is missing.
           ! If so, we use the previous one.
           if (stack(i) == missing_value_in_prepbufr) then
@@ -190,7 +202,7 @@ contains
               value = stack(i-1)
             else
               value = real_missing_value
-              ! write(*, *) '[Warning]: QC is ' // trim(to_string(stack_qc(i))) // ', but value is missing!'
+              write(*, *) '[Warning]: QC is ' // trim(to_string(stack_qc(i))) // ', but value is missing!'
             end if
           else
             value = stack(i)
