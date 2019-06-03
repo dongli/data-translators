@@ -132,7 +132,7 @@ contains
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) == 13) then
+        if (stack_qc(i) == 13 .or. stack_qc(i) == 14) then
           ! Bad value, just exit.
           exit
         else if (stack_qc(i) < 4) then
@@ -143,7 +143,7 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) == 13) then
+        if (stack_qc(i) == 13 .or. stack_qc(i) == 14) then
           ! Bad value, just exit.
           exit
         else if (stack_pc(i) == 1 .or. stack_qc(i) < 4) then
@@ -180,7 +180,7 @@ contains
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) == 13) then
+        if (stack_qc(i) == 13 .or. stack_qc(i) == 14) then
           ! Bad value, just exit.
           exit
         else if (stack_qc(i) < 4) then
@@ -191,7 +191,7 @@ contains
       end do
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_qc(i) == 13) then
+        if (stack_qc(i) == 13 .or. stack_qc(i) == 14) then
           ! Bad value, just exit.
           exit
         else if (stack_pc(i) == 1 .and. stack_qc(i) < 4) then
