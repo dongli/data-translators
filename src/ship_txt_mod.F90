@@ -176,13 +176,13 @@ contains
         case (2)
           record%source = 'ICOADS'
         case (3)
-          record%source = 'CFSR/GDAS'
+          record%source = 'CFSRGDAS'
         case (4)
           record%source = 'CMA BUOY'
         case (5)
           record%source = 'CHN SHIP'
         case (6)
-          record%source = 'CMA IL AWS'
+          record%source = 'CMAILAWS'
         case (9)
           record%source = 'MULTISRC'
         end select
