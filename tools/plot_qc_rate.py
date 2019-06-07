@@ -12,12 +12,11 @@ from subprocess import run, PIPE
 os.environ['LC_ALL'] = 'C'
 
 var_info = {
-	'u':  { 'name': 'wind_u', 'title': 'Wind U component (m/s)' },
-	'v':  { 'name': 'wind_v', 'title': 'Wind V component (m/s)' },
-	'T':  { 'name': 'temperature', 'title': 'Temperature (degC)' },
-	'Td': { 'name': 'dewpoint', 'title': 'Dewpoint (degC)' },
-	'RH': { 'name': 'relative_humidity', 'title': 'Relative humidity (%)' },
-	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' }
+	'u':  { 'name': 'wind_u', 'qc_name': 'wind_qc', 'title': 'Wind U component (m/s)' },
+	'v':  { 'name': 'wind_v', 'qc_name': 'wind_qc', 'title': 'Wind V component (m/s)' },
+	'T':  { 'name': 'temperature', 'qc_name': 'temperature_qc','title': 'Temperature (degC)' },
+	'RH': { 'name': 'relative_humidity', 'qc_name': 'relative_humidity_qc', 'title': 'Relative humidity (%)' },
+	'p':  { 'name': 'pressure', 'qc_name': 'pressure_qc', 'title': 'Pressure (Pa)' }
 }
 
 parser = argparse.ArgumentParser(description="Plot observation QC rate in ODB file.", formatter_class=argparse.RawTextHelpFormatter)
@@ -29,7 +28,7 @@ args = parser.parse_args()
 if not args.output:
 	args.output = f'{os.path.basename(args.input)}.{args.var}.qc_rate.pdf'
 
-odb_ddl = f"select {var_info[args.var]['name']} as var, {var_info[args.var]['name']}_qc as qc, date, time order by date, time"
+odb_ddl = f"select {var_info[args.var]['name']} as var, {var_info[args.var]['qc_name']} as qc, date, time order by date, time"
 
 print(f'[Notice]: Query ODB file {args.input} ...')
 cmd = f'odb sql "{odb_ddl}" -i {args.input}'
@@ -54,7 +53,8 @@ if type(lines) == list and len(lines) > 4:
 			if int(qc) >= 4:
 				qc_count[key] += 1.0
 else:
-	print('[Error]: Bad data!')
+	print(f'[Error]: Bad data! Command is {cmd}.')
+	print(res.stderr.decode('utf-8'))
 	exit(1)
 
 qc_rate = np.array(list(qc_count.values())) / np.array(list(total_count.values()))
