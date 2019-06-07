@@ -5,6 +5,7 @@ module synop_prepbufr_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
+  use cli_mod
   use utils_mod
 
   implicit none
@@ -156,8 +157,41 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-        ! else if (station_name == '54511') then
-        !   call record%print()
+          if (station_name == cli_verbose_platform) then
+            print *, 'PrepBUFR stacks:'
+            print *, 'u:'
+            print *, obs(u_idx,1,:4)
+            print *, qc(u_idx,1,:4)
+            print *, pc(u_idx,1,:4)
+            print *, 'v:'
+            print *, obs(v_idx,1,:4)
+            print *, qc(v_idx,1,:4)
+            print *, pc(v_idx,1,:4)
+            print *, 'wd:'
+            print *, obs(wd_idx,1,:4)
+            print *, qc(wd_idx,1,:4)
+            print *, pc(wd_idx,1,:4)
+            print *, 'ws:'
+            print *, obs(ws_idx,1,:4)
+            print *, qc(ws_idx,1,:4)
+            print *, pc(ws_idx,1,:4)
+          end if
+        else if (station_name == cli_verbose_platform) then
+          print *, 'T:'
+          print *, obs(T_idx,1,:4)
+          print *, qc(T_idx,1,:4)
+          print *, pc(T_idx,1,:4)
+          print *, 'p:'
+          print *, obs(p_idx,1,:4)
+          print *, qc(p_idx,1,:4)
+          print *, pc(p_idx,1,:4)
+          print *, 'Td:'
+          print *, obs(Td_idx,1,:4)
+          print *, 'Q:'
+          print *, obs(Q_idx,1,:4)
+          print *, qc(Q_idx,1,:4)
+          print *, pc(Q_idx,1,:4)
+          call record%print()
         end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do

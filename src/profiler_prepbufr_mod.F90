@@ -156,6 +156,14 @@ contains
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
         end if
+        if (station_name == cli_verbose_platform) then
+          print *, 'p:'
+          do i = 1, num_level
+            print *, obs(p_idx,i,:4)
+            print *, qc(p_idx,i,:4)
+            print *, pc(p_idx,i,:4)
+          end do
+        end if
       end do
     end do
     call closbf(10)
@@ -168,7 +176,7 @@ contains
         call record%pro%init(record%pro_hash%pressure%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        if (cli_verbose_platform /= '' .and. record%station%name == cli_verbose_platform) then
+        if (record%station%name == cli_verbose_platform) then
           call record%print()
         end if
       end select
