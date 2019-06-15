@@ -157,8 +157,26 @@ contains
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
-          if (station_name == cli_verbose_platform) then
-            print *, 'PrepBUFR stacks:'
+        end if
+        if (station_name == cli_verbose_platform) then
+          if (hdr(5) == 181) then
+            print *, 'PrepBUFR stacks (mass):'
+            print *, 'T:'
+            print *, obs(T_idx,1,:4)
+            print *, qc(T_idx,1,:4)
+            print *, pc(T_idx,1,:4)
+            print *, 'p:'
+            print *, obs(p_idx,1,:4)
+            print *, qc(p_idx,1,:4)
+            print *, pc(p_idx,1,:4)
+            print *, 'Td:'
+            print *, obs(Td_idx,1,:4)
+            print *, 'Q:'
+            print *, obs(Q_idx,1,:4)
+            print *, qc(Q_idx,1,:4)
+            print *, pc(Q_idx,1,:4)
+          else if (hdr(5) == 281) then
+            print *, 'PrepBUFR stacks (mass):'
             print *, 'u:'
             print *, obs(u_idx,1,:4)
             print *, qc(u_idx,1,:4)
@@ -176,21 +194,6 @@ contains
             print *, qc(ws_idx,1,:4)
             print *, pc(ws_idx,1,:4)
           end if
-        else if (station_name == cli_verbose_platform) then
-          print *, 'T:'
-          print *, obs(T_idx,1,:4)
-          print *, qc(T_idx,1,:4)
-          print *, pc(T_idx,1,:4)
-          print *, 'p:'
-          print *, obs(p_idx,1,:4)
-          print *, qc(p_idx,1,:4)
-          print *, pc(p_idx,1,:4)
-          print *, 'Td:'
-          print *, obs(Td_idx,1,:4)
-          print *, 'Q:'
-          print *, obs(Q_idx,1,:4)
-          print *, qc(Q_idx,1,:4)
-          print *, pc(Q_idx,1,:4)
           call record%print()
         end if
         call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
