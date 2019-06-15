@@ -16,6 +16,9 @@ parser.add_argument('-p', '--process-size', dest='process_size', help='Process s
 args = parser.parse_args()
 
 file_paths = glob(args.input)
+if len(file_paths) == 0:
+	print(f'[Error]: Input ODB files {args.input} are invalid!')
+	exit(1)
 
 def table_columns(file_path):
 	res = run(f'odb header -ddl {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
@@ -80,17 +83,19 @@ def odb_sql(file_path):
 		res = run(f'odb sql \'{args.sql}\' -T -i {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
 	else:
 		res = run(f'odb sql \'select *\' -T -i {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
-	return res
+	return (file_path, res)
 
 def gather_results(results):
+	print('Gather result ...')
 	for res in results:
-		out = res.stdout.decode('utf-8').strip()
-		if out != '':
-			if args.output:
-				tmp.write(out)
-				tmp.write('\n')
-			else:
-				print(out)
+		lines = res[1].stdout.decode('utf-8').strip().split('\n')
+		print(f'==> Found {len(lines)} records in {res[0]}.')
+		if len(lines) == 0: continue
+		if args.output:
+			tmp.write('\n'.join(lines))
+			tmp.write('\n')
+		else:
+			print('\n'.join(lines))
 
 # Spawn multiple processes to run ODB query across files.
 pool = Pool(args.process_size)
