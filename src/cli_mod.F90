@@ -19,7 +19,7 @@ module cli_mod
   character(256) :: cli_output_file_path = ''
   character(256) :: cli_first_file_path = ''
   character(256) :: cli_second_file_path = ''
-  character(30) :: cli_verbose_platform = ''
+  character(30) :: cli_verbose_platform = 'N/A'
 
 contains
 
