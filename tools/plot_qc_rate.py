@@ -20,6 +20,7 @@ var_info = {
 }
 
 parser = argparse.ArgumentParser(description="Plot observation QC rate in ODB file.", formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument(      '--where', help='SQL where conditions')
 parser.add_argument('-i', '--input', help='Input ODB file path')
 parser.add_argument('-o', '--output', help='Output figure path')
 parser.add_argument('-v', '--var', help='Variable to plot', choices=var_info.keys())
@@ -28,10 +29,15 @@ args = parser.parse_args()
 if not args.output:
 	args.output = f'{os.path.basename(args.input)}.{args.var}.qc_rate.pdf'
 
-odb_ddl = f"select {var_info[args.var]['name']} as var, {var_info[args.var]['qc_name']} as qc, date, time order by date, time"
+sql = f"select {var_info[args.var]['name']} as var, {var_info[args.var]['qc_name']} as qc, date, time"
+
+if args.where:
+	sql = f'{sql} where {args.where}'
+
+sql = f'{sql} order by date, time'
 
 print(f'[Notice]: Query ODB file {args.input} ...')
-cmd = f'odb sql "{odb_ddl}" -i {args.input}'
+cmd = f'odb sql "{sql}" -i {args.input}'
 res = run(cmd, shell=True, stdout=PIPE, stderr=PIPE)
 
 lines = res.stdout.decode('utf-8').split('\n')

@@ -43,14 +43,18 @@ if not args.output:
 	else:
 		args.output = f'{os.path.basename(args.input)}.{args.station}.{args.var}'
 
-min_date = args.time_range[0].format('YYYYMMDD')
-max_date = args.time_range[1].format('YYYYMMDD')
-min_time = args.time_range[0].format('HHmmss')
-max_time = args.time_range[1].format('HHmmss')
+sql = f"select {var_info[args.var]['name']} as var, pressure as p where platform_id='{args.station}'"
+if args.level_type:
+	sql = f"{sql} and level_type='{args.level_type}'"
+if args.time_range:
+	min_date = args.time_range[0].format('YYYYMMDD')
+	max_date = args.time_range[1].format('YYYYMMDD')
+	min_time = args.time_range[0].format('HHmmss')
+	max_time = args.time_range[1].format('HHmmss')
+	sql = f"{sql} and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0"
+sql = f'{sql} order by pressure'
 
-odb_ddl = f"select {var_info[args.var]['name']} as var, pressure as p where platform_id='{args.station}' and level_type='{args.level_type}' and tdiff(date, time, {min_date}, {min_time})>=0 and tdiff(date, time, {max_date}, {max_time})<=0 order by pressure"
-
-cmd = f'odb sql "{odb_ddl}" -i {args.input}'
+cmd = f'odb sql "{sql}" -i {args.input}'
 res = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 lines = res.stdout.decode('utf-8').split('\n')
@@ -134,8 +138,13 @@ axis_h = maxis(
 	axis_title_font_style='bold'
 )
 
-title = mtext(
-	text_lines=[f'Station {args.station}', f'{args.time_range[0].isoformat()} - {args.time_range[1].isoformat()}']
-)
+if args.time_range:
+	title = mtext(
+		text_lines=[f'Station {args.station}', f'{args.time_range[0].isoformat()} - {args.time_range[1].isoformat()}']
+	)
+else:
+	title = mtext(
+		text_lines=[f'Station {args.station}']
+	)
 
 plot(output, page, axis_v, axis_h, data, graph, title)

@@ -17,7 +17,8 @@ var_info = {
 	'T':  { 'name': 'temperature', 'title': 'Temperature (degC)' },
 	'Td': { 'name': 'dewpoint', 'title': 'Dewpoint (degC)' },
 	'RH': { 'name': 'relative_humidity', 'title': 'Relative humidity (%)' },
-	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' }
+	'p':  { 'name': 'pressure', 'title': 'Pressure (Pa)' },
+	'gps': { 'name': 'val1', 'title': 'GPS' }
 }
 
 parser = argparse.ArgumentParser(description="Plot observation count in ODB file.", formatter_class=argparse.RawTextHelpFormatter)
