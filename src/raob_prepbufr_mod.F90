@@ -6,6 +6,7 @@ module raob_prepbufr_mod
   use linked_list_mod
   use params_mod
   use utils_mod
+  use cli_mod
   use string_mod
 
   implicit none
@@ -81,7 +82,13 @@ contains
         station_name = transfer(hdr(1), station_name)
         ! Filter out non-RAOB observations.
         if (hdr(5) /= 120 .and. hdr(5) /= 220 .and. hdr(5) /= 132 .and. hdr(5) /= 232 .and. hdr(5) /= 221) cycle
-        time = base_time + timedelta(hours=hdr(6))
+        if (abs(hdr(6)) > 48) then
+          write(*, *) '[Error]: DHR is too large with value ', hdr(6), ' at station ', trim(station_name)
+          write(*, *) '[Warning]: Use base_time anyway!'
+          time = base_time
+        else
+          time = base_time + timedelta(hours=hdr(6))
+        end if
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (raob_station_type)
@@ -143,6 +150,12 @@ contains
               call record%man_hash%temperature%insert(key, T)
               call record%man_hash%temperature_qc%insert(key, T_qc)
               call record%man_hash%temperature_correct%insert(key, prepbufr_correct(obs(T_idx,i,:), qc(T_idx,i,:), pc(T_idx,i,:)))
+              if (station_name == cli_verbose_platform) then
+                print *, 'T (', trim(time%isoformat()), '):'
+                print *, obs(T_idx,i,:4)
+                print *, qc(T_idx,i,:4)
+                print *, pc(T_idx,i,:4)
+              end if
             end if
             call prepbufr_raw(obs(Q_idx,i,:), sh, stack_qc=qc(Q_idx,i,:), stack_pc=pc(Q_idx,i,:), qc=sh_qc)
             if (.not. record%man_hash%specific_humidity%hashed(key) .and. .not. is_missing(sh)) then

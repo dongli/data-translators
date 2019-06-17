@@ -126,43 +126,13 @@ contains
     real(8), intent(in), optional :: stack_pc(:)
     integer, intent(out), optional :: qc
 
-    integer i
+    integer i, j
 
-    value = int_missing_value
-    if (present(qc)) qc = int_missing_value
-    if (present(stack_qc) .and. .not. present(stack_pc)) then
-      do i = 1, size(stack)
-        if (stack_qc(i) == 13 .or. stack_qc(i) == 14) then
-          ! Bad value, just exit.
-          exit
-        else if (stack_qc(i) < 4) then
-          value = stack(i)
-          if (present(qc)) qc = stack_qc(i)
-          exit
-        end if
-      end do
-    else if (present(stack_qc) .and. present(stack_pc)) then
-      do i = 1, size(stack)
-        if (stack_qc(i) == 13 .or. stack_qc(i) == 14) then
-          ! Bad value, just exit.
-          exit
-        else if (stack_pc(i) == 1 .or. stack_qc(i) < 4) then
-          value = stack(i)
-          if (present(qc)) qc = stack_qc(i)
-          exit
-        else if (stack_pc(i) == missing_value_in_prepbufr) then
-          exit
-        end if
-      end do
-    else
-      do i = 1, size(stack)
-        if (stack(i) == missing_value_in_prepbufr) then
-          if (i /= 1) value = stack(i-1)
-          exit
-        end if
-      end do
-    end if
+    ! Just return the first value.
+    value = stack(1)
+    if (present(qc)) qc = stack_qc(1)
     if (value == missing_value_in_prepbufr) value = int_missing_value
+    if (qc == missing_value_in_prepbufr) qc = int_missing_value
 
   end subroutine prepbufr_raw_i4
 
@@ -174,9 +144,8 @@ contains
     real(8), intent(in), optional :: stack_pc(:)
     integer, intent(out), optional :: qc
 
-    integer i
+    integer i, j
 
-    value = real_missing_value
     if (present(qc)) qc = int_missing_value
     if (present(stack_qc) .and. .not. present(stack_pc)) then
       ! Just return the first value.
@@ -184,23 +153,12 @@ contains
       if (present(qc)) qc = stack_qc(1)
     else if (present(stack_qc) .and. present(stack_pc)) then
       do i = 1, size(stack)
-        if (stack_pc(i) == 1 .or. stack_pc(i) == missing_value_in_prepbufr) then
-          if (stack(i) == missing_value_in_prepbufr) then
-            if (i > 1) then
-              value = stack(i-1)
-            else
-              value = real_missing_value
-            end if
-          else
-            value = stack(i)
-          end if
+        if (stack_pc(i) == 8) then ! Virtual temprature process
+          cycle
+        else
+          value = stack(i)
           if (present(qc)) qc = stack_qc(i)
           exit
-        else if (stack_qc(i) == missing_value_in_prepbufr .or. stack_pc(i) == missing_value_in_prepbufr) then
-          if (i > 1) then
-            value = stack(i-1)
-            if (present(qc)) qc = stack_qc(i-1)
-          end if
         end if
       end do
     else
@@ -212,6 +170,7 @@ contains
       end do
     end if
     if (value == missing_value_in_prepbufr) value = real_missing_value
+    if (present(qc) .and. qc == missing_value_in_prepbufr) qc = int_missing_value
 
   end subroutine prepbufr_raw_r8
 
@@ -274,13 +233,13 @@ contains
     integer n, i
 
     n = prepbufr_value_count(stack)
+    if (n == 0) then
+      res = real_missing_value
+      return
+    end if
     ! Skip virtual temperature change.
     i = merge(2, 1, stack_pc(1) == 8)
-    if (stack_qc(i) < 4) then
-      res = stack(i) - stack(n)
-    else
-      res = real_missing_value
-    end if
+    res = stack(i) - stack(n)
 
   end function prepbufr_correct
 

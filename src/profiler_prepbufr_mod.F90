@@ -7,6 +7,7 @@ module profiler_prepbufr_mod
   use linked_list_mod
   use params_mod
   use utils_mod
+  use cli_mod
   use string_mod
 
   implicit none
@@ -156,14 +157,29 @@ contains
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
         end if
-        if (station_name == cli_verbose_platform) then
-          print *, 'p:'
-          do i = 1, num_level
-            print *, obs(p_idx,i,:4)
-            print *, qc(p_idx,i,:4)
-            print *, pc(p_idx,i,:4)
-          end do
-        end if
+        ! if (station_name == cli_verbose_platform) then
+        !   write(*, *) 'P:'
+        !   do i = 1, num_level
+        !     write(*, *) i
+        !     write(*, *) obs(p_idx,i,:4)
+        !     write(*, *) qc(p_idx,i,:4)
+        !     write(*, *) pc(p_idx,i,:4)
+        !   end do
+        !   write(*, *) 'U:'
+        !   do i = 1, num_level
+        !     write(*, *) i
+        !     write(*, *) obs(u_idx,i,:4)
+        !     write(*, *) qc(u_idx,i,:4)
+        !     write(*, *) pc(u_idx,i,:4)
+        !   end do
+        !   write(*, *) 'V:'
+        !   do i = 1, num_level
+        !     write(*, *) i
+        !     write(*, *) obs(v_idx,i,:4)
+        !     write(*, *) qc(v_idx,i,:4)
+        !     write(*, *) pc(v_idx,i,:4)
+        !   end do
+        ! end if
       end do
     end do
     call closbf(10)
