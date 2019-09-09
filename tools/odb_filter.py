@@ -20,6 +20,9 @@ if len(file_paths) == 0:
 	print(f'[Error]: Input ODB files {args.input} are invalid!')
 	exit(1)
 
+if args.sql:
+	args.sql = args.sql.replace("'", '"')
+
 def table_columns(file_path):
 	res = run(f'odb header -ddl {file_path}', shell=True, stdout=PIPE, stderr=PIPE)
 	if res.returncode != 0:
