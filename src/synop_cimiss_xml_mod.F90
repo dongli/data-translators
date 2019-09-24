@@ -1,13 +1,13 @@
 module synop_cimiss_xml_mod
 
   use synop_mod
-  use datetime_mod
+  use datetime
+  use string
   use timedelta_mod
   use hash_table_mod
   use linked_list_mod
   use regex
   use fox_sax
-  use string_mod
   use params_mod
   use utils_mod
 

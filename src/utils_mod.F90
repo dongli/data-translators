@@ -1,10 +1,18 @@
 module utils_mod
 
   use params_mod
+  use hash_table_mod
+  use synop_mod
+#ifdef HAS_LIB_ECCODES
   use eccodes
+#endif
+#ifdef HAS_LIB_NETCDF
   use netcdf
+#endif
+#ifdef HAS_LIB_ODB_API
   use odbql_wrappers
-  use string_mod
+#endif
+  use string
   use missing_value_mod
   use atm_formula_mod
 
@@ -243,6 +251,7 @@ contains
 
   end function prepbufr_correct
 
+#ifdef HAS_LIB_ECCODES
   subroutine bufr_value(bufr_id, subset_id, var_name, value)
 
     integer, intent(in) :: bufr_id
@@ -295,6 +304,7 @@ contains
     end if
 
   end subroutine bufr_value
+#endif
 
   real function littler_value(value) result(res)
 
@@ -337,6 +347,7 @@ contains
 
   end function unique_real4_element_count
 
+#ifdef HAS_LIB_NETCDF
   subroutine handle_netcdf_error(ierr, file, line)
 
     integer, intent(in) :: ierr
@@ -353,7 +364,9 @@ contains
     end if
 
   end subroutine handle_netcdf_error
+#endif
 
+#ifdef HAS_LIB_ODB_API
   function odb_values_placeholder(n) result(res)
 
     integer, intent(in) :: n
@@ -383,5 +396,36 @@ contains
     end do
 
   end subroutine odb_all_bind_null
+#endif
+
+  subroutine load_cma_synop_stations(stations)
+
+    type(hash_table_type), intent(inout) :: stations
+
+    integer iostat
+    character(10) platform_id
+    real lon, lat, z
+    type(synop_station_type), pointer :: station
+
+    open(10, file=dirname(__FILE__) // '/../notes/cma_synop_stations.txt', status='old')
+    do while (.true.)
+      read(10, *, iostat=iostat) platform_id, lon, lat, z
+      if (iostat /= 0) exit
+      if (stations%hashed(platform_id)) then
+        write(*, *) '[Error]: Duplicate SYNOP station ', trim(platform_id), '!'
+        stop 1
+      else
+        allocate(station)
+        station%name = platform_id
+        call station%init(platform_id, lon, lat, z)
+        station%seq_id = stations%size
+        call stations%insert(platform_id, station)
+      end if
+    end do
+    close(10)
+
+    write(*, *) '[Notice]: Load ' // trim(to_string(stations%size)) // ' SYNOP stations.'
+
+  end subroutine load_cma_synop_stations
 
 end module utils_mod

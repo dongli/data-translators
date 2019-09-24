@@ -1,12 +1,12 @@
 module profiler_littler_mod
 
   use datetime
+  use string
   use profiler_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
   use utils_mod
-  use string_mod
 
   implicit none
 

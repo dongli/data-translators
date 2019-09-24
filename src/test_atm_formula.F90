@@ -7,9 +7,7 @@ program atm_formula_test
 
   real p, e, es, T, Td, sh, rh, r
 
-  call test_case_init()
-
-  call test_case_create('Test atm_formula_mod')
+  call test_suite_init('Test atm_formula_mod module')
 
   p = 762.0e2
   T = -12.5
@@ -53,6 +51,6 @@ program atm_formula_test
 
   call test_case_report('Test atm_formula_mod')
 
-  call test_case_final()
+  call test_suite_final()
 
 end program atm_formula_test

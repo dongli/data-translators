@@ -3,11 +3,15 @@ program reader_test
   use unit_test
   use linked_list_mod
   use synop_mod
+#ifdef HAS_LIB_BUFRLIB
   use synop_prepbufr_mod
   use metar_prepbufr_mod
-  use amdar_bufr_mod
   use amdar_prepbufr_mod
   use raob_prepbufr_mod
+#endif
+#ifdef HAS_LIB_ECCODES
+  use amdar_bufr_mod
+#endif
 
   implicit none
 
@@ -15,10 +19,11 @@ program reader_test
   type(linked_list_type) records
   type(linked_list_iterator_type) record_iterator
 
-  call test_case_init()
+  call test_suite_init('Test readers')
 
-  call test_case_create('Test SYNOP reader')
+  call test_case_create('SYNOP reader')
 
+#ifdef HAS_LIB_BUFRLIB
   call synop_prepbufr_read('./gdas.20190515/gdas.t00z.prepbufr.nr', sites, records)
 
   record_iterator = linked_list_iterator(records)
@@ -37,13 +42,16 @@ program reader_test
       call record_iterator%next()
     end select
   end do
+#endif
 
-  call test_case_report('Test SYNOP reader')
+  call test_suite_report()
 
-  call test_case_create('Test METAR reader')
+  call test_case_create('METAR reader')
 
+#ifdef HAS_LIB_BUFRLIB
   call metar_prepbufr_read('./gdas.20190515/gdas.t00z.prepbufr.nr', sites, records)
+#endif
 
-  call test_case_final()
+  call test_suite_final()
 
 end program reader_test

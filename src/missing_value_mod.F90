@@ -24,6 +24,7 @@ module missing_value_mod
   integer, parameter :: int_missing_value_in_cimiss_1 = 999999
   integer, parameter :: int_missing_value_in_cimiss_2 = 999998
   integer, parameter :: int_missing_value_in_cimiss_3 = 999997
+  real, parameter :: real_missing_value_in_txt = 32766.0
 
   interface is_missing
     module procedure is_missing_str
@@ -71,6 +72,8 @@ contains
         res = x == real_missing_value_in_cimiss_1 .or. x == real_missing_value_in_cimiss_2 .or. x == real_missing_value_in_cimiss_3
       case ('prepbufr')
         res = x == missing_value_in_prepbufr
+      case ('txt')
+        res = x == real_missing_value_in_txt
       case default
         write(*, *) '[Error]: is_missing: Unknown src ' // trim(src) // '!'
       end select
@@ -91,6 +94,8 @@ contains
         res = x == real_missing_value_in_cimiss_1 .or. x == real_missing_value_in_cimiss_2
       case ('prepbufr')
         res = x == missing_value_in_prepbufr
+      case ('txt')
+        res = x == real_missing_value_in_txt
       case default
         write(*, *) '[Error]: is_missing: Unknown src ' // trim(src) // '!'
       end select

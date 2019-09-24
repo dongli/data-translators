@@ -1,6 +1,7 @@
 module ship_txt_mod
 
   use datetime
+  use string
   use ship_mod
   use hash_table_mod
   use linked_list_mod

@@ -78,6 +78,49 @@ contains
 
   end function knot_to_meter_per_second
 
+  pure real function wind_direction_code(code) result(res)
+
+    real, intent(in) :: code
+
+    select case (int(code))
+    case (1)
+      res = 0.0
+    case (2)
+      res = 22.5
+    case (3)
+      res = 45.0
+    case (4)
+      res = 67.5
+    case (5)
+      res = 90.0
+    case (6)
+      res = 112.5
+    case (7)
+      res = 135.0
+    case (8)
+      res = 157.5
+    case (9)
+      res = 180.0
+    case (10)
+      res = 202.5
+    case (11)
+      res = 225.0
+    case (12)
+      res = 247.5
+    case (13)
+      res = 270.0
+    case (14)
+      res = 292.5
+    case (15)
+      res = 315.0
+    case (16)
+      res = 337.5
+    case (17)
+      res = real_missing_value
+    end select
+
+  end function wind_direction_code
+
   ! ----------------------------------------------------------------------------
   !                           temperature formula
 

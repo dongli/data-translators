@@ -2,11 +2,11 @@ module profiler_zrada_mod
 
   use profiler_mod
   use datetime
+  use string
   use hash_table_mod
   use linked_list_mod
   use params_mod
   use utils_mod
-  use string_mod
 
   implicit none
 
