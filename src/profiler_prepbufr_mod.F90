@@ -8,7 +8,7 @@ module profiler_prepbufr_mod
   use params_mod
   use utils_mod
   use cli_mod
-  use string_mod
+  use string
 
   implicit none
 
@@ -199,7 +199,7 @@ contains
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    write(*, *) '[Notice]: Station size is ' // to_string(stations%size) // ', record size is ' // to_string(records%size) // '.'
 
   end subroutine profiler_prepbufr_read
 
