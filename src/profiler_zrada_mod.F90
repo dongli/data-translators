@@ -97,7 +97,7 @@ contains
           read(segment, *) w
           read(line(30:32), *) wnd_v_qc
         end if
-        key = to_string(h)
+        key = to_string(int(h))
         if (.not. is_missing(h))  call record%pro_hash%height%insert(key, h)
         if (.not. is_missing(u))  call record%pro_hash%wind_u%insert(key, u)
         if (.not. is_missing(v))  call record%pro_hash%wind_v%insert(key, v)

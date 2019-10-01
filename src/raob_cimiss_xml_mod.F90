@@ -202,7 +202,7 @@ contains
         new_record = .true.
       end if
       ! Set record.
-      level_key = to_string(p)
+      level_key = to_string(int(p))
       select case (obs_type)
       case (131072) ! Surface
         record%sfc_pressure       = p

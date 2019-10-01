@@ -137,7 +137,7 @@ contains
           call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
           p = p * 100 ! Convert units from hPa to Pa.
-          key = to_string(p)
+          key = to_string(int(p))
           select case (int(obs(cat_idx,i,1)))
           case (1) ! Mandatory level
             if (.not. record%man_hash%pressure%hashed(key) .and. .not. is_missing(p)) then

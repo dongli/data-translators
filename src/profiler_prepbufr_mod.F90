@@ -121,7 +121,7 @@ contains
           call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
           p = p * 100 ! Convert units from hPa to Pa.
-          key = to_string(p)
+          key = to_string(int(p))
           if (.not. record%pro_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
             call record%pro_hash%pressure%insert(key, p)
             call record%pro_hash%pressure_qc%insert(key, p_qc)
