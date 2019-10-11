@@ -7,7 +7,7 @@ module raob_prepbufr_mod
   use params_mod
   use utils_mod
   use cli_mod
-  use string_mod
+  use string
 
   implicit none
 
@@ -137,7 +137,7 @@ contains
           call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
           p = p * 100 ! Convert units from hPa to Pa.
-          key = to_string(p)
+          key = to_string(int(p))
           select case (int(obs(cat_idx,i,1)))
           case (1) ! Mandatory level
             if (.not. record%man_hash%pressure%hashed(key) .and. .not. is_missing(p)) then
@@ -361,7 +361,7 @@ contains
               record%sfc_wind_speed = knot_to_meter_per_second(record%sfc_wind_speed)
             end if
           case default
-            write(*, *) '[Warning]: Unknown category ' // trim(to_string(int(obs(cat_idx,i,1)))) // ' for station ' // trim(station_name) // '!'
+            write(*, *) '[Warning]: Unknown category ' // to_string(int(obs(cat_idx,i,1))) // ' for station ' // trim(station_name) // '!'
             stop
           end select
         end do
@@ -396,7 +396,7 @@ contains
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', level size is ' // trim(to_string(num_level)) // '.'
+    write(*, *) '[Notice]: Station size is ' // to_string(stations%size) // ', level size is ' // to_string(num_level) // '.'
 
   end subroutine raob_prepbufr_read
 

@@ -1,7 +1,7 @@
 module radarx_base_mod
 
   use radar_mod
-  use string_mod
+  use string
   use netcdf
 
   implicit none
@@ -381,7 +381,7 @@ contains
     integer powDiffThreshold_varid
 
     do tilt_idx = 1, radar_record%num_tilt
-      file_path = trim(radar_record%time%format('%y%j%H%M')) // '_elev' // trim(to_string(tilt_idx, zero_pad_width=2))
+      file_path = trim(radar_record%time%format('%y%j%H%M')) // '_elev' // to_string(tilt_idx, zero_pad_width=2)
       err = nf90_create(file_path, nf90_clobber, ncid)
       if (err == nf90_noerr) then
         write(*, *) '[Error]: Failed to create LAPS netcdf file ' // trim(file_path) // '!'
