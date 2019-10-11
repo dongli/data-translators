@@ -91,7 +91,7 @@ def odb_sql(file_path):
 def gather_results(results):
 	print('Gather result ...')
 	for res in results:
-		lines = res[1].stdout.decode('utf-8').strip().split('\n')
+		lines = [line for line in res[1].stdout.decode('utf-8').strip().split('\n') if not line == '']
 		print(f'==> Found {len(lines)} records in {res[0]}.')
 		if len(lines) == 0: continue
 		if args.output:
