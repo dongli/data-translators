@@ -1,5 +1,7 @@
 module cli_mod
 
+  use datetime
+
   implicit none
 
   private
@@ -12,6 +14,8 @@ module cli_mod
   public cli_first_file_path
   public cli_second_file_path
   public cli_verbose_platform
+  public cli_start_time
+  public cli_end_time
 
   character(30) :: cli_reader_type = ''
   character(30) :: cli_writer_type = ''
@@ -20,12 +24,14 @@ module cli_mod
   character(256) :: cli_first_file_path = ''
   character(256) :: cli_second_file_path = ''
   character(30) :: cli_verbose_platform = 'N/A'
+  type(datetime_type) cli_start_time
+  type(datetime_type) cli_end_time
 
 contains
 
   subroutine cli_parse_args()
 
-    character(256) res
+    character(256) res, str
     logical file_exist
     integer i
 
@@ -51,6 +57,14 @@ contains
       case ('-f2')
         i = i + 1
         call get_command_argument(i, cli_second_file_path)
+      case ('-t1')
+        i = i + 1
+        call get_command_argument(i, str)
+        cli_start_time = create_datetime(str, '%Y%m%d%H%M')
+      case ('-t2')
+        i = i + 1
+        call get_command_argument(i, str)
+        cli_end_time = create_datetime(str, '%Y%m%d%H%M')
       case ('-v')
         i = i + 1
         call get_command_argument(i, cli_verbose_platform)

@@ -138,11 +138,13 @@ contains
 
     dummy_record_iterator = hash_table_iterator(dummy_records)
     do while (.not. dummy_record_iterator%ended())
-      call records%insert(dummy_record_iterator%value)
       select type (record => dummy_record_iterator%value)
       type is (synop_record_type)
-        if (record%station%name == cli_verbose_platform) then
-          call record%print()
+        if (cli_start_time%year == 0 .or. (cli_start_time <= record%time .and. record%time <= cli_end_time)) then
+          call records%insert(record)
+          if (record%station%name == cli_verbose_platform) then
+            call record%print()
+          end if
         end if
       end select
       call dummy_record_iterator%next()
