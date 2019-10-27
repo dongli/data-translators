@@ -33,6 +33,7 @@ program data_translate
 #endif
   use synop_txt_mod
   use synop_littler_mod
+  use synop_ftm_txt_mod
   use metar_littler_mod
   use amdar_littler_mod
   use raob_littler_mod
@@ -45,7 +46,7 @@ program data_translate
 
   implicit none
 
-  type(hash_table_type) sites
+  type(hash_table_type) platforms
   type(linked_list_type) records
 
   call print_help()
@@ -54,163 +55,176 @@ program data_translate
   select case (cli_reader_type)
 #ifdef HAS_LIB_BUFRLIB
   case ('synop_prepbufr')
-    call synop_prepbufr_read(cli_input_file_path, sites, records)
+    call synop_prepbufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call synop_littler_write(cli_output_file_path, sites, records)
+      call synop_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call synop_odb_write(cli_output_file_path, sites, records)
+      call synop_odb_write(cli_output_file_path, platforms, records)
 #endif
 #ifdef HAS_LIB_NETCDF
     else if (cli_writer_type == 'netcdf') then
-      call synop_netcdf_write(cli_output_file_path, sites, records)
+      call synop_netcdf_write(cli_output_file_path, platforms, records)
+#endif
+    end if
+  case ('synop_ftm_txt')
+    call synop_ftm_txt_read(cli_input_file_path, platforms, records)
+    if (cli_writer_type == 'littler') then
+      call synop_littler_write(cli_output_file_path, platforms, records)
+#ifdef HAS_LIB_ODB_API
+    else if (cli_writer_type == 'odb') then
+      call synop_odb_write(cli_output_file_path, platforms, records)
+#endif
+#ifdef HAS_LIB_NETCDF
+    else if (cli_writer_type == 'netcdf') then
+      call synop_netcdf_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('metar_prepbufr')
-    call metar_prepbufr_read(cli_input_file_path, sites, records)
+    call metar_prepbufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call metar_littler_write(cli_output_file_path, sites, records)
+      call metar_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call metar_odb_write(cli_output_file_path, sites, records)
+      call metar_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('amdar_prepbufr')
-    call amdar_prepbufr_read(cli_input_file_path, sites, records)
+    call amdar_prepbufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call amdar_littler_write(cli_output_file_path, sites, records)
+      call amdar_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call amdar_odb_write(cli_output_file_path, sites, records)
+      call amdar_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('raob_prepbufr')
-    call raob_prepbufr_read(cli_input_file_path, sites, records)
+    call raob_prepbufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call raob_littler_write(cli_output_file_path, sites, records)
+      call raob_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call raob_odb_write(cli_output_file_path, sites, records)
+      call raob_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('profiler_prepbufr')
-    call profiler_prepbufr_read(cli_input_file_path, sites, records)
+    call profiler_prepbufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call profiler_littler_write(cli_output_file_path, sites, records)
+      call profiler_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call profiler_odb_write(cli_output_file_path, sites, records)
+      call profiler_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('ship_prepbufr')
-    call ship_prepbufr_read(cli_input_file_path, sites, records)
+    call ship_prepbufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call ship_littler_write(cli_output_file_path, sites, records)
+      call ship_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call ship_odb_write(cli_output_file_path, sites, records)
+      call ship_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
 #endif
 #ifdef HAS_LIB_ECCODES
   case ('amdar_bufr')
-    call amdar_bufr_read(cli_input_file_path, sites, records)
+    call amdar_bufr_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call amdar_littler_write(cli_output_file_path, sites, records)
+      call amdar_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call amdar_odb_write(cli_output_file_path, sites, records)
+      call amdar_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
 #endif
 #ifdef HAS_LIB_FOX
   case ('synop_cimiss_xml')
-    call synop_cimiss_xml_read(cli_input_file_path, sites, records)
+    call synop_cimiss_xml_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call synop_littler_write(cli_output_file_path, sites, records)
+      call synop_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call synop_odb_write(cli_output_file_path, sites, records)
+      call synop_odb_write(cli_output_file_path, platforms, records)
 #endif
 #ifdef HAS_LIB_BUFRLIB
     else if (cli_writer_type == 'prepbufr') then
-      call synop_prepbufr_write(cli_output_file_path, sites, records)
+      call synop_prepbufr_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('amdar_cimiss_xml')
-    call amdar_cimiss_xml_read(cli_input_file_path, sites, records)
+    call amdar_cimiss_xml_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call amdar_littler_write(cli_output_file_path, sites, records)
+      call amdar_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call amdar_odb_write(cli_output_file_path, sites, records)
+      call amdar_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('raob_cimiss_xml')
-    call raob_cimiss_xml_read(cli_input_file_path, sites, records)
+    call raob_cimiss_xml_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call raob_littler_write(cli_output_file_path, sites, records)
+      call raob_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call raob_odb_write(cli_output_file_path, sites, records)
+      call raob_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('ship_cimiss_xml')
-    call ship_cimiss_xml_read(cli_input_file_path, sites, records)
+    call ship_cimiss_xml_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call ship_littler_write(cli_output_file_path, sites, records)
+      call ship_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call ship_odb_write(cli_output_file_path, sites, records)
+      call ship_odb_write(cli_output_file_path, platforms, records)
 #endif
 #ifdef HAS_LIB_NETCDF
     else if (cli_writer_type == 'netcdf') then
-      call ship_netcdf_write(cli_output_file_path, sites, records)
+      call ship_netcdf_write(cli_output_file_path, platforms, records)
 #endif
     end if
 #endif
   case ('profiler_zrada')
-    call profiler_zrada_read(cli_input_file_path, sites, records)
+    call profiler_zrada_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call profiler_littler_write(cli_output_file_path, sites, records)
+      call profiler_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call profiler_odb_write(cli_output_file_path, sites, records)
+      call profiler_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('ship_cimiss_txt')
-    call ship_cimiss_txt_read(cli_input_file_path, sites, records)
+    call ship_cimiss_txt_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call ship_littler_write(cli_output_file_path, sites, records)
+      call ship_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call ship_odb_write(cli_output_file_path, sites, records)
+      call ship_odb_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('ship_txt')
-    call ship_txt_read(cli_input_file_path, sites, records)
+    call ship_txt_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call ship_littler_write(cli_output_file_path, sites, records)
+      call ship_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call ship_odb_write(cli_output_file_path, sites, records)
+      call ship_odb_write(cli_output_file_path, platforms, records)
 #endif
 #ifdef HAS_LIB_NETCDF
     else if (cli_writer_type == 'netcdf') then
-      call ship_netcdf_write(cli_output_file_path, sites, records)
+      call ship_netcdf_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case ('synop_txt')
-    call synop_txt_read(cli_input_file_path, sites, records)
+    call synop_txt_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
-      call synop_littler_write(cli_output_file_path, sites, records)
+      call synop_littler_write(cli_output_file_path, platforms, records)
 #ifdef HAS_LIB_ODB_API
     else if (cli_writer_type == 'odb') then
-      call synop_odb_write(cli_output_file_path, sites, records)
+      call synop_odb_write(cli_output_file_path, platforms, records)
 #endif
 #ifdef HAS_LIB_NETCDF
     else if (cli_writer_type == 'netcdf') then
-      call synop_netcdf_write(cli_output_file_path, sites, records)
+      call synop_netcdf_write(cli_output_file_path, platforms, records)
 #endif
     end if
   case default

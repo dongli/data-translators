@@ -59,13 +59,13 @@ contains
     end do
 
     if (cli_input_file_path /= '') then
-      inquire(file=cli_input_file_path, exist=file_exist)
-      if (file_exist) then
-        return
-      else
-        write(*, *) '[Error]: Input file ' // trim(cli_input_file_path) // ' does not exist!'
-        stop 1
-      end if
+      ! inquire(file=cli_input_file_path, exist=file_exist)
+      ! if (file_exist) then
+      !   return
+      ! else
+      !   write(*, *) '[Error]: Input file ' // trim(cli_input_file_path) // ' does not exist!'
+      !   stop 1
+      ! end if
     end if
     if (cli_first_file_path /= '') then
       inquire(file=cli_first_file_path, exist=file_exist)

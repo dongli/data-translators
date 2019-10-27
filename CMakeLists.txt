@@ -107,6 +107,7 @@ set(sources
   src/profiler_zrada_mod.F90
   src/synop_mod.F90
   src/synop_littler_mod.F90
+  src/synop_ftm_txt_mod.F90
   src/synop_txt_mod.F90
   src/metar_mod.F90
   src/metar_littler_mod.F90
