@@ -64,26 +64,26 @@ contains
 
           time = create_datetime(year, month, day, 2)
           record => create_record(dummy_records, station, time, new_record)
-          record%temperature = t02 / 10.0
-          record%temperature_qc = t02_qc
+          record%ta = t02 / 10.0
+          record%ta_qc = t02_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
 
           time = create_datetime(year, month, day, 8)
           record => create_record(dummy_records, station, time, new_record)
-          record%temperature = t08 / 10.0
-          record%temperature_qc = t08_qc
+          record%ta = t08 / 10.0
+          record%ta_qc = t08_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
 
           time = create_datetime(year, month, day, 14)
           record => create_record(dummy_records, station, time, new_record)
-          record%temperature = t14 / 10.0
-          record%temperature_qc = t14_qc
+          record%ta = t14 / 10.0
+          record%ta_qc = t14_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
 
           time = create_datetime(year, month, day, 20)
           record => create_record(dummy_records, station, time, new_record)
-          record%temperature = t20 / 10.0
-          record%temperature_qc = t20_qc
+          record%ta = t20 / 10.0
+          record%ta_qc = t20_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
         end do
       else if (count_string(file_paths(k)%value, 'WIN') > 0) then
@@ -102,34 +102,34 @@ contains
 
           time = create_datetime(year, month, day, 2)
           record => create_record(dummy_records, station, time, new_record)
-          record%wind_direction = decode_wind_direction(wd02)
-          record%wind_qc = wd02_qc
-          record%wind_speed = ws02
-          if (record%wind_qc == 0) record%wind_qc = ws02_qc
+          record%wd = decode_wind_direction(wd02)
+          record%wd_qc = wd02_qc
+          record%ws = ws02
+          record%ws_qc = ws02_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
 
           time = create_datetime(year, month, day, 8)
           record => create_record(dummy_records, station, time, new_record)
-          record%wind_direction = decode_wind_direction(wd08)
-          record%wind_qc = wd08_qc
-          record%wind_speed = ws08
-          if (record%wind_qc == 0) record%wind_qc = ws08_qc
+          record%wd = decode_wind_direction(wd08)
+          record%wd_qc = wd08_qc
+          record%ws = ws08
+          record%ws_qc = ws08_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
 
           time = create_datetime(year, month, day, 14)
           record => create_record(dummy_records, station, time, new_record)
-          record%wind_direction = decode_wind_direction(wd14)
-          record%wind_qc = wd14_qc
-          record%wind_speed = ws14
-          if (record%wind_qc == 0) record%wind_qc = ws14_qc
+          record%wd = decode_wind_direction(wd14)
+          record%wd_qc = wd14_qc
+          record%ws = ws14
+          record%ws_qc = ws14_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
 
           time = create_datetime(year, month, day, 20)
           record => create_record(dummy_records, station, time, new_record)
-          record%wind_direction = decode_wind_direction(wd20)
-          record%wind_qc = wd20_qc
-          record%wind_speed = ws20
-          if (record%wind_qc == 0) record%wind_qc = ws20_qc
+          record%wd = decode_wind_direction(wd20)
+          record%wd_qc = wd20_qc
+          record%ws = ws20
+          record%ws_qc = ws20_qc
           if (new_record) call dummy_records%insert(trim(station%name) // ' ' // time%isoformat(), record)
         end do
       end if

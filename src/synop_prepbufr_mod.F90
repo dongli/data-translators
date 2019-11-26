@@ -117,43 +117,43 @@ contains
           new_record = .true.
         end if
 
-        if (is_missing(record%pressure)) then
-          call prepbufr_raw(obs(p_idx,1,:), record%pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%pressure_qc)
-          record%pressure = multiply(record%pressure, 100.0) ! Convert pressure from hPa to Pa.
-          record%pressure_correct = multiply(prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:)), 100.0)
+        if (is_missing(record%p)) then
+          call prepbufr_raw(obs(p_idx,1,:), record%p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%p_qc)
+          record%p = multiply(record%p, 100.0) ! Convert p from hPa to Pa.
+          record%p_cr = multiply(prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:)), 100.0)
         end if
-        if (is_missing(record%temperature)) then
-          call prepbufr_raw(obs(T_idx,1,:), record%temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%temperature_qc)
-          record%temperature_correct = prepbufr_correct(obs(T_idx,1,:), qc(T_idx,1,:), pc(T_idx,1,:))
+        if (is_missing(record%ta)) then
+          call prepbufr_raw(obs(T_idx,1,:), record%ta, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%ta_qc)
+          record%ta_cr = prepbufr_correct(obs(T_idx,1,:), qc(T_idx,1,:), pc(T_idx,1,:))
         end if
-        if (is_missing(record%specific_humidity)) then
-          call prepbufr_raw(obs(Q_idx,1,:), record%specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%specific_humidity_qc)
-          record%specific_humidity_correct = prepbufr_correct(obs(Q_idx,1,:), qc(Q_idx,1,:), pc(Q_idx,1,:))
+        if (is_missing(record%sh)) then
+          call prepbufr_raw(obs(Q_idx,1,:), record%sh, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%sh_qc)
+          record%sh_cr = prepbufr_correct(obs(Q_idx,1,:), qc(Q_idx,1,:), pc(Q_idx,1,:))
         end if
-        if (is_missing(record%dewpoint)) then
-          call prepbufr_raw(obs(Td_idx,1,:), record%dewpoint)
+        if (is_missing(record%td)) then
+          call prepbufr_raw(obs(Td_idx,1,:), record%td)
         end if
-        if (is_missing(record%wind_u)) then
-          call prepbufr_raw(obs(u_idx,1,:), record%wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%wind_qc)
-          record%wind_u_correct = prepbufr_correct(obs(u_idx,1,:), qc(u_idx,1,:), pc(u_idx,1,:))
+        if (is_missing(record%ua)) then
+          call prepbufr_raw(obs(u_idx,1,:), record%ua, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%ua_qc)
+          record%ua_cr = prepbufr_correct(obs(u_idx,1,:), qc(u_idx,1,:), pc(u_idx,1,:))
         end if
-        if (is_missing(record%wind_v)) then
-          call prepbufr_raw(obs(v_idx,1,:), record%wind_v, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%wind_qc)
-          record%wind_v_correct = prepbufr_correct(obs(v_idx,1,:), qc(v_idx,1,:), pc(v_idx,1,:))
+        if (is_missing(record%va)) then
+          call prepbufr_raw(obs(v_idx,1,:), record%va, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%va_qc)
+          record%va_cr = prepbufr_correct(obs(v_idx,1,:), qc(v_idx,1,:), pc(v_idx,1,:))
         end if
-        if (is_missing(record%wind_direction)) then
-          call prepbufr_raw(obs(wd_idx,1,:), record%wind_direction, stack_qc=qc(wd_idx,1,:), stack_pc=pc(wd_idx,1,:), qc=record%wind_qc)
-          record%wind_direction_correct = prepbufr_correct(obs(wd_idx,1,:), qc(wd_idx,1,:), pc(wd_idx,1,:))
+        if (is_missing(record%wd)) then
+          call prepbufr_raw(obs(wd_idx,1,:), record%wd, stack_qc=qc(wd_idx,1,:), stack_pc=pc(wd_idx,1,:), qc=record%wd_qc)
+          record%wd_cr = prepbufr_correct(obs(wd_idx,1,:), qc(wd_idx,1,:), pc(wd_idx,1,:))
         end if
-        if (is_missing(record%wind_speed)) then
-          call prepbufr_raw(obs(ws_idx,1,:), record%wind_speed, stack_qc=qc(ws_idx,1,:), stack_pc=pc(ws_idx,1,:), qc=record%wind_qc)
-          record%wind_speed_correct = prepbufr_correct(obs(ws_idx,1,:), qc(ws_idx,1,:), pc(ws_idx,1,:))
+        if (is_missing(record%ws)) then
+          call prepbufr_raw(obs(ws_idx,1,:), record%ws, stack_qc=qc(ws_idx,1,:), stack_pc=pc(ws_idx,1,:), qc=record%ws_qc)
+          record%ws_cr = prepbufr_correct(obs(ws_idx,1,:), qc(ws_idx,1,:), pc(ws_idx,1,:))
         end if
-        if (is_missing(record%rain_01h)) call prepbufr_raw(obs(TP01_idx,1,:), record%rain_01h)
-        if (is_missing(record%rain_03h)) call prepbufr_raw(obs(TP03_idx,1,:), record%rain_03h)
-        if (is_missing(record%rain_06h)) call prepbufr_raw(obs(TP06_idx,1,:), record%rain_06h)
-        if (is_missing(record%rain_12h)) call prepbufr_raw(obs(TP12_idx,1,:), record%rain_12h)
-        if (is_missing(record%rain_24h)) call prepbufr_raw(obs(TP24_idx,1,:), record%rain_24h)
+        if (is_missing(record%r01h)) call prepbufr_raw(obs(TP01_idx,1,:), record%r01h)
+        if (is_missing(record%r03h)) call prepbufr_raw(obs(TP03_idx,1,:), record%r03h)
+        if (is_missing(record%r06h)) call prepbufr_raw(obs(TP06_idx,1,:), record%r06h)
+        if (is_missing(record%r12h)) call prepbufr_raw(obs(TP12_idx,1,:), record%r12h)
+        if (is_missing(record%r24h)) call prepbufr_raw(obs(TP24_idx,1,:), record%r24h)
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
@@ -242,13 +242,13 @@ contains
         hdr(5) = 181
         hdr(6) = 0.0
         call ufbint(10, hdr, 6, 1, iret, 'SID XOB YOB ELV TYP DHR')
-        obs(1,1,1) = divide(record%pressure, 100.0)
-        obs(2,1,1) = record%temperature
-        obs(3,1,1) = record%specific_humidity
+        obs(1,1,1) = divide(record%p, 100.0)
+        obs(2,1,1) = record%ta
+        obs(3,1,1) = record%sh
         call ufbint(10, obs, 3, 1, iret, 'POB TOB QOB')
-        qc(1,1,1) = record%pressure_qc
-        qc(2,1,1) = record%temperature_qc
-        qc(3,1,1) = record%specific_humidity_qc
+        qc(1,1,1) = record%p_qc
+        qc(2,1,1) = record%ta_qc
+        qc(3,1,1) = record%sh_qc
         call ufbint(10, qc,  3, 1, iret, 'PQM TQM QQM')
         pc(1,1,1) = 1
         pc(2,1,1) = 1
@@ -265,14 +265,14 @@ contains
         hdr(5) = 281
         hdr(6) = 0.0
         call ufbint(10, hdr, 6, 1, iret, 'SID XOB YOB ELV TYP DHR')
-        obs(1,1,1) = divide(record%pressure, 100.0)
-        obs(2,1,1) = record%wind_direction
-        obs(3,1,1) = record%wind_speed
-        obs(4,1,1) = record%wind_u
-        obs(5,1,1) = record%wind_v
+        obs(1,1,1) = divide(record%p, 100.0)
+        obs(2,1,1) = record%wd
+        obs(3,1,1) = record%ws
+        obs(4,1,1) = record%ua
+        obs(5,1,1) = record%va
         call ufbint(10, obs, 5, 1, iret, 'POB DDO SOB UOB VOB')
-        qc(1,1,1) = record%pressure_qc
-        qc(2,1,1) = record%wind_qc
+        qc(1,1,1) = record%p_qc
+        qc(2,1,1) = record%ua_qc
         call ufbint(10, qc,  2, 1, iret, 'PQM WQM')
         pc(1,1,1) = 1
         pc(2,1,1) = 1

@@ -119,7 +119,7 @@ contains
     ierr = nf90_put_att(ncid, alt_varid, 'units', 'm')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'pressure', nf90_float, [record_dimid], p_varid)
+    ierr = nf90_def_var(ncid, 'p', nf90_float, [record_dimid], p_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, p_varid, '_FillValue', real_missing_value)
@@ -128,7 +128,7 @@ contains
     ierr = nf90_put_att(ncid, p_varid, 'units', 'Pa')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'temperature', nf90_float, [record_dimid], T_varid)
+    ierr = nf90_def_var(ncid, 'ta', nf90_float, [record_dimid], T_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, T_varid, '_FillValue', real_missing_value)
@@ -137,7 +137,7 @@ contains
     ierr = nf90_put_att(ncid, T_varid, 'units', 'K')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'dewpoint', nf90_float, [record_dimid], Td_varid)
+    ierr = nf90_def_var(ncid, 'td', nf90_float, [record_dimid], Td_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, Td_varid, '_FillValue', real_missing_value)
@@ -146,7 +146,7 @@ contains
     ierr = nf90_put_att(ncid, Td_varid, 'units', 'K')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'relative_humidity', nf90_float, [record_dimid], rh_varid)
+    ierr = nf90_def_var(ncid, 'rh', nf90_float, [record_dimid], rh_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, rh_varid, '_FillValue', real_missing_value)
@@ -155,7 +155,7 @@ contains
     ierr = nf90_put_att(ncid, rh_varid, 'units', '%')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'wind_direction', nf90_float, [record_dimid], wd_varid)
+    ierr = nf90_def_var(ncid, 'wd', nf90_float, [record_dimid], wd_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, wd_varid, '_FillValue', real_missing_value)
@@ -164,7 +164,7 @@ contains
     ierr = nf90_put_att(ncid, wd_varid, 'units', 'degree')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'wind_speed', nf90_float, [record_dimid], ws_varid)
+    ierr = nf90_def_var(ncid, 'ws', nf90_float, [record_dimid], ws_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ws_varid, '_FillValue', real_missing_value)
@@ -173,7 +173,7 @@ contains
     ierr = nf90_put_att(ncid, ws_varid, 'units', 'm s-1')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'rain_01h', nf90_float, [record_dimid], r01_varid)
+    ierr = nf90_def_var(ncid, 'r01h', nf90_float, [record_dimid], r01_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, r01_varid, '_FillValue', real_missing_value)
@@ -229,13 +229,13 @@ contains
           stop 1
         end if
         record_idx(j,platform_idx(i)+1) = record%seq_id
-        p(i) = record%pressure
-        T(i) = record%temperature
-        Td(i) = record%dewpoint
-        rh(i) = record%relative_humidity
-        wd(i) = record%wind_direction
-        ws(i) = record%wind_speed
-        r01(i) = record%rain_01h
+        p  (i) = record%p
+        T  (i) = record%ta
+        Td (i) = record%td
+        rh (i) = record%rh
+        wd (i) = record%wd
+        ws (i) = record%ws
+        r01(i) = record%r01h
       end select
       i = i + 1
       call record_iterator%next()

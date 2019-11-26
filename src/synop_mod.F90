@@ -16,37 +16,40 @@ module synop_mod
 
   type, extends(obs_static_record_base_type) :: synop_record_type
     type(synop_station_type), pointer :: station
-    real :: temperature       = real_missing_value ! Temperature (degC)
-    real :: dewpoint          = real_missing_value ! Dewpoint temperature (degC)
-    real :: pressure          = real_missing_value ! Surface pressure (Pa)
-    real :: relative_humidity = real_missing_value ! Relative humidity (%)
-    real :: specific_humidity = real_missing_value ! Specific humidity (Mg/Kg)
-    real :: wind_speed        = real_missing_value ! Wind speed (m/s)
-    real :: wind_direction    = real_missing_value ! Wind direction (deg)
-    real :: wind_u            = real_missing_value ! U wind component (m/s)
-    real :: wind_v            = real_missing_value ! V wind component (m/s)
-    real :: rain_01h          = real_missing_value ! 1h accumulated total precipitation (mm)
-    real :: rain_03h          = real_missing_value ! 3h accumulated total precipitation (mm)
-    real :: rain_06h          = real_missing_value ! 6h accumulated total precipitation (mm)
-    real :: rain_12h          = real_missing_value ! 12h accumulated total precipitation (mm)
-    real :: rain_24h          = real_missing_value ! 24h accumulated total precipitation (mm)
-    real :: cloud_amount      = real_missing_value ! Cloud amount (???)
+    real :: ta   = real_missing_value ! Temperature (degC)
+    real :: td   = real_missing_value ! Dewpoint temperature (degC)
+    real :: p    = real_missing_value ! Surface pressure (Pa)
+    real :: rh   = real_missing_value ! Relative humidity (%)
+    real :: sh   = real_missing_value ! Specific humidity (Mg/Kg)
+    real :: ws   = real_missing_value ! Wind speed (m/s)
+    real :: wd   = real_missing_value ! Wind direction (deg)
+    real :: ua   = real_missing_value ! U wind component (m/s)
+    real :: va   = real_missing_value ! V wind component (m/s)
+    real :: r01h = real_missing_value ! 1h accumulated total precipitation (mm)
+    real :: r03h = real_missing_value ! 3h accumulated total precipitation (mm)
+    real :: r06h = real_missing_value ! 6h accumulated total precipitation (mm)
+    real :: r12h = real_missing_value ! 12h accumulated total precipitation (mm)
+    real :: r24h = real_missing_value ! 24h accumulated total precipitation (mm)
+    real :: cld  = real_missing_value ! Cloud amount (???)
 
-    integer :: type                 = int_missing_value
-    integer :: temperature_qc       = int_missing_value
-    integer :: dewpoint_qc          = int_missing_value
-    integer :: pressure_qc          = int_missing_value
-    integer :: relative_humidity_qc = int_missing_value
-    integer :: specific_humidity_qc = int_missing_value
-    integer :: wind_qc              = int_missing_value
+    integer :: type  = int_missing_value
+    integer :: ta_qc = int_missing_value
+    integer :: td_qc = int_missing_value
+    integer :: p_qc  = int_missing_value
+    integer :: rh_qc = int_missing_value
+    integer :: sh_qc = int_missing_value
+    integer :: ws_qc = int_missing_value
+    integer :: wd_qc = int_missing_value
+    integer :: ua_qc = int_missing_value
+    integer :: va_qc = int_missing_value
 
-    real :: temperature_correct       = real_missing_value
-    real :: specific_humidity_correct = real_missing_value
-    real :: pressure_correct          = real_missing_value
-    real :: wind_u_correct            = real_missing_value
-    real :: wind_v_correct            = real_missing_value
-    real :: wind_direction_correct    = real_missing_value
-    real :: wind_speed_correct        = real_missing_value
+    real :: ta_cr = real_missing_value
+    real :: sh_cr = real_missing_value
+    real :: p_cr  = real_missing_value
+    real :: ws_cr = real_missing_value
+    real :: wd_cr = real_missing_value
+    real :: ua_cr = real_missing_value
+    real :: va_cr = real_missing_value
   contains
     procedure :: print => synop_record_print
   end type synop_record_type
@@ -88,67 +91,67 @@ contains
     write(*, *) 'OBS TIME: ', trim(this%time%isoformat())
     write(*, *) 'LON:', this%station%lon, 'LAT:', this%station%lat, 'Z:', this%station%z
     write(*, *) 'TEMPERATURE: '
-    if (is_missing(this%temperature)) then
+    if (is_missing(this%ta)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.2)', advance='no') '  VALUE: ', this%temperature
-      if (is_missing(this%temperature_correct)) then
+      write(*, '(A, F8.2)', advance='no') '  VALUE: ', this%ta
+      if (is_missing(this%ta_cr)) then
         write(*, *)
       else
-        write(*, '(" (", F8.2, ")")') this%temperature_correct
+        write(*, '(" (", F8.2, ")")') this%ta_cr
       end if
     end if
     write(*, *) 'SPECIFIC HUMIDITY: '
-    if (is_missing(this%specific_humidity)) then
+    if (is_missing(this%sh)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.2)', advance='no') '  VALUE: ', this%specific_humidity
-      if (is_missing(this%specific_humidity_correct)) then
+      write(*, '(A, F8.2)', advance='no') '  VALUE: ', this%sh
+      if (is_missing(this%sh_cr)) then
         write(*, *)
       else
-        write(*, '(" (", F8.2, ")")') this%specific_humidity_correct
+        write(*, '(" (", F8.2, ")")') this%sh_cr
       end if
     end if
     write(*, *) 'DEWPOINT: '
-    if (is_missing(this%dewpoint)) then
+    if (is_missing(this%td)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, *) '  VALUE: ', this%dewpoint
+      write(*, *) '  VALUE: ', this%td
     end if
     write(*, *) 'PRESSURE: '
-    if (is_missing(this%pressure)) then
+    if (is_missing(this%p)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F10.2)', advance='no') '  VALUE: ', this%pressure
-      if (is_missing(this%pressure_correct)) then
+      write(*, '(A, F10.2)', advance='no') '  VALUE: ', this%p
+      if (is_missing(this%p_cr)) then
         write(*, *)
       else
-        write(*, '(" (", F8.2, ")")') this%pressure_correct
+        write(*, '(" (", F8.2, ")")') this%p_cr
       end if
     end if
     write(*, *) 'WIND U: '
-    if (is_missing(this%wind_u)) then
+    if (is_missing(this%ua)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.1)', advance='no') '  VALUE: ', this%wind_u
-      if (is_missing(this%wind_u_correct)) then
+      write(*, '(A, F8.1)', advance='no') '  VALUE: ', this%ua
+      if (is_missing(this%ua_cr)) then
         write(*, *)
       else
-        write(*, '(" (", F8.2, ")")') this%wind_u_correct
+        write(*, '(" (", F8.2, ")")') this%ua_cr
       end if
     end if
     write(*, *) 'WIND V: '
-    if (is_missing(this%wind_v)) then
+    if (is_missing(this%va)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.1)', advance='no') '  VALUE: ', this%wind_v
-      if (is_missing(this%wind_v_correct)) then
+      write(*, '(A, F8.1)', advance='no') '  VALUE: ', this%va
+      if (is_missing(this%va_cr)) then
         write(*, *)
       else
-        write(*, '(" (", F8.2, ")")') this%wind_v_correct
+        write(*, '(" (", F8.2, ")")') this%va_cr
       end if
     end if
-    write(*, *) 'RAIN: ', this%rain_01h, this%rain_03h, this%rain_06h, this%rain_12h, this%rain_24h
+    write(*, *) 'RAIN: ', this%r01h, this%r03h, this%r06h, this%r12h, this%r24h
 
   end subroutine synop_record_print
 

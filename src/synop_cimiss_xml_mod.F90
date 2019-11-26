@@ -154,20 +154,21 @@ contains
       record%station => station
       record%time = time
       ! Set record.
-      record%pressure = multiply(p, 100.0)
-      record%temperature = T
-      record%dewpoint = Td
-      record%relative_humidity = rh
-      record%specific_humidity = sh
-      record%wind_direction = wd
-      record%wind_speed = ws
-      record%wind_u = wind_u_component(ws, wd)
-      record%wind_v = wind_v_component(ws, wd)
-      record%pressure_qc = merge(2, 3, p_qc == 0)
-      record%temperature_qc = merge(2, 3, T_qc == 0)
-      record%relative_humidity_qc = merge(2, 3, rh_qc == 0)
-      record%specific_humidity_qc = merge(2, 3, rh_qc == 0)
-      record%wind_qc = merge(2, 3, wd_qc == 0 .and. ws_qc == 0)
+      record%p     = multiply(p, 100.0)
+      record%ta    = T
+      record%td    = Td
+      record%rh    = rh
+      record%sh    = sh
+      record%wd    = wd
+      record%ws    = ws
+      record%ua    = wind_u_component(ws, wd)
+      record%va    = wind_v_component(ws, wd)
+      record%p_qc  = merge(2, 3, p_qc  == 0)
+      record%ta_qc = merge(2, 3, T_qc  == 0)
+      record%rh_qc = merge(2, 3, rh_qc == 0)
+      record%sh_qc = merge(2, 3, rh_qc == 0)
+      record%wd_qc = merge(2, 3, wd_qc == 0)
+      record%wd_qc = merge(2, 3, ws_qc == 0)
       ! if (station_name == 'V8552') then
       !   print *, record%print()
       ! end if

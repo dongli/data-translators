@@ -63,13 +63,13 @@ contains
       record%station => station
       record%time = time
       ! Set record.
-      record%pressure = multiply(p, 100.0)
-      record%temperature = T
-      record%wind_direction = wind_direction_code(wd)
-      record%wind_speed = ws
-      record%wind_u = wind_u_component(ws, wd)
-      record%wind_v = wind_v_component(ws, wd)
-      record%rain_01h = r01
+      record%p  = multiply(p, 100.0)
+      record%ta = T
+      record%wd = wind_direction_code(wd)
+      record%ws = ws
+      record%ua = wind_u_component(ws, wd)
+      record%va = wind_v_component(ws, wd)
+      record%r01h = r01
       call records%insert(platform_id // '@' // time%isoformat(), record)
       call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       if (iostat /= 0) exit
