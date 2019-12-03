@@ -157,23 +157,23 @@ contains
       ! Set record.
       record%lon = merge(real_missing_value, lon, is_missing(lon, src='cimiss'))
       record%lat = merge(real_missing_value, lat, is_missing(lat, src='cimiss'))
-      if (is_missing(z1, src='cimiss')) then
-        record%height = z1
-      else if (is_missing(z2, src='cimiss')) then
-        record%height = z2
+      if (.not. is_missing(z1, src='cimiss')) then
+        record%h = z1
+      else if (.not. is_missing(z2, src='cimiss')) then
+        record%h = z2
       else
-        record%height = real_missing_value
+        record%h = real_missing_value
       end if
-      record%pressure = multiply(p, 100.0)
-      record%temperature = T
-      record%specific_humidity = q
-      record%dewpoint = Td
-      record%relative_humidity = rh
-      record%wind_speed = ws
-      record%wind_direction = wd
-      record%wind_u = wind_u_component(ws, wd)
-      record%wind_v = wind_v_component(ws, wd)
-      record%turbulence_index = turb_idx
+      record%p  = multiply(p, 100.0)
+      record%ta = T
+      record%sh = q
+      record%td = Td
+      record%rh = rh
+      record%ws = ws
+      record%wd = wd
+      record%ua = wind_u_component(ws, wd)
+      record%va = wind_v_component(ws, wd)
+      record%turb = turb_idx
       call dummy_records%insert(flight_name // '@' // time%isoformat(), record)
       call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
     end select

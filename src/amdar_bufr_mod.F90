@@ -65,18 +65,18 @@ contains
         call bufr_value(bufr_id, subset_id, 'minute', minute)
         call bufr_value(bufr_id, subset_id, 'second', second)
         record%time = create_datetime(year, month, day, hour, minute, second)
-        if (is_missing(record%lon))               call bufr_value(bufr_id, subset_id, 'longitude',           record%lon)
-        if (is_missing(record%lat))               call bufr_value(bufr_id, subset_id, 'latitude',            record%lat)
-        if (is_missing(record%z))                 call bufr_value(bufr_id, subset_id, 'flightLevel',         record%z)
-        if (is_missing(record%temperature))       call bufr_value(bufr_id, subset_id, 'airTemperature',      record%temperature)
-        if (is_missing(record%wind_speed))        call bufr_value(bufr_id, subset_id, 'windSpeed',           record%wind_speed)
-        if (is_missing(record%wind_direction))    call bufr_value(bufr_id, subset_id, 'windDirection',       record%wind_direction)
-        if (is_missing(record%dewpoint))          call bufr_value(bufr_id, subset_id, 'dewpointTemperature', record%dewpoint)
-        if (is_missing(record%specific_humidity)) call bufr_value(bufr_id, subset_id, 'mixingRatio',         record%specific_humidity)
-        if (is_missing(record%relative_humidity)) call bufr_value(bufr_id, subset_id, 'relativeHumidity',    record%relative_humidity)
+        if (is_missing(record%lon)) call bufr_value(bufr_id, subset_id, 'longitude',           record%lon)
+        if (is_missing(record%lat)) call bufr_value(bufr_id, subset_id, 'latitude',            record%lat)
+        if (is_missing(record%z))   call bufr_value(bufr_id, subset_id, 'flightLevel',         record%z)
+        if (is_missing(record%ta))  call bufr_value(bufr_id, subset_id, 'airTemperature',      record%ta)
+        if (is_missing(record%ws))  call bufr_value(bufr_id, subset_id, 'windSpeed',           record%ws)
+        if (is_missing(record%wd))  call bufr_value(bufr_id, subset_id, 'windDirection',       record%wd)
+        if (is_missing(record%td))  call bufr_value(bufr_id, subset_id, 'dewpointTemperature', record%td)
+        if (is_missing(record%sh))  call bufr_value(bufr_id, subset_id, 'mixingRatio',         record%sh)
+        if (is_missing(record%rh))  call bufr_value(bufr_id, subset_id, 'relativeHumidity',    record%rh)
 
         ! Convert units.
-        if (record%temperature /= real_missing_value) record%temperature = record%temperature - 273.15
+        if (record%ta /= real_missing_value) record%ta = record%ta - 273.15
 
         call records%insert(flight_name // '@' // record%time%isoformat(), record)
       end do

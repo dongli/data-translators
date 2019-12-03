@@ -19,32 +19,35 @@ module amdar_mod
 
   type, extends(obs_drift_record_base_type) :: amdar_record_type
     type(amdar_flight_type), pointer :: flight
-    real    :: pressure          = real_missing_value ! Pressure (Pa)
-    real    :: height            = real_missing_value ! Height (m)
-    real    :: temperature       = real_missing_value ! Temperature (degC)
-    real    :: specific_humidity = real_missing_value ! Specific humidity (Mg/Kg)
-    real    :: dewpoint          = real_missing_value ! Dewpoint temperature (degC)
-    real    :: relative_humidity = real_missing_value ! Relative humidity (%)
-    real    :: wind_speed        = real_missing_value ! Wind speed (m/s)
-    real    :: wind_direction    = real_missing_value ! Wind direction (deg)
-    real    :: wind_u            = real_missing_value ! U wind component (m/s)
-    real    :: wind_v            = real_missing_value ! V wind component (m/s)
-    integer :: turbulence_index  = int_missing_value  ! Turbulence index
+    ! p is in obs_site_base_type
+    real    :: h    = real_missing_value ! Height (m)
+    real    :: ta   = real_missing_value ! Temperature (degC)
+    real    :: sh   = real_missing_value ! Specific humidity (Mg/Kg)
+    real    :: td   = real_missing_value ! Dewpoint temperature (degC)
+    real    :: rh   = real_missing_value ! Relative humidity (%)
+    real    :: ws   = real_missing_value ! Wind speed (m/s)
+    real    :: wd   = real_missing_value ! Wind direction (deg)
+    real    :: ua   = real_missing_value ! U wind component (m/s)
+    real    :: va   = real_missing_value ! V wind component (m/s)
+    integer :: turb = int_missing_value  ! Turbulence index
 
-    integer :: pressure_qc          = int_missing_value
-    integer :: height_qc            = int_missing_value
-    integer :: temperature_qc       = int_missing_value
-    integer :: dewpoint_qc          = int_missing_value
-    integer :: specific_humidity_qc = int_missing_value
-    integer :: relative_humidity_qc = int_missing_value
-    integer :: wind_qc              = int_missing_value
+    integer :: p_qc  = int_missing_value
+    integer :: h_qc  = int_missing_value
+    integer :: ta_qc = int_missing_value
+    integer :: td_qc = int_missing_value
+    integer :: sh_qc = int_missing_value
+    integer :: rh_qc = int_missing_value
+    integer :: wd_qc = int_missing_value
+    integer :: ws_qc = int_missing_value
+    integer :: ua_qc = int_missing_value
+    integer :: va_qc = int_missing_value
 
-    real :: pressure_correct          = real_missing_value
-    real :: height_correct            = real_missing_value
-    real :: temperature_correct       = real_missing_value
-    real :: specific_humidity_correct = real_missing_value
-    real :: wind_u_correct            = real_missing_value
-    real :: wind_v_correct            = real_missing_value
+    real :: p_cr  = real_missing_value
+    real :: h_cr  = real_missing_value
+    real :: ta_cr = real_missing_value
+    real :: sh_cr = real_missing_value
+    real :: ua_cr = real_missing_value
+    real :: va_cr = real_missing_value
   contains
     procedure :: print => amdar_record_print
   end type amdar_record_type
@@ -81,76 +84,76 @@ contains
     write(*, *) 'OBS TIME: ', trim(this%time%isoformat())
     write(*, *) 'LON:', this%lon, 'LAT:', this%lat
     write(*, *) 'TEMPERATURE:'
-    if (is_missing(this%temperature)) then
+    if (is_missing(this%ta)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, *) '  VALUE: ', this%temperature
+      write(*, *) '  VALUE: ', this%ta
     end if
-    if (is_missing(this%temperature_correct)) then
+    if (is_missing(this%ta_cr)) then
       write(*, *) '  CORRECTION: X'
     else
-      write(*, *) '  CORRECTION: ', this%temperature_correct
+      write(*, *) '  CORRECTION: ', this%ta_cr
     end if
     write(*, *) 'SPECIFIC HUMIDITY: '
-    if (is_missing(this%specific_humidity)) then
+    if (is_missing(this%sh)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, *) '  VALUE: ', this%specific_humidity
+      write(*, *) '  VALUE: ', this%sh
     end if
-    if (is_missing(this%specific_humidity_correct)) then
+    if (is_missing(this%sh_cr)) then
       write(*, *) '  CORRECTION: X'
     else
-      write(*, *) '  CORRECTION: ', this%specific_humidity_correct
+      write(*, *) '  CORRECTION: ', this%sh_cr
     end if
     write(*, *) 'DEWPOINT: '
-    if (is_missing(this%dewpoint)) then
+    if (is_missing(this%td)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, *) '  VALUE: ', this%dewpoint
+      write(*, *) '  VALUE: ', this%td
     end if
     write(*, *) 'PRESSURE: '
-    if (is_missing(this%pressure)) then
+    if (is_missing(this%p)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, *) '  VALUE: ', this%pressure
+      write(*, *) '  VALUE: ', this%p
     end if
-    if (is_missing(this%pressure_correct)) then
+    if (is_missing(this%p_cr)) then
       write(*, *) '  CORRECTION: X'
     else
-      write(*, *) '  CORRECTION: ', this%pressure_correct
+      write(*, *) '  CORRECTION: ', this%p_cr
     end if
     write(*, *) 'HEIGHT: '
-    if (is_missing(this%height)) then
+    if (is_missing(this%h)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, *) '  VALUE: ', this%height
+      write(*, *) '  VALUE: ', this%h
     end if
-    if (is_missing(this%height_correct)) then
+    if (is_missing(this%h_cr)) then
       write(*, *) '  CORRECTION: X'
     else
-      write(*, *) '  CORRECTION: ', this%height_correct
+      write(*, *) '  CORRECTION: ', this%h_cr
     end if
     write(*, *) 'WIND U: '
-    if (is_missing(this%wind_u)) then
+    if (is_missing(this%ua)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.1)') '  VALUE: ', this%wind_u
+      write(*, '(A, F8.1)') '  VALUE: ', this%ua
     end if
-    if (is_missing(this%wind_u_correct)) then
+    if (is_missing(this%ua_cr)) then
       write(*, *) '  CORRECTION: X'
     else
-      write(*, *) '  CORRECTION: ', this%wind_u_correct
+      write(*, *) '  CORRECTION: ', this%ua_cr
     end if
     write(*, *) 'WIND V: '
-    if (is_missing(this%wind_v)) then
+    if (is_missing(this%va)) then
       write(*, *) '  VALUE: X'
     else
-      write(*, '(A, F8.1)') '  VALUE: ', this%wind_v
+      write(*, '(A, F8.1)') '  VALUE: ', this%va
     end if
-    if (is_missing(this%wind_v_correct)) then
+    if (is_missing(this%va_cr)) then
       write(*, *) '  CORRECTION: X'
     else
-      write(*, *) '  CORRECTION: ', this%wind_v_correct
+      write(*, *) '  CORRECTION: ', this%va_cr
     end if
 
   end subroutine amdar_record_print

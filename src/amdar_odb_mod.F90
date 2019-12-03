@@ -34,61 +34,63 @@ contains
     ! Write ODB file.
     call odbql_open('', odb_db)
     call odbql_prepare_v2(odb_db, 'CREATE TABLE amdar AS (' // &
-      'platform_id STRING, '                   // &
-      'platform_type STRING, '                 // &
-      'source STRING, '                        // &
-      'flight_number STRING, '                 // &
-      'lon REAL, '                             // &
-      'lat REAL, '                             // &
-      'date INTEGER, '                         // &
-      'time INTEGER, '                         // &
-      'pressure REAL, '                        // &
-      'pressure_qc INTEGER, '                  // &
-      'pressure_correct REAL, '                // &
-      'height REAL, '                          // &
-      'height_qc INTEGER, '                    // &
-      'height_correct REAL, '                  // &
-      'temperature REAL, '                     // &
-      'temperature_qc INTEGER, '               // &
-      'temperature_correct REAL, '             // &
-      'specific_humidity REAL, '               // &
-      'specific_humidity_qc INTEGER, '         // &
-      'specific_humidity_correct REAL, '       // &
-      'wind_u REAL, '                          // &
-      'wind_u_correct REAL, '                  // &
-      'wind_v REAL, '                          // &
-      'wind_v_correct REAL, '                  // &
-      'wind_qc INTEGER, '                      // &
-      'turbulence_index INTEGER'               // &
+      'platform_id STRING, '   // &
+      'platform_type STRING, ' // &
+      'source STRING, '        // &
+      'flight_number STRING, ' // &
+      'lon REAL, '             // &
+      'lat REAL, '             // &
+      'date INTEGER, '         // &
+      'time INTEGER, '         // &
+      'p REAL, '               // &
+      'p_qc INTEGER, '         // &
+      'p_cr REAL, '            // &
+      'h REAL, '               // &
+      'h_qc INTEGER, '         // &
+      'h_cr REAL, '            // &
+      'ta REAL, '              // &
+      'ta_qc INTEGER, '        // &
+      'ta_cr REAL, '           // &
+      'sh REAL, '              // &
+      'sh_qc INTEGER, '        // &
+      'sh_cr REAL, '           // &
+      'ua REAL, '              // &
+      'ua_qc INTEGER, '        // &
+      'ua_cr REAL, '           // &
+      'va REAL, '              // &
+      'va_qc INTEGER, '        // &
+      'va_cr REAL, '           // &
+      'turb INTEGER'           // &
       ') ON "' //trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
-      'platform_id, '                          // &
-      'platform_type, '                        // &
-      'source, '                               // &
-      'flight_number, '                        // &
-      'lon, '                                  // &
-      'lat, '                                  // &
-      'date, '                                 // &
-      'time, '                                 // &
-      'pressure, '                             // &
-      'pressure_qc, '                          // &
-      'pressure_correct, '                     // &
-      'height, '                               // &
-      'height_qc, '                            // &
-      'height_correct, '                       // &
-      'temperature, '                          // &
-      'temperature_qc, '                       // &
-      'temperature_correct, '                  // &
-      'specific_humidity, '                    // &
-      'specific_humidity_qc, '                 // &
-      'specific_humidity_correct, '            // &
-      'wind_u, '                               // &
-      'wind_u_correct, '                       // &
-      'wind_v, '                               // &
-      'wind_v_correct, '                       // &
-      'wind_qc, '                              // &
-      'turbulence_index'                       // &
-      ') VALUES (' // trim(odb_values_placeholder(26)) // ');', -1, odb_stmt, odb_unparsed_sql)
+      'platform_id, '          // &
+      'platform_type, '        // &
+      'source, '               // &
+      'flight_number, '        // &
+      'lon, '                  // &
+      'lat, '                  // &
+      'date, '                 // &
+      'time, '                 // &
+      'p, '                    // &
+      'p_qc, '                 // &
+      'p_cr, '                 // &
+      'h, '                    // &
+      'h_qc, '                 // &
+      'h_cr, '                 // &
+      'ta, '                   // &
+      'ta_qc, '                // &
+      'ta_cr, '                // &
+      'sh, '                   // &
+      'sh_qc, '                // &
+      'sh_cr, '                // &
+      'ua, '                   // &
+      'ua_qc, '                // &
+      'ua_cr, '                // &
+      'va, '                   // &
+      'va_qc, '                // &
+      'va_cr, '                // &
+      'turb'                   // &
+      ') VALUES (' // trim(odb_values_placeholder(27)) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -103,24 +105,25 @@ contains
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-        col = col + 1; if (.not. is_missing(record%pressure))                  call odbql_bind_double(odb_stmt, col, dble(record%pressure))
-        col = col + 1; if (.not. is_missing(record%pressure_qc))               call odbql_bind_double(odb_stmt, col, dble(record%pressure_qc))
-        col = col + 1; if (.not. is_missing(record%pressure_correct))          call odbql_bind_double(odb_stmt, col, dble(record%pressure_correct))
-        col = col + 1; if (.not. is_missing(record%height))                    call odbql_bind_double(odb_stmt, col, dble(record%height))
-        col = col + 1; if (.not. is_missing(record%height_qc))                 call odbql_bind_double(odb_stmt, col, dble(record%height_qc))
-        col = col + 1; if (.not. is_missing(record%height_correct))            call odbql_bind_double(odb_stmt, col, dble(record%height_correct))
-        col = col + 1; if (.not. is_missing(record%temperature))               call odbql_bind_double(odb_stmt, col, dble(record%temperature))
-        col = col + 1; if (.not. is_missing(record%temperature_qc))            call odbql_bind_double(odb_stmt, col, dble(record%temperature_qc))
-        col = col + 1; if (.not. is_missing(record%temperature_correct))       call odbql_bind_double(odb_stmt, col, dble(record%temperature_correct))
-        col = col + 1; if (.not. is_missing(record%specific_humidity))         call odbql_bind_double(odb_stmt, col, dble(record%specific_humidity))
-        col = col + 1; if (.not. is_missing(record%specific_humidity_qc))      call odbql_bind_double(odb_stmt, col, dble(record%specific_humidity_qc))
-        col = col + 1; if (.not. is_missing(record%specific_humidity_correct)) call odbql_bind_double(odb_stmt, col, dble(record%specific_humidity_correct))
-        col = col + 1; if (.not. is_missing(record%wind_u))                    call odbql_bind_double(odb_stmt, col, dble(record%wind_u))
-        col = col + 1; if (.not. is_missing(record%wind_u_correct))            call odbql_bind_double(odb_stmt, col, dble(record%wind_u_correct))
-        col = col + 1; if (.not. is_missing(record%wind_v))                    call odbql_bind_double(odb_stmt, col, dble(record%wind_v))
-        col = col + 1; if (.not. is_missing(record%wind_v_correct))            call odbql_bind_double(odb_stmt, col, dble(record%wind_v_correct))
-        col = col + 1; if (.not. is_missing(record%wind_qc))                   call odbql_bind_double(odb_stmt, col, dble(record%wind_qc))
-        col = col + 1; if (.not. is_missing(record%turbulence_index))          call odbql_bind_double(odb_stmt, col, dble(record%turbulence_index))
+        col = col + 1; if (.not. is_missing(record%p))     call odbql_bind_double(odb_stmt, col, dble(record%p))
+        col = col + 1; if (.not. is_missing(record%p_qc))  call odbql_bind_double(odb_stmt, col, dble(record%p_qc))
+        col = col + 1; if (.not. is_missing(record%p_cr))  call odbql_bind_double(odb_stmt, col, dble(record%p_cr))
+        col = col + 1; if (.not. is_missing(record%h))     call odbql_bind_double(odb_stmt, col, dble(record%h))
+        col = col + 1; if (.not. is_missing(record%h_qc))  call odbql_bind_double(odb_stmt, col, dble(record%h_qc))
+        col = col + 1; if (.not. is_missing(record%h_cr))  call odbql_bind_double(odb_stmt, col, dble(record%h_cr))
+        col = col + 1; if (.not. is_missing(record%ta))    call odbql_bind_double(odb_stmt, col, dble(record%ta))
+        col = col + 1; if (.not. is_missing(record%ta_qc)) call odbql_bind_double(odb_stmt, col, dble(record%ta_qc))
+        col = col + 1; if (.not. is_missing(record%ta_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ta_cr))
+        col = col + 1; if (.not. is_missing(record%sh))    call odbql_bind_double(odb_stmt, col, dble(record%sh))
+        col = col + 1; if (.not. is_missing(record%sh_qc)) call odbql_bind_double(odb_stmt, col, dble(record%sh_qc))
+        col = col + 1; if (.not. is_missing(record%sh_cr)) call odbql_bind_double(odb_stmt, col, dble(record%sh_cr))
+        col = col + 1; if (.not. is_missing(record%ua))    call odbql_bind_double(odb_stmt, col, dble(record%ua))
+        col = col + 1; if (.not. is_missing(record%ua_qc)) call odbql_bind_double(odb_stmt, col, dble(record%ua_qc))
+        col = col + 1; if (.not. is_missing(record%ua_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ua_cr))
+        col = col + 1; if (.not. is_missing(record%va))    call odbql_bind_double(odb_stmt, col, dble(record%va))
+        col = col + 1; if (.not. is_missing(record%va_qc)) call odbql_bind_double(odb_stmt, col, dble(record%va_qc))
+        col = col + 1; if (.not. is_missing(record%va_cr)) call odbql_bind_double(odb_stmt, col, dble(record%va_cr))
+        col = col + 1; if (.not. is_missing(record%turb))  call odbql_bind_double(odb_stmt, col, dble(record%turb))
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
       class default
