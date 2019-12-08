@@ -10,3 +10,6 @@
 [submodule "lib/string"]
 	path = lib/string
 	url = https://github.com/dongli/fortran-string
+[submodule "lib/mongo"]
+	path = lib/mongo
+	url = https://github.com/dongli/fortran-mongo
