@@ -19,7 +19,7 @@ module cli_mod
 
   character(30) :: cli_reader_type = ''
   character(30) :: cli_writer_type = ''
-  character(256) :: cli_input_file_path = ''
+  character(4096) :: cli_input_file_path = ''
   character(256) :: cli_output_file_path = ''
   character(256) :: cli_first_file_path = ''
   character(256) :: cli_second_file_path = ''

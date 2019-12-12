@@ -56,7 +56,7 @@ contains
 
     if (file_path == '') file_path = 'anem_nrg.nc'
 
-    heights = hash_table(10)
+    heights = hash_table(100)
 
     tower_iterator = hash_table_iterator(towers)
     do while (.not. tower_iterator%ended())
@@ -343,7 +343,7 @@ contains
     ierr = nf90_put_att(ncid, wd_max_varid, 'units', 'm s-1')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'ta_avg', nf90_float, [record_dimid], ta_avg_varid)
+    ierr = nf90_def_var(ncid, 'ta_avg', nf90_float, [level_dimid,record_dimid], ta_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_avg_varid, '_FileValue', real_missing_value)
@@ -352,7 +352,7 @@ contains
     ierr = nf90_put_att(ncid, ta_avg_varid, 'units', 'degC')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'ta_std', nf90_float, [record_dimid], ta_std_varid)
+    ierr = nf90_def_var(ncid, 'ta_std', nf90_float, [level_dimid,record_dimid], ta_std_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_std_varid, '_FileValue', real_missing_value)
@@ -361,7 +361,7 @@ contains
     ierr = nf90_put_att(ncid, ta_std_varid, 'units', 'degC')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'ta_min', nf90_float, [record_dimid], ta_min_varid)
+    ierr = nf90_def_var(ncid, 'ta_min', nf90_float, [level_dimid,record_dimid], ta_min_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_min_varid, '_FileValue', real_missing_value)
@@ -370,7 +370,7 @@ contains
     ierr = nf90_put_att(ncid, ta_min_varid, 'units', 'degC')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'ta_max', nf90_float, [record_dimid], ta_max_varid)
+    ierr = nf90_def_var(ncid, 'ta_max', nf90_float, [level_dimid,record_dimid], ta_max_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_max_varid, '_FileValue', real_missing_value)

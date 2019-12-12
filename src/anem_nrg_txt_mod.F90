@@ -112,6 +112,10 @@ contains
         n = n + 1
       end do loop_labels
       ! Set indices for needed variables.
+      ws_avg_idx = 0; ws_std_idx = 0; ws_min_idx = 0; ws_max_idx = 0
+      wd_avg_idx = 0; wd_std_idx = 0; wd_min_idx = 0; wd_max_idx = 0
+      ta_avg_idx = 0; ta_std_idx = 0; ta_min_idx = 0; ta_max_idx = 0
+       p_avg_idx = 0;  p_std_idx = 0;  p_min_idx = 0;  p_max_idx = 0
       do j = 1, n
         do i = 2, size(labels)
           if (index(labels(i)%value, to_string(int(h(j)))) == 0) cycle
@@ -162,22 +166,54 @@ contains
         record%time = time
         do i = 1, n
           record%h(i) = h(i)
-          if (ws_avg_idx(i) /= 0) record%ws_avg(i) = to_float(fields(ws_avg_idx(i))%value)
-          if (ws_std_idx(i) /= 0) record%ws_std(i) = to_float(fields(ws_std_idx(i))%value)
-          if (ws_min_idx(i) /= 0) record%ws_min(i) = to_float(fields(ws_min_idx(i))%value)
-          if (ws_max_idx(i) /= 0) record%ws_max(i) = to_float(fields(ws_max_idx(i))%value)
-          if (wd_avg_idx(i) /= 0) record%wd_avg(i) = to_float(fields(wd_avg_idx(i))%value)
-          if (wd_std_idx(i) /= 0) record%wd_std(i) = to_float(fields(wd_std_idx(i))%value)
-          if (wd_min_idx(i) /= 0) record%wd_min(i) = to_float(fields(wd_min_idx(i))%value)
-          if (wd_max_idx(i) /= 0) record%wd_max(i) = to_float(fields(wd_max_idx(i))%value)
-          if (ta_avg_idx(i) /= 0) record%ta_avg(i) = to_float(fields(ta_avg_idx(i))%value)
-          if (ta_std_idx(i) /= 0) record%ta_std(i) = to_float(fields(ta_std_idx(i))%value)
-          if (ta_min_idx(i) /= 0) record%ta_min(i) = to_float(fields(ta_min_idx(i))%value)
-          if (ta_max_idx(i) /= 0) record%ta_max(i) = to_float(fields(ta_max_idx(i))%value)
-          if (p_avg_idx(i)  /= 0) record%p_avg(i)  = multiply(to_float(fields(p_avg_idx (i))%value), 10.0)
-          if (p_std_idx(i)  /= 0) record%p_std(i)  = multiply(to_float(fields(p_std_idx (i))%value), 10.0)
-          if (p_min_idx(i)  /= 0) record%p_min(i)  = multiply(to_float(fields(p_min_idx (i))%value), 10.0)
-          if (p_max_idx(i)  /= 0) record%p_max(i)  = multiply(to_float(fields(p_max_idx (i))%value), 10.0)
+          if (ws_avg_idx(i) /= 0 .and. ws_avg_idx(i) < size(fields)) then
+            if (fields(ws_avg_idx(i))%value /= '') record%ws_avg(i) = to_float(fields(ws_avg_idx(i))%value)
+          end if
+          if (ws_std_idx(i) /= 0 .and. ws_std_idx(i) < size(fields)) then
+            if (fields(ws_std_idx(i))%value /= '') record%ws_std(i) = to_float(fields(ws_std_idx(i))%value)
+          end if
+          if (ws_min_idx(i) /= 0 .and. ws_min_idx(i) < size(fields)) then
+            if (fields(ws_min_idx(i))%value /= '') record%ws_min(i) = to_float(fields(ws_min_idx(i))%value)
+          end if
+          if (ws_max_idx(i) /= 0 .and. ws_max_idx(i) < size(fields)) then
+            if (fields(ws_max_idx(i))%value /= '') record%ws_max(i) = to_float(fields(ws_max_idx(i))%value)
+          end if
+          if (wd_avg_idx(i) /= 0 .and. wd_avg_idx(i) < size(fields)) then
+            if (fields(wd_avg_idx(i))%value /= '') record%wd_avg(i) = to_float(fields(wd_avg_idx(i))%value)
+          end if
+          if (wd_std_idx(i) /= 0 .and. wd_std_idx(i) < size(fields)) then
+            if (fields(wd_std_idx(i))%value /= '') record%wd_std(i) = to_float(fields(wd_std_idx(i))%value)
+          end if
+          if (wd_min_idx(i) /= 0 .and. wd_min_idx(i) < size(fields)) then
+            if (fields(wd_min_idx(i))%value /= '') record%wd_min(i) = to_float(fields(wd_min_idx(i))%value)
+          end if
+          if (wd_max_idx(i) /= 0 .and. wd_max_idx(i) < size(fields)) then
+            if (fields(wd_max_idx(i))%value /= '') record%wd_max(i) = to_float(fields(wd_max_idx(i))%value)
+          end if
+          if (ta_avg_idx(i) /= 0 .and. ta_avg_idx(i) < size(fields)) then
+            if (fields(ta_avg_idx(i))%value /= '') record%ta_avg(i) = to_float(fields(ta_avg_idx(i))%value)
+          end if
+          if (ta_std_idx(i) /= 0 .and. ta_std_idx(i) < size(fields)) then
+            if (fields(ta_std_idx(i))%value /= '') record%ta_std(i) = to_float(fields(ta_std_idx(i))%value)
+          end if
+          if (ta_min_idx(i) /= 0 .and. ta_min_idx(i) < size(fields)) then
+            if (fields(ta_min_idx(i))%value /= '') record%ta_min(i) = to_float(fields(ta_min_idx(i))%value)
+          end if
+          if (ta_max_idx(i) /= 0 .and. ta_max_idx(i) < size(fields)) then
+            if (fields(ta_max_idx(i))%value /= '') record%ta_max(i) = to_float(fields(ta_max_idx(i))%value)
+          end if
+          if (p_avg_idx(i)  /= 0 .and. p_avg_idx(i)  < size(fields)) then
+            if (fields(p_avg_idx (i))%value /= '') record%p_avg(i)  = multiply(to_float(fields(p_avg_idx (i))%value), 10.0)
+          end if
+          if (p_std_idx(i)  /= 0 .and. p_std_idx(i)  < size(fields)) then
+            if (fields(p_std_idx (i))%value /= '') record%p_std(i)  = multiply(to_float(fields(p_std_idx (i))%value), 10.0)
+          end if
+          if (p_min_idx(i)  /= 0 .and. p_min_idx(i)  < size(fields)) then
+            if (fields(p_min_idx (i))%value /= '') record%p_min(i)  = multiply(to_float(fields(p_min_idx (i))%value), 10.0)
+          end if
+          if (p_max_idx(i)  /= 0 .and. p_max_idx(i)  < size(fields)) then
+            if (fields(p_max_idx (i))%value /= '') record%p_max(i)  = multiply(to_float(fields(p_max_idx (i))%value), 10.0)
+          end if
           if (ws_avg_idx(i) /= 0 .and. wd_avg_idx(i) /= 0) then
             record%ua_avg(i) = wind_u_component(record%ws_avg(i), record%wd_avg(i))
             record%va_avg(i) = wind_v_component(record%ws_avg(i), record%wd_avg(i))
