@@ -13,3 +13,9 @@
 [submodule "lib/mongo"]
 	path = lib/mongo
 	url = https://github.com/dongli/fortran-mongo
+[submodule "lib/fiona"]
+	path = lib/fiona
+	url = https://github.com/dongli/fiona
+[submodule "lib/flogger"]
+	path = lib/flogger
+	url = https://github.com/dongli/flogger

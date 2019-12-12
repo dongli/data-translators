@@ -31,6 +31,11 @@ if (EXISTS ${PROJECT_SOURCE_DIR}/lib/mongo/CMakeLists.txt)
   set(HAS_LIB_MONGO ON)
 endif ()
 add_subdirectory(lib/regex)
+if (EXISTS ${PROJECT_SOURCE_DIR}/lib/fiona/CMakeLists.txt)
+  add_subdirectory(lib/fiona)
+  set(HAS_LIB_FIONA ON)
+endif ()
+add_subdirectory(lib/flogger)
 
 if (DEFINED ENV{BUFRLIB} AND (NOT DEFINED ENV{BUFRLIB_ROOT}))
   set(ENV{BUFRLIB_ROOT} $ENV{BUFRLIB})
@@ -123,12 +128,16 @@ set(sources
   src/ship_txt_mod.F90
   src/anem_nrg_mod.F90
   src/anem_nrg_txt_mod.F90
+  src/anem_nrg_littler_mod.F90
+  src/anem_nrg_mongo_mod.F90
+  src/anem_nrg_netcdf_mod.F90
   src/radar_mod.F90
   src/cli_mod.F90
   src/params_mod.F90
   src/missing_value_mod.F90
   src/atm_formula_mod.F90
   src/utils_mod.F90
+  src/qsort_mod.F90
 )
 
 if (HAS_LIB_BUFRLIB)
@@ -173,6 +182,9 @@ endif ()
 
 add_library(data_translators ${sources})
 target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex fortran_string)
+if (HAS_LIB_FIONA AND HAS_LIB_NETCDF)
+  target_link_libraries(data_translators fiona)
+endif ()
 if (HAS_LIB_MONGO)
   target_link_libraries(data_translators fortran_mongo)
 endif ()
