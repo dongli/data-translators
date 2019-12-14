@@ -211,7 +211,7 @@ contains
     ierr = nf90_def_var(ncid, 'h', nf90_float, [level_dimid], h_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, h_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, h_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, h_varid, 'units', 'm')
@@ -220,7 +220,7 @@ contains
     ierr = nf90_def_var(ncid, 'p_avg', nf90_float, [level_dimid,record_dimid], p_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, p_avg_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, p_avg_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, p_avg_varid, 'units', 'hPa')
@@ -229,7 +229,7 @@ contains
     ierr = nf90_def_var(ncid, 'p_std', nf90_float, [level_dimid,record_dimid], p_std_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, p_std_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, p_std_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, p_std_varid, 'units', 'hPa')
@@ -238,7 +238,7 @@ contains
     ierr = nf90_def_var(ncid, 'p_min', nf90_float, [level_dimid,record_dimid], p_min_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, p_min_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, p_min_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, p_min_varid, 'units', 'hPa')
@@ -247,7 +247,7 @@ contains
     ierr = nf90_def_var(ncid, 'p_max', nf90_float, [level_dimid,record_dimid], p_max_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, p_max_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, p_max_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, p_max_varid, 'units', 'hPa')
@@ -256,7 +256,7 @@ contains
     ierr = nf90_def_var(ncid, 'ua_avg', nf90_float, [level_dimid,record_dimid], ua_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ua_avg_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ua_avg_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ua_avg_varid, 'units', 'm s-1')
@@ -265,7 +265,7 @@ contains
     ierr = nf90_def_var(ncid, 'va_avg', nf90_float, [level_dimid,record_dimid], va_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, va_avg_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, va_avg_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, va_avg_varid, 'units', 'm s-1')
@@ -274,7 +274,7 @@ contains
     ierr = nf90_def_var(ncid, 'ws_avg', nf90_float, [level_dimid,record_dimid], ws_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ws_avg_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ws_avg_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ws_avg_varid, 'units', 'm s-1')
@@ -283,7 +283,7 @@ contains
     ierr = nf90_def_var(ncid, 'ws_std', nf90_float, [level_dimid,record_dimid], ws_std_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ws_std_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ws_std_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ws_std_varid, 'units', 'm s-1')
@@ -292,7 +292,7 @@ contains
     ierr = nf90_def_var(ncid, 'ws_min', nf90_float, [level_dimid,record_dimid], ws_min_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ws_min_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ws_min_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ws_min_varid, 'units', 'm s-1')
@@ -301,7 +301,7 @@ contains
     ierr = nf90_def_var(ncid, 'ws_max', nf90_float, [level_dimid,record_dimid], ws_max_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ws_max_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ws_max_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ws_max_varid, 'units', 'm s-1')
@@ -310,7 +310,7 @@ contains
     ierr = nf90_def_var(ncid, 'wd_avg', nf90_float, [level_dimid,record_dimid], wd_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, wd_avg_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, wd_avg_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, wd_avg_varid, 'units', 'm s-1')
@@ -319,7 +319,7 @@ contains
     ierr = nf90_def_var(ncid, 'wd_std', nf90_float, [level_dimid,record_dimid], wd_std_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, wd_std_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, wd_std_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, wd_std_varid, 'units', 'm s-1')
@@ -328,7 +328,7 @@ contains
     ierr = nf90_def_var(ncid, 'wd_min', nf90_float, [level_dimid,record_dimid], wd_min_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, wd_min_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, wd_min_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, wd_min_varid, 'units', 'm s-1')
@@ -337,7 +337,7 @@ contains
     ierr = nf90_def_var(ncid, 'wd_max', nf90_float, [level_dimid,record_dimid], wd_max_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, wd_max_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, wd_max_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, wd_max_varid, 'units', 'm s-1')
@@ -346,7 +346,7 @@ contains
     ierr = nf90_def_var(ncid, 'ta_avg', nf90_float, [level_dimid,record_dimid], ta_avg_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ta_avg_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ta_avg_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_avg_varid, 'units', 'degC')
@@ -355,7 +355,7 @@ contains
     ierr = nf90_def_var(ncid, 'ta_std', nf90_float, [level_dimid,record_dimid], ta_std_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ta_std_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ta_std_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_std_varid, 'units', 'degC')
@@ -364,7 +364,7 @@ contains
     ierr = nf90_def_var(ncid, 'ta_min', nf90_float, [level_dimid,record_dimid], ta_min_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ta_min_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ta_min_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_min_varid, 'units', 'degC')
@@ -373,7 +373,7 @@ contains
     ierr = nf90_def_var(ncid, 'ta_max', nf90_float, [level_dimid,record_dimid], ta_max_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, ta_max_varid, '_FileValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ta_max_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_att(ncid, ta_max_varid, 'units', 'degC')
