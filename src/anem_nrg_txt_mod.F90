@@ -53,8 +53,9 @@ contains
     integer :: p_max_idx (10) = 0
 
     character(2048) line
-    character(6) tower_id
-    character(8) timezone
+    character(6) tower_name
+    character(9) timezone_str
+    integer timezone
     real lon, lat, z
     real h(10)
     integer i, j, k, n, iostat
@@ -75,7 +76,7 @@ contains
           exit
         end if
         if (line(1:11) == 'Site Number') then
-          read(line(14:), *) tower_id
+          read(line(14:), *) tower_name
         else if (line(1:8) == 'Latitude') then
           read(line(11:), *) lat
         else if (line(1:9) == 'Longitude') then
@@ -83,18 +84,20 @@ contains
         else if (line(1:9) == 'Elevation') then
           read(line(11:), *) z
         else if (line(1:9) == 'Time Zone') then
-          read(line(12:), *) timezone
+          read(line(12:), *) timezone_str
+          timezone_str = split_string(timezone_str(4:9), ':', 1)
+          read(timezone_str, *) timezone
         end if
       end do
-      if (towers%hashed(tower_id)) then
-        select type (value => towers%value(tower_id))
+      if (towers%hashed(tower_name)) then
+        select type (value => towers%value(tower_name))
         type is (anem_nrg_tower_type)
           tower => value
         end select
       else
         allocate(tower)
-        call tower%init(tower_id, lon, lat, z)
-        call towers%insert(tower_id, tower)
+        call tower%init(tower_name, lon, lat, z)
+        call towers%insert(tower_name, tower)
       end if
       ! Get heights from labels.
       n = 0
@@ -158,7 +161,7 @@ contains
         read(10, '(A2048)', iostat=iostat) line
         if (iostat < 0) exit
         fields = split_string(line, char(9))
-        time = create_datetime(fields(1)%value, '%Y-%m-%d %H:%M:%S')
+        time = create_datetime(fields(1)%value, '%Y-%m-%d %H:%M:%S', timezone=timezone)
         allocate(record)
         call record%init(n)
         record%seq_id = records%size
@@ -219,7 +222,7 @@ contains
             record%va_avg(i) = wind_v_component(record%ws_avg(i), record%wd_avg(i))
           end if
         end do
-        call dummy_records%insert(tower_id // '@' // time%isoformat(), record)
+        call dummy_records%insert(tower_name // '@' // time%isoformat(), record)
         call tower%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
         deallocate(fields)
       end do

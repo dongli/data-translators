@@ -131,7 +131,7 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (anem_nrg_record_type)
-        time(i) = record%time%timestamp() / 3600.0
+        time(i) = record%time%timestamp(timezone=0) / 3600.0
         idx = findloc(tower_names, record%tower%name)
         record_tower_idx(i) = idx(1)
         do k = 1, size(h)
