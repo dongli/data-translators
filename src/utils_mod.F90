@@ -471,4 +471,18 @@ contains
 
   end function decode_wind_direction
 
+#ifdef MISS_FINDLOC
+  integer function findloc(array, x) result(i)
+
+    character(*), intent(in) :: array(:)
+    character(*), intent(in) :: x
+
+    do i = 1, size(array)
+      if (array(i) == x) return
+    end do
+    i = 0
+
+  end function findloc
+#endif
+
 end module utils_mod

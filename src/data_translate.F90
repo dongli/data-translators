@@ -31,6 +31,9 @@ program data_translate
   use synop_netcdf_mod
   use ship_netcdf_mod
 #endif
+#ifdef HAS_LIB_MONGO
+  use anem_nrg_mongo_mod
+#endif
   use synop_txt_mod
   use synop_littler_mod
   use synop_ftm_txt_mod
@@ -44,7 +47,6 @@ program data_translate
   use ship_littler_mod
   use anem_nrg_txt_mod
   use anem_nrg_littler_mod
-  use anem_nrg_mongo_mod
   use anem_nrg_netcdf_mod
   use cli_mod
 
@@ -235,8 +237,10 @@ program data_translate
     call anem_nrg_txt_read(cli_input_file_path, platforms, records)
     if (cli_writer_type == 'littler') then
       call anem_nrg_littler_write(cli_output_file_path, platforms, records)
+#ifdef HAS_LIB_MONGO
     else if (cli_writer_type == 'mongo') then
       call anem_nrg_mongo_write(cli_output_file_path, platforms, records)
+#endif
     else if (cli_writer_type == 'netcdf') then
       call anem_nrg_netcdf_write(cli_output_file_path, platforms, records)
     end if

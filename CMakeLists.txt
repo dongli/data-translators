@@ -4,6 +4,9 @@ project(data-translators Fortran)
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (CMAKE_Fortran_FLAGS "-ffree-line-length-none -g -fbacktrace")
+  if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "9.0")
+    add_definitions(-DMISS_FINDLOC)
+  endif ()
 endif ()
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   SET(CMAKE_Fortran_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
@@ -25,10 +28,13 @@ if (EXISTS ${PROJECT_SOURCE_DIR}/lib/string/CMakeLists.txt)
   add_subdirectory(lib/string)
 endif ()
 if (EXISTS ${PROJECT_SOURCE_DIR}/lib/mongo/CMakeLists.txt)
-  add_subdirectory(lib/mongo)
-  include_directories("${FORTRAN_MONGO_INC}")
-  link_directories("${FORTRAN_MONGO_LIB}")
-  set(HAS_LIB_MONGO ON)
+  if (DEFINED ENV{FORTRAN_MONGO_INC} AND DEFINED ENV{FORTRAN_MONGO_LIB})
+    add_subdirectory(lib/mongo)
+    include_directories("${FORTRAN_MONGO_INC}")
+    link_directories("${FORTRAN_MONGO_LIB}")
+    set(HAS_LIB_MONGO ON)
+    add_definitions(-DHAS_LIB_MONGO)
+  endif ()
 endif ()
 add_subdirectory(lib/regex)
 if (EXISTS ${PROJECT_SOURCE_DIR}/lib/fiona/CMakeLists.txt)
@@ -129,7 +135,6 @@ set(sources
   src/anem_nrg_mod.F90
   src/anem_nrg_txt_mod.F90
   src/anem_nrg_littler_mod.F90
-  src/anem_nrg_mongo_mod.F90
   src/anem_nrg_netcdf_mod.F90
   src/radar_mod.F90
   src/cli_mod.F90
@@ -177,6 +182,11 @@ if (HAS_LIB_ODB_API)
     src/synop_odb_mod.F90
     src/metar_odb_mod.F90
     src/ship_odb_mod.F90
+  )
+endif ()
+if (HAS_LIB_MONGO)
+  list(APPEND sources
+    src/anem_nrg_mongo_mod.F90
   )
 endif ()
 

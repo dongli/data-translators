@@ -85,7 +85,7 @@ contains
         write(10, *)
         write(10, '(F13.5)', advance='no') littler_value(record%p)            ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                  ! pressure QC
-        write(10, '(F13.5)', advance='no') littler_value(record%z)            ! height
+        write(10, '(F13.5)', advance='no') littler_value(record%h)            ! height
         write(10, '(I7)',    advance='no') 0                                  ! height QC
         write(10, '(F13.5)', advance='no') littler_value(T)                   ! temperature (K)
         write(10, '(I7)',    advance='no') 0                                  ! temperature QC
