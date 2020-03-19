@@ -56,10 +56,10 @@ contains
       'sh_qc INTEGER, '                     // &
       'sh_cr REAL, '                        // &
       'ua REAL, '                           // &
-      'ua_qc INTEGER'                       // &
+      'ua_qc INTEGER,'                      // &
       'ua_cr REAL, '                        // &
       'va REAL, '                           // &
-      'va_qc INTEGER'                       // &
+      'va_qc INTEGER,'                      // &
       'va_cr REAL'                          // &
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO raob (' // &
@@ -86,10 +86,10 @@ contains
       'sh_qc, '                             // &
       'sh_cr, '                             // &
       'ua, '                                // &
-      'ua_qc,'                              // &
+      'ua_qc, '                             // &
       'ua_cr, '                             // &
       'va, '                                // &
-      'va_qc,'                              // &
+      'va_qc, '                             // &
       'va_cr'                               // &
       ') VALUES (' // trim(odb_values_placeholder(28)) // ');', -1, odb_stmt, odb_unparsed_sql)
 
@@ -108,8 +108,8 @@ contains
         col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sfc', 3)
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-        col = col + 1; if (.not. is_missing(record%ps   ))  call odbql_bind_double(odb_stmt, col, dble(record%ps))
-        col = col + 1; if (.not. is_missing(record%ps_qc))  call odbql_bind_int   (odb_stmt, col, record%ps_qc)
+        col = col + 1; if (.not. is_missing(record%ps   ))  call odbql_bind_double(odb_stmt, col, dble(record%ps   ))
+        col = col + 1; if (.not. is_missing(record%ps_qc))  call odbql_bind_int   (odb_stmt, col,      record%ps_qc)
         col = col + 1; if (.not. is_missing(record%ps_cr))  call odbql_bind_double(odb_stmt, col, dble(record%ps_cr))
         col = col + 1;
         col = col + 1;

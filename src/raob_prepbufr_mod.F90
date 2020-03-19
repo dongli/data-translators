@@ -374,7 +374,6 @@ contains
             end if
           case default
             write(*, *) '[Warning]: Unknown category ' // to_string(int(obs(cat_idx,i,1))) // ' for station ' // trim(station_name) // '!'
-            stop
           end select
         end do
 
