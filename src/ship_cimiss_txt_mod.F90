@@ -30,12 +30,12 @@ contains
     real lat, lon
     real ws,  ws_qc
     real wd,  wd_qc
-    real Ta,  Ta_qc
-    real Td,  Td_qc
-    real RH,  RH_qc
+    real ta,  ta_qc
+    real td,  td_qc
+    real rh,  rh_qc
     real p,   p_qc
     real slp, slp_qc
-    real SST, SST_qc
+    real sst, sst_qc
     integer type, year, month, day, hour, min
     type(datetime_type) time
     logical new_record
@@ -85,18 +85,18 @@ contains
       wd_qc  = int_missing_value
       ws     = real_missing_value
       ws_qc  = int_missing_value
-      Ta     = real_missing_value
-      Ta_qc  = int_missing_value
-      Td     = real_missing_value
-      Td_qc  = int_missing_value
-      RH     = real_missing_value
-      RH_qc  = int_missing_value
+      ta     = real_missing_value
+      ta_qc  = int_missing_value
+      td     = real_missing_value
+      td_qc  = int_missing_value
+      rh     = real_missing_value
+      rh_qc  = int_missing_value
       p      = real_missing_value
       p_qc   = int_missing_value
       slp    = real_missing_value
       slp_qc = int_missing_value
-      SST    = real_missing_value
-      SST_qc = int_missing_value
+      sst    = real_missing_value
+      sst_qc = int_missing_value
       do i = 1, size(elements)
         select case (elements(i))
         case ('Station_Id_C')
@@ -126,17 +126,17 @@ contains
         case ('Q_WIN_S')
           read(res(i)%match(1)%str, *) ws_qc
         case ('TEM')
-          read(res(i)%match(1)%str, *) Ta
+          read(res(i)%match(1)%str, *) ta
         case ('Q_TEM')
-          read(res(i)%match(1)%str, *) Ta_qc
+          read(res(i)%match(1)%str, *) ta_qc
         case ('DPT')
-          read(res(i)%match(1)%str, *) Td
+          read(res(i)%match(1)%str, *) td
         case ('Q_DPT')
-          read(res(i)%match(1)%str, *) Td_qc
+          read(res(i)%match(1)%str, *) td_qc
         case ('RHU')
-          read(res(i)%match(1)%str, *) RH
+          read(res(i)%match(1)%str, *) rh
         case ('Q_RHU')
-          read(res(i)%match(1)%str, *) RH_qc
+          read(res(i)%match(1)%str, *) rh_qc
         case ('PRS')
           read(res(i)%match(1)%str, *) p
         case ('Q_PRS')
@@ -145,10 +145,10 @@ contains
           read(res(i)%match(1)%str, *) slp
         case ('Q_PRS_Sea')
           read(res(i)%match(1)%str, *) slp_qc
-        case ('SST')
-          read(res(i)%match(1)%str, *) SST
-        case ('Q_SST')
-          read(res(i)%match(1)%str, *) SST_qc
+        case ('sst')
+          read(res(i)%match(1)%str, *) sst
+        case ('Q_sst')
+          read(res(i)%match(1)%str, *) sst_qc
         end select
       end do
       time = create_datetime(year, month, day, hour, min)
@@ -179,22 +179,23 @@ contains
         record%time = time
         new_record = .true.
       end if
-      record%time = time
-      record%lon = lon
-      record%lat = lat
-      record%pressure = p
-      record%pressure_qc = p_qc
-      record%air_temperature = Ta
-      record%air_temperature_qc = Ta_qc
-      record%sea_temperature = SST
-      record%sea_temperature_qc = SST_qc
-      record%dewpoint = Td
-      record%dewpoint_qc = Td_qc
-      record%relative_humidity = RH
-      record%relative_humidity_qc = RH_qc
-      record%wind_speed = ws
-      record%wind_direction = wd
-      record%wind_qc = ws_qc
+      record%time   = time
+      record%lon    = lon
+      record%lat    = lat
+      record%p      = p
+      record%p_qc   = p_qc
+      record%ta     = ta
+      record%ta_qc  = ta_qc
+      record%sst    = sst
+      record%sst_qc = sst_qc
+      record%td     = td
+      record%td_qc  = td_qc
+      record%rh     = rh
+      record%rh_qc  = rh_qc
+      record%ws     = ws
+      record%ws_qc  = ws_qc
+      record%wd     = wd
+      record%wd_qc  = wd_qc
 
       if (new_record) then
         call records%insert(ship_name // '@' // time%isoformat(), record)

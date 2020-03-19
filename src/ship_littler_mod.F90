@@ -23,7 +23,7 @@ contains
     type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
-    real T, Td
+    real ta, td
     integer i
 
     if (file_path == '') file_path = 'ship.littler'
@@ -35,8 +35,8 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (ship_record_type)
-        T  = add(record%air_temperature, freezing_point)
-        Td = add(record%dewpoint, freezing_point)
+        ta = add(record%ta, freezing_point)
+        td = add(record%td, freezing_point)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%lat)                            ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%lon)                            ! longitude
@@ -84,23 +84,23 @@ contains
         write(10, '(I7)',    advance='no') 0                                                    ! celing QC
         write(10, *)
         ! Record
-        write(10, '(F13.5)', advance='no') littler_value(record%pressure)                       ! pressure (Pa)
+        write(10, '(F13.5)', advance='no') littler_value(record%p)                              ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                                    ! pressure QC
         write(10, '(F13.5)', advance='no') 0.0                                                  ! height
         write(10, '(I7)',    advance='no') 0                                                    ! height QC
-        write(10, '(F13.5)', advance='no') littler_value(T)                                     ! temperature (K)
+        write(10, '(F13.5)', advance='no') littler_value(ta)                                    ! temperature (K)
         write(10, '(I7)',    advance='no') 0                                                    ! temperature QC
-        write(10, '(F13.5)', advance='no') littler_value(Td)                                    ! dewpoint (K)
+        write(10, '(F13.5)', advance='no') littler_value(td)                                    ! dewpoint (K)
         write(10, '(I7)',    advance='no') 0                                                    ! dewpoint QC
-        write(10, '(F13.5)', advance='no') littler_value(record%wind_speed)                     ! wind speed (m s^-1)
+        write(10, '(F13.5)', advance='no') littler_value(record%ws)                             ! wind speed (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                    ! wind QC
-        write(10, '(F13.5)', advance='no') littler_value(record%wind_direction)                 ! wind direction (degree)
+        write(10, '(F13.5)', advance='no') littler_value(record%wd)                             ! wind direction (degree)
         write(10, '(I7)',    advance='no') 0                                                    ! wind QC
-        write(10, '(F13.5)', advance='no') littler_value(record%wind_u)                         ! wind u component (m s^-1)
+        write(10, '(F13.5)', advance='no') littler_value(record%ua)                             ! wind u component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                    ! wind u component QC
-        write(10, '(F13.5)', advance='no') littler_value(record%wind_v)                         ! wind v component (m s^-1)
+        write(10, '(F13.5)', advance='no') littler_value(record%va)                             ! wind v component (m s^-1)
         write(10, '(I7)',    advance='no') 0                                                    ! wind v component QC
-        write(10, '(F13.5)', advance='no') littler_value(record%relative_humidity)              ! relative humidity (%)
+        write(10, '(F13.5)', advance='no') littler_value(record%rh)                             ! relative humidity (%)
         write(10, '(I7)',    advance='no') 0                                                    ! relative humidity QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                        ! thickness (m)
         write(10, '(I7)',    advance='no') 0                                                    ! thickness QC

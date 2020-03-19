@@ -66,20 +66,20 @@ contains
     real lat, lon
     integer year, month, day, hour, minute
     type(datetime_type) time
-    real t, t_qc
+    real ta, ta_qc
     real td, td_qc
     real rh, rh_qc
     real p, p_qc
     real sst, sst_qc
     real wd, wd_qc
     real ws, ws_qc
-    real wvh, wvh_qc
-    real wvp, wvp_qc
-    real svh, svh_qc
-    real svp, svp_qc
-    real svd, svd_qc
+    real hww, hww_qc
+    real pww, pww_qc
+    real hsw, svh_qc
+    real psw, psw_qc
+    real dsw, dsw_qc
     real vis, vis_qc
-    real cld, cld_qc
+    real clc, clc_qc
     integer i
 
     select case (name)
@@ -115,9 +115,9 @@ contains
         case ('Min')
           read(value, *) minute
         case ('TEM')
-          read(value, *) t
+          read(value, *) ta
         case ('Q_TEM')
-          read(value, *) t_qc
+          read(value, *) ta_qc
         case ('DPT')
           read(value, *) td
         case ('Q_DPT')
@@ -143,39 +143,39 @@ contains
         case ('Q_WIN_S')
           read(value, *) ws_qc
         case ('WinWave_Heigh')
-          read(value, *) wvh
+          read(value, *) hww
         case ('Q_WinWave_Heigh')
-          read(value, *) wvh_qc
+          read(value, *) hww_qc
         case ('WinWave_CYC')
-          read(value, *) wvp
+          read(value, *) pww
         case ('Q_WinWave_CYC')
-          read(value, *) wvp_qc
+          read(value, *) pww_qc
         case ('SeaWave_1st_Heigh')
-          read(value, *) svh
+          read(value, *) hsw
         case ('Q_SeaWave_1st_Heigh')
           read(value, *) svh_qc
         case ('SeaWave_1st_CYC')
-          read(value, *) svp
+          read(value, *) psw
         case ('Q_SeaWave_1st_CYC')
-          read(value, *) svp_qc
+          read(value, *) psw_qc
         case ('SeaWave_1st_D')
-          read(value, *) svd
+          read(value, *) dsw
         case ('Q_SeaWave_1st_D')
-          read(value, *) svd_qc
+          read(value, *) dsw_qc
         case ('VIS')
           read(value, *) vis
         case ('Q_VIS')
           read(value, *) vis_qc
         case ('CLO_Cov')
-          read(value, *) cld
+          read(value, *) clc
         case ('Q_CLO_Cov')
-          read(value, *) cld_qc
+          read(value, *) clc_qc
         end select
       end do
       time = create_datetime(year, month, day, hour, minute)
       lon = merge(real_missing_value, lon, is_missing(lon, src='cimiss'))
       lat = merge(real_missing_value, lat, is_missing(lat, src='cimiss'))
-      t   = merge(real_missing_value, t,   is_missing(t,   src='cimiss'))
+      ta  = merge(real_missing_value, ta,  is_missing(ta,  src='cimiss'))
       td  = merge(real_missing_value, td,  is_missing(td,  src='cimiss'))
       rh  = merge(real_missing_value, rh,  is_missing(rh,  src='cimiss'))
       p   = merge(real_missing_value, p,   is_missing(p,   src='cimiss'))
@@ -183,19 +183,19 @@ contains
       wd  = merge(real_missing_value, wd,  is_missing(wd,  src='cimiss'))
       ws  = merge(real_missing_value, ws,  is_missing(ws,  src='cimiss'))
       vis = merge(real_missing_value, vis, is_missing(vis, src='cimiss'))
-      cld = merge(real_missing_value, cld, is_missing(cld, src='cimiss'))
-      wvh = merge(real_missing_value, wvh, is_missing(wvh, src='cimiss'))
-      wvp = merge(real_missing_value, wvp, is_missing(wvp, src='cimiss'))
-      svh = merge(real_missing_value, svh, is_missing(svh, src='cimiss'))
-      svp = merge(real_missing_value, svp, is_missing(svp, src='cimiss'))
-      svd = merge(real_missing_value, svd, is_missing(svd, src='cimiss'))
+      clc = merge(real_missing_value, clc, is_missing(clc, src='cimiss'))
+      hww = merge(real_missing_value, hww, is_missing(hww, src='cimiss'))
+      pww = merge(real_missing_value, pww, is_missing(pww, src='cimiss'))
+      hsw = merge(real_missing_value, hsw, is_missing(hsw, src='cimiss'))
+      psw = merge(real_missing_value, psw, is_missing(psw, src='cimiss'))
+      dsw = merge(real_missing_value, dsw, is_missing(dsw, src='cimiss'))
 
       ! FIXME: CIMISS temperature units may be Kelvin!
-      if (.not. is_missing(t) .and. t > 200) then
-        t = t - freezing_point
-        if (t > 100) then
-          write(*, *) '[Warning]: Bad temperature value ', t, 'for ', trim(ship_name), '!'
-          t = real_missing_value
+      if (.not. is_missing(ta) .and. ta > 200) then
+        ta = ta - freezing_point
+        if (ta > 100) then
+          write(*, *) '[Warning]: Bad temperature value ', ta, 'for ', trim(ship_name), '!'
+          ta = real_missing_value
         else
           write(*, *) '[Warning]: Convert temperature units from K to degC for ', trim(ship_name), '.'
         end if
@@ -229,42 +229,37 @@ contains
       record%source = 'CIMISS'
       record%lon = lon
       record%lat = lat
-      record%air_temperature = t
-      record%sea_temperature = sst
-      record%dewpoint = td
-      record%relative_humidity = rh
-      record%pressure = p
-      record%wind_direction = wd
-      record%wind_speed = ws
-      record%wind_u = wind_u_component(ws, wd)
-      record%wind_v = wind_v_component(ws, wd)
-      record%wind_wave_height = wvh
-      record%wind_wave_period = wvp
-      record%surge_wave_height = svh
-      record%surge_wave_period = svp
-      record%surge_wave_direction = svd
-      record%visibility = vis
-      record%cloud_cover = cld
+      record%p   = p
+      record%ta  = ta
+      record%sst = sst
+      record%td  = td
+      record%rh  = rh
+      record%wd  = wd
+      record%ws  = ws
+      record%ua  = wind_u_component(ws, wd)
+      record%va  = wind_v_component(ws, wd)
+      record%hww = hww
+      record%pww = pww
+      record%hsw = hsw
+      record%psw = psw
+      record%dsw = dsw
+      record%vis = vis
+      record%clc = clc
       ! TODO: How to map CIMISS QC to PrepBUFR QC?
-      record%air_temperature_qc = t_qc
-      record%sea_temperature_qc = sst_qc
-      record%dewpoint_qc = td_qc
-      record%relative_humidity_qc = rh_qc
-      record%pressure_qc = p_qc
-      if (wd_qc /= 0) then
-        record%wind_qc = wd_qc
-      else if (ws_qc /= 0) then
-        record%wind_qc = ws_qc
-      else
-        record%wind_qc = 0
-      end if
-      record%wind_wave_height_qc = wvh_qc
-      record%wind_wave_period_qc = wvp_qc
-      record%surge_wave_height_qc = svh_qc
-      record%surge_wave_period_qc = svp_qc
-      record%surge_wave_direction_qc = svd_qc
-      record%visibility_qc = vis_qc
-      record%cloud_cover_qc = cld_qc
+      record%ta_qc  = ta_qc
+      record%sst_qc = sst_qc
+      record%td_qc  = td_qc
+      record%rh_qc  = rh_qc
+      record%p_qc   = p_qc
+      record%wd_qc  = wd_qc
+      record%ws_qc  = ws_qc
+      record%hww_qc = hww_qc
+      record%pww_qc = pww_qc
+      record%hsw_qc = svh_qc
+      record%psw_qc = psw_qc
+      record%dsw_qc = dsw_qc
+      record%vis_qc = vis_qc
+      record%clc_qc = clc_qc
       call dummy_records%insert(ship_name // '@' // time%isoformat(), record)
       call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
     end select

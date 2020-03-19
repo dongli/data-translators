@@ -18,12 +18,12 @@ module ship_prepbufr_mod
   integer, parameter :: max_num_event = 10
 
   integer, parameter :: p_idx    =  1
-  integer, parameter :: T_idx    =  2
-  integer, parameter :: Q_idx    =  3
-  integer, parameter :: Td_idx   =  4
-  integer, parameter :: u_idx    =  5
-  integer, parameter :: v_idx    =  6
-  integer, parameter :: SST_idx  =  7
+  integer, parameter :: ta_idx   =  2
+  integer, parameter :: sh_idx   =  3
+  integer, parameter :: td_idx   =  4
+  integer, parameter :: ua_idx   =  5
+  integer, parameter :: va_idx   =  6
+  integer, parameter :: sst_idx  =  7
 
 contains
 
@@ -68,9 +68,8 @@ contains
       ! write(*, "('=> ', I5.5, X, A8)") msg_count, subset
       do while (ireadsb(10) == 0) ! ireadsb copies one subset into internal arrays.
         ! Call values-level subrountines to retrieve actual data values from this subset.
-        !                                                                    1   2   3   4   5   6   7   8
-        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT TCOR')
-        !                                                                    1   2   3   4   5   6   7     8   9    10   11
+        !                                                                    1   2   3   4   5   6   7     8
+        call ufbint(10, hdr, max_num_var, 1,                          iret, 'SID XOB YOB ELV TYP DHR RPT   TCOR')
         call ufbevn(10, obs, max_num_var, max_num_lev, max_num_event, iret, 'POB TOB QOB TDO UOB VOB SST1  CAT ZOB')
         call ufbevn(10, qc,  max_num_var, max_num_lev, max_num_event, iret, 'PQM TQM QQM NUL WQM NUL SSTQM NUL ZQM')
         call ufbevn(10, pc,  max_num_var, max_num_lev, max_num_event, iret, 'PPC TPC QPC NUL WPC NUL SSTPC NUL ZPC')
@@ -114,31 +113,31 @@ contains
           new_record = .true.
         end if
 
-        if (is_missing(record%pressure)) then
-          call prepbufr_raw(obs(p_idx,1,:), record%pressure, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%pressure_qc)
+        if (is_missing(record%p)) then
+          call prepbufr_raw(obs(p_idx,1,:), record%p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%p_qc)
           ! Convert pressure from hPa to Pa.
-          record%pressure = multiply(record%pressure, 100.0)
+          record%p = multiply(record%p, 100.0)
         end if
-        if (is_missing(record%air_temperature)) then
-          call prepbufr_raw(obs(T_idx,1,:), record%air_temperature, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%air_temperature_qc)
+        if (is_missing(record%ta)) then
+          call prepbufr_raw(obs(ta_idx,1,:), record%ta, stack_qc=qc(ta_idx,1,:), stack_pc=pc(ta_idx,1,:), qc=record%ta_qc)
         end if
-        if (is_missing(record%specific_humidity)) then
-          call prepbufr_raw(obs(Q_idx,1,:), record%specific_humidity, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%specific_humidity_qc)
+        if (is_missing(record%sh)) then
+          call prepbufr_raw(obs(sh_idx,1,:), record%sh, stack_qc=qc(sh_idx,1,:), stack_pc=pc(sh_idx,1,:), qc=record%sh_qc)
         end if
-        if (is_missing(record%dewpoint)) then
-          call prepbufr_raw(obs(Td_idx,1,:), record%dewpoint)
+        if (is_missing(record%td)) then
+          call prepbufr_raw(obs(td_idx,1,:), record%td)
         end if
-        if (is_missing(record%dewpoint)) then
-          record%dewpoint = dewpoint(record%pressure, record%specific_humidity)
+        if (is_missing(record%td)) then
+          record%td = dewpoint(record%p, record%sh)
         end if
-        if (is_missing(record%wind_speed)) then
-          call prepbufr_raw(obs(u_idx,1,:), record%wind_u, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%wind_qc)
-          call prepbufr_raw(obs(v_idx,1,:), record%wind_v, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%wind_qc)
-          record%wind_speed     = merge(real_missing_value, sqrt(record%wind_u**2 + record%wind_v**2), is_missing(record%wind_u))
-          record%wind_direction = merge(real_missing_value, wind_direction(record%wind_u, record%wind_v), is_missing(record%wind_u))
+        if (is_missing(record%ws)) then
+          call prepbufr_raw(obs(ua_idx,1,:), record%ua, stack_qc=qc(ua_idx,1,:), stack_pc=pc(ua_idx,1,:), qc=record%ua_qc)
+          call prepbufr_raw(obs(va_idx,1,:), record%va, stack_qc=qc(ua_idx,1,:), stack_pc=pc(ua_idx,1,:), qc=record%va_qc)
+          record%ws = merge(real_missing_value, sqrt(record%ua**2 + record%va**2), is_missing(record%ua))
+          record%wd = merge(real_missing_value, wind_direction(record%ua, record%va), is_missing(record%ua))
         end if
-        if (is_missing(record%sea_temperature)) then
-          call prepbufr_raw(obs(SST_idx,1,:), record%sea_temperature, stack_qc=qc(SST_idx,1,:), stack_pc=pc(SST_idx,1,:), qc=record%sea_temperature_qc)
+        if (is_missing(record%sst)) then
+          call prepbufr_raw(obs(sst_idx,1,:), record%sst, stack_qc=qc(sst_idx,1,:), stack_pc=pc(sst_idx,1,:), qc=record%sst_qc)
         end if
 
         if (new_record) then

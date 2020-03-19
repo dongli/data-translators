@@ -16,40 +16,43 @@ module ship_mod
 
   type, extends(obs_drift_record_base_type) :: ship_record_type
     type(ship_type), pointer :: ship
-    real    :: pressure             = real_missing_value ! Pressure (Pa)
-    real    :: air_temperature      = real_missing_value ! Air temperature (degC)
-    real    :: sea_temperature      = real_missing_value ! Sea temperature / SST (degC)
-    real    :: dewpoint             = real_missing_value ! Dewpoint temperature (degC)
-    real    :: relative_humidity    = real_missing_value ! Relative humidity (%)
-    real    :: specific_humidity    = real_missing_value ! Specific humidity (Mg/Kg)
-    real    :: wind_speed           = real_missing_value ! Wind speed (m/s)
-    real    :: wind_direction       = real_missing_value ! Wind direction (deg)
-    real    :: wind_u               = real_missing_value ! U wind component (m/s)
-    real    :: wind_v               = real_missing_value ! V wind component (m/s)
-    real    :: wind_wave_height     = real_missing_value ! Wind wave height (m)
-    real    :: wind_wave_period     = real_missing_value ! Wind wave period (s)
-    real    :: surge_wave_height    = real_missing_value ! Surge wave height (m)
-    real    :: surge_wave_period    = real_missing_value ! Surge wave period (s)
-    real    :: surge_wave_direction = real_missing_value ! Surge wave direction (deg)
-    real    :: visibility           = real_missing_value ! Visibility (m)
-    real    :: cloud_cover          = real_missing_value ! Cloud cover (%)
-    real    :: ice_cover            = real_missing_value
+    real    :: ps  = real_missing_value ! Pressure (Pa)
+    real    :: ta  = real_missing_value ! Air temperature (degC)
+    real    :: sst = real_missing_value ! Sea temperature / SST (degC)
+    real    :: td  = real_missing_value ! Dewpoint temperature (degC)
+    real    :: rh  = real_missing_value ! Relative humidity (%)
+    real    :: sh  = real_missing_value ! Specific humidity (Mg/Kg)
+    real    :: ws  = real_missing_value ! Wind speed (m/s)
+    real    :: wd  = real_missing_value ! Wind direction (deg)
+    real    :: ua  = real_missing_value ! U wind component (m/s)
+    real    :: va  = real_missing_value ! V wind component (m/s)
+    real    :: hww = real_missing_value ! Wind wave height (m)
+    real    :: pww = real_missing_value ! Wind wave period (s)
+    real    :: hsw = real_missing_value ! Surge wave height (m)
+    real    :: psw = real_missing_value ! Surge wave period (s)
+    real    :: dsw = real_missing_value ! Surge wave direction (deg)
+    real    :: vis = real_missing_value ! Visibility (m)
+    real    :: clc = real_missing_value ! Cloud cover (%)
+    real    :: ice = real_missing_value ! Ice cover (%)
 
-    integer :: pressure_qc             = int_missing_value
-    integer :: air_temperature_qc      = int_missing_value
-    integer :: sea_temperature_qc      = int_missing_value
-    integer :: dewpoint_qc             = int_missing_value
-    integer :: relative_humidity_qc    = int_missing_value
-    integer :: specific_humidity_qc    = int_missing_value
-    integer :: wind_qc                 = int_missing_value
-    integer :: wind_wave_height_qc     = int_missing_value
-    integer :: wind_wave_period_qc     = int_missing_value
-    integer :: surge_wave_height_qc    = int_missing_value
-    integer :: surge_wave_period_qc    = int_missing_value
-    integer :: surge_wave_direction_qc = int_missing_value
-    integer :: visibility_qc           = int_missing_value
-    integer :: cloud_cover_qc          = int_missing_value
-    integer :: ice_cover_qc            = int_missing_value
+    integer :: p_qc   = int_missing_value
+    integer :: ta_qc  = int_missing_value
+    integer :: sst_qc = int_missing_value
+    integer :: td_qc  = int_missing_value
+    integer :: rh_qc  = int_missing_value
+    integer :: sh_qc  = int_missing_value
+    integer :: ua_qc  = int_missing_value
+    integer :: va_qc  = int_missing_value
+    integer :: wd_qc  = int_missing_value
+    integer :: ws_qc  = int_missing_value
+    integer :: hww_qc = int_missing_value
+    integer :: pww_qc = int_missing_value
+    integer :: hsw_qc = int_missing_value
+    integer :: psw_qc = int_missing_value
+    integer :: dsw_qc = int_missing_value
+    integer :: vis_qc = int_missing_value
+    integer :: clc_qc = int_missing_value
+    integer :: ice_qc = int_missing_value
   contains
     procedure :: print => ship_record_print
   end type ship_record_type
@@ -82,13 +85,13 @@ contains
     print *, record%ship%name, record%time%isoformat()
     print *, 'lon: ', record%lon
     print *, 'lat: ', record%lat
-    print *, 'p:   ', record%pressure, record%pressure_qc
-    print *, 'Ta:  ', record%air_temperature, record%air_temperature_qc
-    print *, 'Td:  ', record%dewpoint, record%dewpoint_qc
-    print *, 'SST: ', record%sea_temperature, record%sea_temperature_qc
-    print *, 'RH:  ', record%relative_humidity, record%relative_humidity_qc
-    print *, 'WS:  ', record%wind_speed, record%wind_qc
-    print *, 'WD:  ', record%wind_direction, record%wind_qc
+    print *, 'p:   ', record%p  , record%p_qc
+    print *, 'Ta:  ', record%ta , record%ta_qc
+    print *, 'Td:  ', record%td , record%td_qc
+    print *, 'SST: ', record%sst, record%sst_qc
+    print *, 'RH:  ', record%rh , record%rh_qc
+    print *, 'WS:  ', record%ws , record%ws_qc
+    print *, 'WD:  ', record%wd , record%wd_qc
 
   end subroutine ship_record_print
 
