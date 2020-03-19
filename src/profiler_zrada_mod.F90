@@ -31,7 +31,7 @@ contains
     character(100) line
     character(10) segment
     character(20) key
-    real lon, lat, z, p, h, u, v, w, wd, ws
+    real lon, lat, z, p, h, ua, va, wa, wd, ws
     integer wnd_h_qc, wnd_v_qc
     type(datetime_type) time
     type(profiler_station_type), pointer :: station
@@ -87,22 +87,22 @@ contains
           read(line(7:11), *) wd
           read(line(13:17), *) ws
           read(line(26:28), *) wnd_h_qc
-          u = wind_u_component(ws, wd)
-          v = wind_v_component(ws, wd)
+          ua = wind_u_component(ws, wd)
+          va = wind_v_component(ws, wd)
         end if
         read(line(19:24), *) segment
         if (segment == '//////') then
-          w = real_missing_value
+          wa = real_missing_value
         else
-          read(segment, *) w
+          read(segment, *) wa
           read(line(30:32), *) wnd_v_qc
         end if
         key = to_string(int(h))
-        if (.not. is_missing(h))  call record%pro_hash%height%insert(key, h)
-        if (.not. is_missing(u))  call record%pro_hash%wind_u%insert(key, u)
-        if (.not. is_missing(v))  call record%pro_hash%wind_v%insert(key, v)
-        if (.not. is_missing(wd)) call record%pro_hash%wind_direction%insert(key, wd)
-        if (.not. is_missing(ws)) call record%pro_hash%wind_speed%insert(key, ws)
+        if (.not. is_missing(h )) call record%pro_hash%h %insert(key, h)
+        if (.not. is_missing(ua)) call record%pro_hash%ua%insert(key, ua)
+        if (.not. is_missing(va)) call record%pro_hash%va%insert(key, va)
+        if (.not. is_missing(wd)) call record%pro_hash%wd%insert(key, wd)
+        if (.not. is_missing(ws)) call record%pro_hash%ws%insert(key, ws)
       end do
       close(10)
 
@@ -117,7 +117,7 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (profiler_record_type)
-        call record%pro%init(record%pro_hash%height%size)
+        call record%pro%init(record%pro_hash%h%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
         ! if (record%station%name == '54511') then

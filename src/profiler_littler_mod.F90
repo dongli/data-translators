@@ -83,21 +83,21 @@ contains
         write(10, *)
         ! Records
         do k = 1, record%pro%num_level
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%pressure(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%p(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%height(k))
-          write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%h(k))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_speed(k))
+          write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_direction(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%ws(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_u(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%wd(k))
           write(10, '(I7)', advance='no') 0
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%wind_v(k))
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%ua(k))
+          write(10, '(I7)', advance='no') 0
+          write(10, '(F13.5)', advance='no') littler_value(record%pro%va(k))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') real_missing_value_in_littler
           write(10, '(I7)', advance='no') 0

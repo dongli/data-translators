@@ -17,19 +17,22 @@ module profiler_mod
 
   type profiler_profile_type
     integer :: num_level = 0
-    real, allocatable :: pressure(:)
-    real, allocatable :: height(:)
-    real, allocatable :: wind_direction(:)
-    real, allocatable :: wind_speed(:)
-    real, allocatable :: wind_u(:)
-    real, allocatable :: wind_v(:)
-    integer, allocatable :: pressure_qc(:)
-    integer, allocatable :: height_qc(:)
-    integer, allocatable :: wind_qc(:)
-    real, allocatable :: pressure_correct(:)
-    real, allocatable :: height_correct(:)
-    real, allocatable :: wind_u_correct(:)
-    real, allocatable :: wind_v_correct(:)
+    real   , allocatable :: p (:)
+    real   , allocatable :: h (:)
+    real   , allocatable :: wd(:)
+    real   , allocatable :: ws(:)
+    real   , allocatable :: ua(:)
+    real   , allocatable :: va(:)
+    integer, allocatable ::  p_qc(:)
+    integer, allocatable ::  h_qc(:)
+    integer, allocatable :: ua_qc(:)
+    integer, allocatable :: va_qc(:)
+    integer, allocatable :: wd_qc(:)
+    integer, allocatable :: ws_qc(:)
+    real   , allocatable ::  p_cr(:)
+    real   , allocatable ::  h_cr(:)
+    real   , allocatable :: ua_cr(:)
+    real   , allocatable :: va_cr(:)
   contains
     procedure :: init => profiler_profile_init
     procedure :: set_from_hash => profiler_profile_set_from_hash
@@ -37,19 +40,22 @@ module profiler_mod
   end type profiler_profile_type
 
   type profiler_profile_hash_type
-    type(hash_table_type) pressure
-    type(hash_table_type) pressure_qc
-    type(hash_table_type) pressure_correct
-    type(hash_table_type) height
-    type(hash_table_type) height_qc
-    type(hash_table_type) height_correct
-    type(hash_table_type) wind_u
-    type(hash_table_type) wind_u_correct
-    type(hash_table_type) wind_v
-    type(hash_table_type) wind_v_correct
-    type(hash_table_type) wind_speed
-    type(hash_table_type) wind_direction
-    type(hash_table_type) wind_qc
+    type(hash_table_type) p
+    type(hash_table_type) p_qc
+    type(hash_table_type) p_cr
+    type(hash_table_type) h
+    type(hash_table_type) h_qc
+    type(hash_table_type) h_cr
+    type(hash_table_type) ua
+    type(hash_table_type) ua_qc
+    type(hash_table_type) ua_cr
+    type(hash_table_type) va
+    type(hash_table_type) va_qc
+    type(hash_table_type) va_cr
+    type(hash_table_type) ws
+    type(hash_table_type) ws_qc
+    type(hash_table_type) wd
+    type(hash_table_type) wd_qc
   contains
     procedure :: init => profiler_profile_hash_init
   end type profiler_profile_hash_type
@@ -96,19 +102,22 @@ contains
 
     this%num_level = num_level
     call profiler_profile_final(this)
-    allocate(this%pressure(num_level))
-    allocate(this%pressure_qc(num_level))
-    allocate(this%pressure_correct(num_level))
-    allocate(this%height(num_level))
-    allocate(this%height_qc(num_level))
-    allocate(this%height_correct(num_level))
-    allocate(this%wind_u(num_level))
-    allocate(this%wind_u_correct(num_level))
-    allocate(this%wind_v(num_level))
-    allocate(this%wind_v_correct(num_level))
-    allocate(this%wind_speed(num_level))
-    allocate(this%wind_direction(num_level))
-    allocate(this%wind_qc(num_level))
+    allocate(this%p    (num_level))
+    allocate(this%p_qc (num_level))
+    allocate(this%p_cr (num_level))
+    allocate(this%h    (num_level))
+    allocate(this%h_qc (num_level))
+    allocate(this%h_cr (num_level))
+    allocate(this%ua   (num_level))
+    allocate(this%ua_qc(num_level))
+    allocate(this%ua_cr(num_level))
+    allocate(this%va   (num_level))
+    allocate(this%va_qc(num_level))
+    allocate(this%va_cr(num_level))
+    allocate(this%wd   (num_level))
+    allocate(this%wd_qc(num_level))
+    allocate(this%ws   (num_level))
+    allocate(this%ws_qc(num_level))
 
   end subroutine profiler_profile_init
 
@@ -121,101 +130,119 @@ contains
     type(hash_table_iterator_type) level_iterator
 
     i = 1
-    if (hash%pressure%size /= 0) then
-      level_iterator = hash_table_iterator(hash%pressure)
+    if (hash%p%size /= 0) then
+      level_iterator = hash_table_iterator(hash%p)
     else
-      level_iterator = hash_table_iterator(hash%height)
+      level_iterator = hash_table_iterator(hash%h)
     end if
     do while (.not. level_iterator%ended())
-      if (hash%pressure%size /= 0) then
+      if (hash%p%size /= 0) then
         ! pressure (Pa)
         select type (value => level_iterator%value)
         type is (real)
-          this%pressure(i) = value
+          this%p(i) = value
         class default
-          this%pressure(i) = real_missing_value
+          this%p(i) = real_missing_value
         end select
-        select type (value => hash%pressure_qc%value(level_iterator%key))
+        select type (value => hash%p_qc%value(level_iterator%key))
         type is (integer)
-          this%pressure_qc(i) = value
+          this%p_qc(i) = value
         class default
-          this%pressure_qc(i) = int_missing_value
+          this%p_qc(i) = int_missing_value
         end select
-        select type (value => hash%pressure_correct%value(level_iterator%key))
+        select type (value => hash%p_cr%value(level_iterator%key))
         type is (real)
-          this%pressure_correct(i) = value
+          this%p_cr(i) = value
         class default
-          this%pressure_correct(i) = real_missing_value
+          this%p_cr(i) = real_missing_value
         end select
       else
-        this%pressure(i) = real_missing_value
-        this%pressure_qc(i) = int_missing_value
-        this%pressure_correct(i) = real_missing_value
+        this%p(i)    = real_missing_value
+        this%p_qc(i) = int_missing_value
+        this%p_cr(i) = real_missing_value
       end if
       ! height (m)
-      select type (value => hash%height%value(level_iterator%key))
+      select type (value => hash%h%value(level_iterator%key))
       type is (real)
-        this%height(i) = value
+        this%h(i) = value
       class default
-        this%height(i) = real_missing_value
+        this%h(i) = real_missing_value
       end select
-      select type (value => hash%height_qc%value(level_iterator%key))
+      select type (value => hash%h_qc%value(level_iterator%key))
       type is (integer)
-        this%height_qc(i) = value
+        this%h_qc(i) = value
       class default
-        this%height_qc(i) = int_missing_value
+        this%h_qc(i) = int_missing_value
       end select
-      select type (value => hash%height_correct%value(level_iterator%key))
+      select type (value => hash%h_cr%value(level_iterator%key))
       type is (real)
-        this%height_correct(i) = value
+        this%h_cr(i) = value
       class default
-        this%height_correct(i) = real_missing_value
+        this%h_cr(i) = real_missing_value
       end select
       ! wind u component (m/s)
-      select type (value => hash%wind_u%value(level_iterator%key))
+      select type (value => hash%ua%value(level_iterator%key))
       type is (real)
-        this%wind_u(i) = value
+        this%ua(i) = value
       class default
-        this%wind_u(i) = real_missing_value
+        this%ua(i) = real_missing_value
       end select
-      select type (value => hash%wind_u_correct%value(level_iterator%key))
-      type is (real)
-        this%wind_u_correct(i) = value
+      select type (value => hash%ua_qc%value(level_iterator%key))
+      type is (integer)
+        this%ua_qc(i) = value
       class default
-        this%wind_u_correct(i) = real_missing_value
+        this%ua_qc(i) = int_missing_value
+      end select
+      select type (value => hash%ua_cr%value(level_iterator%key))
+      type is (real)
+        this%ua_cr(i) = value
+      class default
+        this%ua_cr(i) = real_missing_value
       end select
       ! wind v component (m/s)
-      select type (value => hash%wind_v%value(level_iterator%key))
+      select type (value => hash%va%value(level_iterator%key))
       type is (real)
-        this%wind_v(i) = value
+        this%va(i) = value
       class default
-        this%wind_v(i) = real_missing_value
+        this%va(i) = real_missing_value
       end select
-      select type (value => hash%wind_v_correct%value(level_iterator%key))
-      type is (real)
-        this%wind_v_correct(i) = value
+      select type (value => hash%va_qc%value(level_iterator%key))
+      type is (integer)
+        this%va_qc(i) = value
       class default
-        this%wind_v_correct(i) = real_missing_value
+        this%va_qc(i) = int_missing_value
+      end select
+      select type (value => hash%va_cr%value(level_iterator%key))
+      type is (real)
+        this%va_cr(i) = value
+      class default
+        this%va_cr(i) = real_missing_value
       end select
       ! wind speed (m/s)
-      select type (value => hash%wind_speed%value(level_iterator%key))
+      select type (value => hash%ws%value(level_iterator%key))
       type is (real)
-        this%wind_speed(i) = value
+        this%ws(i) = value
       class default
-        this%wind_speed(i) = real_missing_value
+        this%ws(i) = real_missing_value
+      end select
+      select type (value => hash%ws_qc%value(level_iterator%key))
+      type is (integer)
+        this%ws_qc(i) = value
+      class default
+        this%ws_qc(i) = int_missing_value
       end select
       ! wind direction (degree)
-      select type (value => hash%wind_direction%value(level_iterator%key))
+      select type (value => hash%wd%value(level_iterator%key))
       type is (real)
-        this%wind_direction(i) = value
+        this%wd(i) = value
       class default
-        this%wind_direction(i) = real_missing_value
+        this%wd(i) = real_missing_value
       end select
-      select type (value => hash%wind_qc%value(level_iterator%key))
+      select type (value => hash%wd_qc%value(level_iterator%key))
       type is (integer)
-        this%wind_qc(i) = value
+        this%wd_qc(i) = value
       class default
-        this%wind_qc(i) = int_missing_value
+        this%wd_qc(i) = int_missing_value
       end select
       i = i + 1
       call level_iterator%next()
@@ -230,19 +257,22 @@ contains
 
     type(profiler_profile_type), intent(inout) :: this
 
-    if (allocated(this%pressure))         deallocate(this%pressure)
-    if (allocated(this%pressure_qc))      deallocate(this%pressure_qc)
-    if (allocated(this%pressure_correct)) deallocate(this%pressure_correct)
-    if (allocated(this%height))           deallocate(this%height)
-    if (allocated(this%height_qc))        deallocate(this%height_qc)
-    if (allocated(this%height_correct))   deallocate(this%height_correct)
-    if (allocated(this%wind_u))           deallocate(this%wind_u)
-    if (allocated(this%wind_u_correct))   deallocate(this%wind_u_correct)
-    if (allocated(this%wind_v))           deallocate(this%wind_v)
-    if (allocated(this%wind_v_correct))   deallocate(this%wind_v_correct)
-    if (allocated(this%wind_speed))       deallocate(this%wind_speed)
-    if (allocated(this%wind_direction))   deallocate(this%wind_direction)
-    if (allocated(this%wind_qc))          deallocate(this%wind_qc)
+    if (allocated(this%p    )) deallocate(this%p)
+    if (allocated(this%p_qc )) deallocate(this%p_qc)
+    if (allocated(this%p_cr )) deallocate(this%p_cr)
+    if (allocated(this%h    )) deallocate(this%h)
+    if (allocated(this%h_qc )) deallocate(this%h_qc)
+    if (allocated(this%h_cr )) deallocate(this%h_cr)
+    if (allocated(this%ua   )) deallocate(this%ua)
+    if (allocated(this%ua_qc)) deallocate(this%ua_qc)
+    if (allocated(this%ua_cr)) deallocate(this%ua_cr)
+    if (allocated(this%va   )) deallocate(this%va)
+    if (allocated(this%va_qc)) deallocate(this%va_qc)
+    if (allocated(this%va_cr)) deallocate(this%va_cr)
+    if (allocated(this%ws   )) deallocate(this%ws)
+    if (allocated(this%ws_qc)) deallocate(this%ws_qc)
+    if (allocated(this%wd   )) deallocate(this%wd)
+    if (allocated(this%wd_qc)) deallocate(this%wd_qc)
 
   end subroutine profiler_profile_final
 
@@ -250,19 +280,22 @@ contains
 
     class(profiler_profile_hash_type), intent(inout) :: this
 
-    this%pressure         = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%pressure_qc      = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%pressure_correct = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%height           = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%height_qc        = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%height_correct   = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_u           = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_u_correct   = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_v           = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_v_correct   = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_speed       = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_direction   = hash_table(chunk_size=1000, max_load_factor=0.9)
-    this%wind_qc          = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%p     = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%p_qc  = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%p_cr  = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%h     = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%h_qc  = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%h_cr  = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%ua    = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%ua_qc = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%ua_cr = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%va    = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%va_qc = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%va_cr = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wd    = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%wd_qc = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%ws    = hash_table(chunk_size=1000, max_load_factor=0.9)
+    this%ws_qc = hash_table(chunk_size=1000, max_load_factor=0.9)
 
   end subroutine profiler_profile_hash_init
 
@@ -294,35 +327,35 @@ contains
     write(*, '(A15, A5)', advance='no') 'WS', ''
     write(*, *)
     do i = 1, this%pro%num_level
-      if (is_missing(this%pro%pressure(i))) then
+      if (is_missing(this%pro%p(i))) then
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%pressure(i), this%pro%pressure_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%p(i), this%pro%p_qc(i)
       end if
-      if (is_missing(this%pro%height(i))) then 
+      if (is_missing(this%pro%h(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%height(i), this%pro%height_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%h(i), this%pro%h_qc(i)
       end if
-      if (is_missing(this%pro%wind_u(i))) then 
+      if (is_missing(this%pro%ua(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_u(i), this%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%ua(i), this%pro%ua_qc(i)
       end if
-      if (is_missing(this%pro%wind_v(i))) then 
+      if (is_missing(this%pro%va(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_v(i), this%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%va(i), this%pro%va_qc(i)
       end if
-      if (is_missing(this%pro%wind_direction(i))) then 
+      if (is_missing(this%pro%wd(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_direction(i), this%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wd(i), this%pro%wd_qc(i)
       end if
-      if (is_missing(this%pro%wind_speed(i))) then 
+      if (is_missing(this%pro%ws(i))) then 
         write(*, '(A15, A5)', advance='no') 'X', '(X)'
       else
-        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%wind_speed(i), this%pro%wind_qc(i)
+        write(*, '(F15.1, "(", I3, ")")', advance='no') this%pro%ws(i), this%pro%ws_qc(i)
       end if
       write(*, *)
     end do

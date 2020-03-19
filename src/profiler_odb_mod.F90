@@ -41,17 +41,18 @@ contains
       'z REAL, '                                  // &
       'date INTEGER, '                            // &
       'time INTEGER, '                            // &
-      'pressure REAL, '                           // &
-      'pressure_qc INTEGER, '                     // &
-      'pressure_correct REAL, '                   // &
-      'height REAL, '                             // &
-      'height_qc INTEGER, '                       // &
-      'height_correct REAL, '                     // &
-      'wind_u REAL, '                             // &
-      'wind_u_correct REAL, '                     // &
-      'wind_v REAL, '                             // &
-      'wind_v_correct REAL, '                     // &
-      'wind_qc INTEGER'                           // &
+      'p REAL, '                                  // &
+      'p_qc INTEGER, '                            // &
+      'p_cr REAL, '                               // &
+      'h REAL, '                             // &
+      'h_qc INTEGER, '                            // &
+      'h_cr REAL, '                               // &
+      'ua REAL, '                                 // &
+      'ua_qc INTEGER, '                           // &
+      'ua_cr REAL, '                              // &
+      'va REAL, '                                 // &
+      'va_qc INTEGER, '                           // &
+      'va_cr REAL'                                // &
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO profiler (' // &
       'platform_id, '                             // &
@@ -62,18 +63,19 @@ contains
       'z, '                                       // &
       'date, '                                    // &
       'time, '                                    // &
-      'pressure, '                                // &
-      'pressure_qc, '                             // &
-      'pressure_correct, '                        // &
-      'height, '                                  // &
-      'height_qc, '                               // &
-      'height_correct, '                          // &
-      'wind_u, '                                  // &
-      'wind_u_correct, '                          // &
-      'wind_v, '                                  // &
-      'wind_v_correct, '                          // &
-      'wind_qc'                                   // &
-      ') VALUES (' // odb_values_placeholder(19) // ');', -1, odb_stmt, odb_unparsed_sql)
+      'p, '                                       // &
+      'p_qc, '                                    // &
+      'p_cr, '                                    // &
+      'h, '                                       // &
+      'h_qc, '                                    // &
+      'h_cr, '                                    // &
+      'ua, '                                      // &
+      'ua_qc, '                                   // &
+      'ua_cr, '                                   // &
+      'va, '                                      // &
+      'va_qc, '                                   // &
+      'va_cr'                                     // &
+      ') VALUES (' // odb_values_placeholder(20) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -89,17 +91,18 @@ contains
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
           col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
           col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-          col = col + 1; if (.not. is_missing(record%pro%pressure(k)))         call odbql_bind_double(odb_stmt, col, dble(record%pro%pressure(k)))
-          col = col + 1; if (.not. is_missing(record%pro%pressure_qc(k)))      call odbql_bind_int   (odb_stmt, col, record%pro%pressure_qc(k))
-          col = col + 1; if (.not. is_missing(record%pro%pressure_correct(k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%pressure_correct(k)))
-          col = col + 1; if (.not. is_missing(record%pro%height(k)))           call odbql_bind_double(odb_stmt, col, dble(record%pro%height(k)))
-          col = col + 1; if (.not. is_missing(record%pro%height_qc(k)))        call odbql_bind_int   (odb_stmt, col, record%pro%height_qc(k))
-          col = col + 1; if (.not. is_missing(record%pro%height_correct(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%height_correct(k)))
-          col = col + 1; if (.not. is_missing(record%pro%wind_u(k)))           call odbql_bind_double(odb_stmt, col, dble(record%pro%wind_u(k)))
-          col = col + 1; if (.not. is_missing(record%pro%wind_u_correct(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%wind_u_correct(k)))
-          col = col + 1; if (.not. is_missing(record%pro%wind_v(k)))           call odbql_bind_double(odb_stmt, col, dble(record%pro%wind_v(k)))
-          col = col + 1; if (.not. is_missing(record%pro%wind_v_correct(k)))   call odbql_bind_double(odb_stmt, col, dble(record%pro%wind_v_correct(k)))
-          col = col + 1; if (.not. is_missing(record%pro%wind_qc(k)))          call odbql_bind_int   (odb_stmt, col, record%pro%wind_qc(k))
+          col = col + 1; if (.not. is_missing(record%pro%p    (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%p   (k)))
+          col = col + 1; if (.not. is_missing(record%pro%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%pro%p_qc(k))
+          col = col + 1; if (.not. is_missing(record%pro%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%p_cr(k)))
+          col = col + 1; if (.not. is_missing(record%pro%h    (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%h   (k)))
+          col = col + 1; if (.not. is_missing(record%pro%h_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%pro%h_qc(k))
+          col = col + 1; if (.not. is_missing(record%pro%h_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%h_cr(k)))
+          col = col + 1; if (.not. is_missing(record%pro%ua   (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%ua  (k)))
+          col = col + 1; if (.not. is_missing(record%pro%ua_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%pro%ua_qc(k))
+          col = col + 1; if (.not. is_missing(record%pro%ua_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%ua_cr(k)))
+          col = col + 1; if (.not. is_missing(record%pro%va   (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%va(k)))
+          col = col + 1; if (.not. is_missing(record%pro%va_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%pro%va_qc(k))
+          col = col + 1; if (.not. is_missing(record%pro%va_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%va_cr(k)))
           call odbql_step(odb_stmt)
           call odb_all_bind_null(odb_stmt, col)
         end do
