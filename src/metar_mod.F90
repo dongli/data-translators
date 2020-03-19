@@ -30,7 +30,7 @@ module metar_mod
     real :: r06h = real_missing_value ! 6h accumulated total precipitation (mm)
     real :: r12h = real_missing_value ! 12h accumulated total precipitation (mm)
     real :: r24h = real_missing_value ! 24h accumulated total precipitation (mm)
-    real :: cld  = real_missing_value ! Cloud amount (???)
+    real :: clc  = real_missing_value ! Cloud amount (???)
 
     integer :: type  = int_missing_value
     integer :: ta_qc = int_missing_value
