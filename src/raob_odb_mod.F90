@@ -129,142 +129,10 @@ contains
         col = col + 1; if (.not. is_missing(record%vas_cr)) call odbql_bind_double(odb_stmt, col, dble(record%vas_cr))
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
-        ! Mandatory levels
-        do k = 1, record%man%num_level
-          col = 0
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
-          col = col + 1;
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, 'man', 3)
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-          col = col + 1; if (.not. is_missing(record%man%p    (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%p    (k)))
-          col = col + 1; if (.not. is_missing(record%man%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%man%p_qc (k))
-          col = col + 1; if (.not. is_missing(record%man%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%p_cr (k)))
-          col = col + 1; if (.not. is_missing(record%man%h    (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%h    (k)))
-          col = col + 1; if (.not. is_missing(record%man%h_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%man%h_qc (k))
-          col = col + 1; if (.not. is_missing(record%man%h_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%h_cr (k)))
-          col = col + 1; if (.not. is_missing(record%man%ta   (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%ta   (k)))
-          col = col + 1; if (.not. is_missing(record%man%ta_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%man%ta_qc(k))
-          col = col + 1; if (.not. is_missing(record%man%ta_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%man%ta_cr(k)))
-          col = col + 1; if (.not. is_missing(record%man%td   (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%td   (k)))
-          col = col + 1; if (.not. is_missing(record%man%sh   (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%sh   (k)))
-          col = col + 1; if (.not. is_missing(record%man%sh_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%man%sh_qc(k))
-          col = col + 1; if (.not. is_missing(record%man%sh_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%man%sh_cr(k)))
-          col = col + 1; if (.not. is_missing(record%man%ua   (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%ua   (k)))
-          col = col + 1; if (.not. is_missing(record%man%ua_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%man%ua_qc(k))
-          col = col + 1; if (.not. is_missing(record%man%ua_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%man%ua_cr(k)))
-          col = col + 1; if (.not. is_missing(record%man%va   (k))) call odbql_bind_double(odb_stmt, col, dble(record%man%va   (k)))
-          col = col + 1; if (.not. is_missing(record%man%va_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%man%va_qc(k))
-          col = col + 1; if (.not. is_missing(record%man%va_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%man%va_cr(k)))
-          call odbql_step(odb_stmt)
-          call odb_all_bind_null(odb_stmt, col)
-        end do
-        ! Significant ta levels
-        do k = 1, record%sigt%num_level
-          col = 0
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
-          col = col + 1;
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sigt', 4)
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-          col = col + 1; if (.not. is_missing(record%sigt%p    (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%p    (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%sigt%p_qc (k))
-          col = col + 1; if (.not. is_missing(record%sigt%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%p_cr (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%h    (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%h    (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%h_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%sigt%h_qc (k))
-          col = col + 1; if (.not. is_missing(record%sigt%h_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%h_cr (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%ta   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%ta   (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%ta_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigt%ta_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigt%ta_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%ta_cr(k)))
-          col = col + 1; if (.not. is_missing(record%sigt%td   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%td   (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%sh   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%sh   (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%sh_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigt%sh_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigt%sh_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%sh_cr(k)))
-          col = col + 1; if (.not. is_missing(record%sigt%ua   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%ua   (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%ua_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigt%ua_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigt%ua_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%ua_cr(k)))
-          col = col + 1; if (.not. is_missing(record%sigt%va   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%va   (k)))
-          col = col + 1; if (.not. is_missing(record%sigt%va_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigt%va_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigt%va_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigt%va_cr(k)))
-          call odbql_step(odb_stmt)
-          call odb_all_bind_null(odb_stmt, col)
-        end do
-        ! Significant wind levels
-        do k = 1, record%sigw%num_level
-          col = 0
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
-          col = col + 1;
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sigw', 4)
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-          col = col + 1; if (.not. is_missing(record%sigw%p    (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%p    (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%sigw%p_qc (k))
-          col = col + 1; if (.not. is_missing(record%sigw%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%p_cr (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%h    (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%h    (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%h_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%sigw%h_qc (k))
-          col = col + 1; if (.not. is_missing(record%sigw%h_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%h_cr (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%ta   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%ta   (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%ta_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigw%ta_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigw%ta_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%ta_cr(k)))
-          col = col + 1; if (.not. is_missing(record%sigw%td   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%td   (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%sh   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%sh   (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%sh_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigw%sh_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigw%sh_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%sh_cr(k)))
-          col = col + 1; if (.not. is_missing(record%sigw%ua   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%ua   (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%ua_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigw%ua_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigw%ua_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%ua_cr(k)))
-          col = col + 1; if (.not. is_missing(record%sigw%va   (k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%va   (k)))
-          col = col + 1; if (.not. is_missing(record%sigw%va_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%sigw%va_qc(k))
-          col = col + 1; if (.not. is_missing(record%sigw%va_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%sigw%va_cr(k)))
-          call odbql_step(odb_stmt)
-          call odb_all_bind_null(odb_stmt, col)
-        end do
-        ! Tropopause levels
-        do k = 1, record%trop%num_level
-          col = 0
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
-          col = col + 1;
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
-          col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
-          col = col + 1; call odbql_bind_text  (odb_stmt, col, 'trop', 4)
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-          col = col + 1; if (.not. is_missing(record%trop%p    (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%p    (k)))
-          col = col + 1; if (.not. is_missing(record%trop%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%trop%p_qc (k))
-          col = col + 1; if (.not. is_missing(record%trop%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%p_cr (k)))
-          col = col + 1; if (.not. is_missing(record%trop%h    (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%h    (k)))
-          col = col + 1; if (.not. is_missing(record%trop%h_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%trop%h_qc (k))
-          col = col + 1; if (.not. is_missing(record%trop%h_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%h_cr (k)))
-          col = col + 1; if (.not. is_missing(record%trop%ta   (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%ta   (k)))
-          col = col + 1; if (.not. is_missing(record%trop%ta_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%trop%ta_qc(k))
-          col = col + 1; if (.not. is_missing(record%trop%ta_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%ta_cr(k)))
-          col = col + 1; if (.not. is_missing(record%trop%td   (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%td   (k)))
-          col = col + 1; if (.not. is_missing(record%trop%sh   (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%sh   (k)))
-          col = col + 1; if (.not. is_missing(record%trop%sh_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%trop%sh_qc(k))
-          col = col + 1; if (.not. is_missing(record%trop%sh_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%sh_cr(k)))
-          col = col + 1; if (.not. is_missing(record%trop%ua   (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%ua   (k)))
-          col = col + 1; if (.not. is_missing(record%trop%ua_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%trop%ua_qc(k))
-          col = col + 1; if (.not. is_missing(record%trop%ua_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%ua_cr(k)))
-          col = col + 1; if (.not. is_missing(record%trop%va   (k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%va   (k)))
-          col = col + 1; if (.not. is_missing(record%trop%va_qc(k))) call odbql_bind_int   (odb_stmt, col,      record%trop%va_qc(k))
-          col = col + 1; if (.not. is_missing(record%trop%va_cr(k))) call odbql_bind_double(odb_stmt, col, dble(record%trop%va_cr(k)))
-          call odbql_step(odb_stmt)
-          call odb_all_bind_null(odb_stmt, col)
-        end do
+        call write_profile(odb_stmt, record, record%man , 'man ')
+        call write_profile(odb_stmt, record, record%sigt, 'sigt')
+        call write_profile(odb_stmt, record, record%sigw, 'sigw')
+        call write_profile(odb_stmt, record, record%trop, 'trop')
       class default
         write(*, *) '[Error]: Unknown record in the list!'
         stop 1
@@ -277,5 +145,50 @@ contains
     write(*, *) '[Notice]: ODB file is written.'
 
   end subroutine raob_odb_write
+
+  subroutine write_profile(odb_stmt, record, profile, level_type)
+
+    type(odbql_stmt), intent(inout) :: odb_stmt
+    type(raob_record_type), intent(in) :: record
+    type(raob_profile_type), intent(in) :: profile
+    character(*), intent(in) :: level_type
+
+    integer k, col
+
+    do k = 1, record%trop%num_level
+      col = 0
+      col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
+      col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))
+      col = col + 1;
+      col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
+      col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
+      col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
+      col = col + 1; call odbql_bind_text  (odb_stmt, col, level_type, 4)
+      col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
+      col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+      col = col + 1; if (.not. is_missing(profile%p    (k))) call odbql_bind_double(odb_stmt, col, dble(profile%p    (k)))
+      col = col + 1; if (.not. is_missing(profile%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      profile%p_qc (k))
+      col = col + 1; if (.not. is_missing(profile%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(profile%p_cr (k)))
+      col = col + 1; if (.not. is_missing(profile%h    (k))) call odbql_bind_double(odb_stmt, col, dble(profile%h    (k)))
+      col = col + 1; if (.not. is_missing(profile%h_qc (k))) call odbql_bind_int   (odb_stmt, col,      profile%h_qc (k))
+      col = col + 1; if (.not. is_missing(profile%h_cr (k))) call odbql_bind_double(odb_stmt, col, dble(profile%h_cr (k)))
+      col = col + 1; if (.not. is_missing(profile%ta   (k))) call odbql_bind_double(odb_stmt, col, dble(profile%ta   (k)))
+      col = col + 1; if (.not. is_missing(profile%ta_qc(k))) call odbql_bind_int   (odb_stmt, col,      profile%ta_qc(k))
+      col = col + 1; if (.not. is_missing(profile%ta_cr(k))) call odbql_bind_double(odb_stmt, col, dble(profile%ta_cr(k)))
+      col = col + 1; if (.not. is_missing(profile%td   (k))) call odbql_bind_double(odb_stmt, col, dble(profile%td   (k)))
+      col = col + 1; if (.not. is_missing(profile%sh   (k))) call odbql_bind_double(odb_stmt, col, dble(profile%sh   (k)))
+      col = col + 1; if (.not. is_missing(profile%sh_qc(k))) call odbql_bind_int   (odb_stmt, col,      profile%sh_qc(k))
+      col = col + 1; if (.not. is_missing(profile%sh_cr(k))) call odbql_bind_double(odb_stmt, col, dble(profile%sh_cr(k)))
+      col = col + 1; if (.not. is_missing(profile%ua   (k))) call odbql_bind_double(odb_stmt, col, dble(profile%ua   (k)))
+      col = col + 1; if (.not. is_missing(profile%ua_qc(k))) call odbql_bind_int   (odb_stmt, col,      profile%ua_qc(k))
+      col = col + 1; if (.not. is_missing(profile%ua_cr(k))) call odbql_bind_double(odb_stmt, col, dble(profile%ua_cr(k)))
+      col = col + 1; if (.not. is_missing(profile%va   (k))) call odbql_bind_double(odb_stmt, col, dble(profile%va   (k)))
+      col = col + 1; if (.not. is_missing(profile%va_qc(k))) call odbql_bind_int   (odb_stmt, col,      profile%va_qc(k))
+      col = col + 1; if (.not. is_missing(profile%va_cr(k))) call odbql_bind_double(odb_stmt, col, dble(profile%va_cr(k)))
+      call odbql_step(odb_stmt)
+      call odb_all_bind_null(odb_stmt, col)
+    end do
+
+  end subroutine write_profile
 
 end module raob_odb_mod

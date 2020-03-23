@@ -147,7 +147,7 @@ contains
     ierr = nf90_put_att(ncid, p_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, p_varid, 'units', 'Pa')
+    ierr = nf90_put_att(ncid, p_varid, 'units', 'hPa')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'ta', nf90_float, [record_dimid], ta_varid)

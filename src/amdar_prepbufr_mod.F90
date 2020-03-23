@@ -1,10 +1,11 @@
 module amdar_prepbufr_mod
 
-  use amdar_mod
   use datetime
+  use amdar_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
+  use cli_mod
   use utils_mod
 
   implicit none
@@ -24,7 +25,7 @@ module amdar_prepbufr_mod
   integer, parameter :: u_idx    = 10
   integer, parameter :: v_idx    = 11
   integer, parameter :: Td_idx   = 12
-  integer, parameter :: trbx_idx = 13
+  integer, parameter :: trb_idx  = 13
 
 contains
 
@@ -83,7 +84,7 @@ contains
         lat = hdr(3)
         call prepbufr_raw(obs(p_idx,1,:), p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:))
         p = multiply(p, 100.0)
-        time = base_time + timedelta(hours=hdr(6))
+        time = base_time + create_timedelta(hours=hdr(6))
         if (flights%hashed(flight_name)) then
           select type (value => flights%value(flight_name))
           type is (amdar_flight_type)
@@ -128,9 +129,7 @@ contains
         if (is_missing(record%lat)) record%lat = lat
         if (is_missing(record%p)) then
           call prepbufr_raw(obs(p_idx,1,:), record%p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%p_qc)
-          ! Convert p from hPa to Pa.
-          record%p = multiply(record%p, 100.0)
-          record%p_cr = multiply(prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:)), 100.0)
+          record%p_cr = prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:))
         end if
         if (is_missing(record%h)) then
           call prepbufr_raw(obs(z_idx,1,:), record%h, stack_qc=qc(z_idx,1,:), stack_pc=pc(z_idx,1,:), qc=record%h_qc)
@@ -159,14 +158,15 @@ contains
           record%td = dewpoint(record%p, record%sh)
         end if
         record%rh = relative_humidity(record%p, record%ta, record%sh)
-        if (record%turb == int_missing_value) then
-          call prepbufr_raw(obs(trbx_idx,1,:), record%turb)
+        if (record%trb == int_missing_value) then
+          call prepbufr_raw(obs(trb_idx,1,:), record%trb)
         end if
 
         if (new_record) then
           call records%insert(flight_name // '@' // time%isoformat(), record)
-        ! else
-        !   call record%print()
+        end if
+        if (flight_name == cli_verbose_platform) then
+          call record%print()
         end if
         call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
       end do

@@ -16,30 +16,30 @@ module raob_mod
 
   type raob_profile_type
     integer :: num_level = 0
-    real, allocatable :: p(:)
-    real, allocatable :: h(:)
-    real, allocatable :: ta(:)
-    real, allocatable :: td(:)
-    real, allocatable :: sh(:)
-    real, allocatable :: rh(:)
-    real, allocatable :: wd(:)
-    real, allocatable :: ws(:)
-    real, allocatable :: ua(:)
-    real, allocatable :: va(:)
-    integer, allocatable :: p_qc(:)
-    integer, allocatable :: h_qc(:)
-    integer, allocatable :: ta_qc(:)
-    integer, allocatable :: sh_qc(:)
-    integer, allocatable :: wd_qc(:)
-    integer, allocatable :: ws_qc(:)
-    integer, allocatable :: ua_qc(:)
-    integer, allocatable :: va_qc(:)
-    real, allocatable :: p_cr(:)
-    real, allocatable :: h_cr(:)
-    real, allocatable :: ta_cr(:)
-    real, allocatable :: sh_cr(:)
-    real, allocatable :: ua_cr(:)
-    real, allocatable :: va_cr(:)
+    real   , allocatable, dimension(:) :: p
+    real   , allocatable, dimension(:) :: h
+    real   , allocatable, dimension(:) :: ta
+    real   , allocatable, dimension(:) :: td
+    real   , allocatable, dimension(:) :: sh
+    real   , allocatable, dimension(:) :: rh
+    real   , allocatable, dimension(:) :: wd
+    real   , allocatable, dimension(:) :: ws
+    real   , allocatable, dimension(:) :: ua
+    real   , allocatable, dimension(:) :: va
+    integer, allocatable, dimension(:) :: p_qc
+    integer, allocatable, dimension(:) :: h_qc
+    integer, allocatable, dimension(:) :: ta_qc
+    integer, allocatable, dimension(:) :: sh_qc
+    integer, allocatable, dimension(:) :: wd_qc
+    integer, allocatable, dimension(:) :: ws_qc
+    integer, allocatable, dimension(:) :: ua_qc
+    integer, allocatable, dimension(:) :: va_qc
+    real   , allocatable, dimension(:) :: p_cr
+    real   , allocatable, dimension(:) :: h_cr
+    real   , allocatable, dimension(:) :: ta_cr
+    real   , allocatable, dimension(:) :: sh_cr
+    real   , allocatable, dimension(:) :: ua_cr
+    real   , allocatable, dimension(:) :: va_cr
   contains
     procedure :: init => raob_profile_init
     procedure :: set_from_hash => raob_profile_set_from_hash
@@ -47,16 +47,16 @@ module raob_mod
   end type raob_profile_type
 
   type raob_profile_hash_type
-    type(hash_table_type) p
-    type(hash_table_type) h
-    type(hash_table_type) ta
-    type(hash_table_type) td
-    type(hash_table_type) sh
-    type(hash_table_type) rh
-    type(hash_table_type) wd
-    type(hash_table_type) ws
-    type(hash_table_type) ua
-    type(hash_table_type) va
+    type(hash_table_type) p     ! Pressure (hPa)
+    type(hash_table_type) h     ! Height (m)
+    type(hash_table_type) ta    ! Temperature (degC)
+    type(hash_table_type) td    ! Dewpoint (degC)
+    type(hash_table_type) sh    ! Specific humidity (mg kg-1)
+    type(hash_table_type) rh    ! Relative humidity (%)
+    type(hash_table_type) wd    ! Wind direction (deg)
+    type(hash_table_type) ws    ! Wind speed (m s-1)
+    type(hash_table_type) ua    ! U wind component (m s-1)
+    type(hash_table_type) va    ! V wind component (m s-1)
     type(hash_table_type) p_qc
     type(hash_table_type) h_qc
     type(hash_table_type) ta_qc

@@ -18,7 +18,7 @@ module synop_mod
     type(synop_station_type), pointer :: station
     real :: ta   = real_missing_value ! Temperature (degC)
     real :: td   = real_missing_value ! Dewpoint temperature (degC)
-    real :: p    = real_missing_value ! Surface pressure (Pa)
+    real :: p    = real_missing_value ! Surface pressure (hPa)
     real :: rh   = real_missing_value ! Relative humidity (%)
     real :: sh   = real_missing_value ! Specific humidity (Mg/Kg)
     real :: ws   = real_missing_value ! Wind speed (m/s)

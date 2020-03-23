@@ -23,8 +23,9 @@ contains
     type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
-    real slp, T, Td
+    real slp, ta, td, p
     integer i
+    character(20) date_str
 
     if (file_path == '') file_path = 'metar.littler'
 
@@ -35,9 +36,10 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (metar_record_type)
-        slp = sea_level_pressure(record%p, record%ta, record%station%z)
-        T = add(record%ta, freezing_point)
-        Td = add(record%td, freezing_point)
+        slp = multiply(sea_level_pressure(record%p, record%ta, record%station%z), 100.0)
+        ta  = add(record%ta, freezing_point)
+        td  = add(record%td, freezing_point)
+        p   = multiply(record%p, 100.0)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%station%lat)   ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)   ! longitude
@@ -85,13 +87,13 @@ contains
         write(10, '(I7)',    advance='no') 0                                   ! celing QC
         write(10, *)
         ! Record
-        write(10, '(F13.5)', advance='no') littler_value(record%p)             ! pressure (Pa)
+        write(10, '(F13.5)', advance='no') littler_value(p)                    ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                   ! pressure QC
         write(10, '(F13.5)', advance='no') littler_value(record%station%z)     ! height
         write(10, '(I7)',    advance='no') 0                                   ! height QC
-        write(10, '(F13.5)', advance='no') littler_value(T)                    ! temperature (K)
+        write(10, '(F13.5)', advance='no') littler_value(ta)                   ! temperature (K)
         write(10, '(I7)',    advance='no') 0                                   ! temperature QC
-        write(10, '(F13.5)', advance='no') littler_value(Td)                   ! dewpoint (K)
+        write(10, '(F13.5)', advance='no') littler_value(td)                   ! dewpoint (K)
         write(10, '(I7)',    advance='no') 0                                   ! dewpoint QC
         write(10, '(F13.5)', advance='no') littler_value(record%ws)            ! wind speed (m s^-1)
         write(10, '(I7)',    advance='no') 0                                   ! wind QC

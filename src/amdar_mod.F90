@@ -29,7 +29,7 @@ module amdar_mod
     real    :: wd   = real_missing_value ! Wind direction (deg)
     real    :: ua   = real_missing_value ! U wind component (m/s)
     real    :: va   = real_missing_value ! V wind component (m/s)
-    integer :: turb = int_missing_value  ! Turbulence index
+    integer :: trb  = int_missing_value  ! Turbulence index
 
     integer :: p_qc  = int_missing_value
     integer :: h_qc  = int_missing_value

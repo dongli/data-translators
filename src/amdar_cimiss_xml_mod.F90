@@ -67,13 +67,13 @@ contains
     integer year, month, day, hour, minute
     type(datetime_type) time
     real p, p_qc
-    real T, T_qc
+    real ta, ta_qc
     real q, q_qc
-    real Td, Td_qc
+    real td, td_qc
     real rh, rh_qc
     real wd, wd_qc
     real ws, ws_qc
-    integer turb_idx
+    integer trb
     integer i
 
     select case (name)
@@ -115,9 +115,9 @@ contains
         case ('PRS_HWC')
           read(value, *) p
         case ('TEM')
-          read(value, *) T
+          read(value, *) ta
         case ('DPT')
-          read(value, *) Td
+          read(value, *) td
         case ('RHU')
           read(value, *) rh
         case ('V13002')
@@ -127,18 +127,18 @@ contains
         case ('WIN_S')
           read(value, *) ws
         case ('V11037')
-          read(value, *) turb_idx
+          read(value, *) trb
         end select
       end do
       time = create_datetime(year, month, day, hour, minute)
-      p  = merge(real_missing_value, p,  is_missing(p,  src='cimiss'))
-      T  = merge(real_missing_value, T,  is_missing(T,  src='cimiss'))
-      Td = merge(real_missing_value, Td, is_missing(Td, src='cimiss'))
-      q  = merge(real_missing_value, q,  is_missing(q,  src='cimiss'))
-      rh = merge(real_missing_value, rh, is_missing(rh, src='cimiss'))
-      ws = merge(real_missing_value, ws, is_missing(ws, src='cimiss'))
-      wd = merge(real_missing_value, wd, is_missing(wd, src='cimiss'))
-      turb_idx = merge(int_missing_value, turb_idx, is_missing(turb_idx, src='cimiss'))
+      p   = merge(real_missing_value, p  , is_missing(p  , src='cimiss'))
+      ta  = merge(real_missing_value, ta , is_missing(ta , src='cimiss'))
+      td  = merge(real_missing_value, td , is_missing(td , src='cimiss'))
+      q   = merge(real_missing_value, q  , is_missing(q  , src='cimiss'))
+      rh  = merge(real_missing_value, rh , is_missing(rh , src='cimiss'))
+      ws  = merge(real_missing_value, ws , is_missing(ws , src='cimiss'))
+      wd  = merge(real_missing_value, wd , is_missing(wd , src='cimiss'))
+      trb = merge( int_missing_value, trb, is_missing(trb, src='cimiss'))
       ! Create flight and record.
       if (dummy_flights%hashed(flight_name)) then
         select type (value => dummy_flights%value(flight_name))
@@ -165,15 +165,15 @@ contains
         record%h = real_missing_value
       end if
       record%p  = multiply(p, 100.0)
-      record%ta = T
+      record%ta = ta
       record%sh = q
-      record%td = Td
+      record%td = td
       record%rh = rh
       record%ws = ws
       record%wd = wd
       record%ua = wind_u_component(ws, wd)
       record%va = wind_v_component(ws, wd)
-      record%turb = turb_idx
+      record%trb = trb
       call dummy_records%insert(flight_name // '@' // time%isoformat(), record)
       call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
     end select

@@ -60,7 +60,7 @@ contains
       'va REAL, '              // &
       'va_qc INTEGER, '        // &
       'va_cr REAL, '           // &
-      'turb INTEGER'           // &
+      'trb INTEGER'            // &
       ') ON "' //trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO amdar (' // &
       'platform_id, '          // &
@@ -89,7 +89,7 @@ contains
       'va, '                   // &
       'va_qc, '                // &
       'va_cr, '                // &
-      'turb'                   // &
+      'trb'                    // &
       ') VALUES (' // trim(odb_values_placeholder(27)) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
@@ -105,25 +105,25 @@ contains
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-        col = col + 1; if (.not. is_missing(record%p))     call odbql_bind_double(odb_stmt, col, dble(record%p))
-        col = col + 1; if (.not. is_missing(record%p_qc))  call odbql_bind_double(odb_stmt, col, dble(record%p_qc))
-        col = col + 1; if (.not. is_missing(record%p_cr))  call odbql_bind_double(odb_stmt, col, dble(record%p_cr))
-        col = col + 1; if (.not. is_missing(record%h))     call odbql_bind_double(odb_stmt, col, dble(record%h))
-        col = col + 1; if (.not. is_missing(record%h_qc))  call odbql_bind_double(odb_stmt, col, dble(record%h_qc))
-        col = col + 1; if (.not. is_missing(record%h_cr))  call odbql_bind_double(odb_stmt, col, dble(record%h_cr))
-        col = col + 1; if (.not. is_missing(record%ta))    call odbql_bind_double(odb_stmt, col, dble(record%ta))
-        col = col + 1; if (.not. is_missing(record%ta_qc)) call odbql_bind_double(odb_stmt, col, dble(record%ta_qc))
+        col = col + 1; if (.not. is_missing(record%p    )) call odbql_bind_double(odb_stmt, col, dble(record%p    ))
+        col = col + 1; if (.not. is_missing(record%p_qc )) call odbql_bind_int   (odb_stmt, col,      record%p_qc  )
+        col = col + 1; if (.not. is_missing(record%p_cr )) call odbql_bind_double(odb_stmt, col, dble(record%p_cr ))
+        col = col + 1; if (.not. is_missing(record%h    )) call odbql_bind_double(odb_stmt, col, dble(record%h    ))
+        col = col + 1; if (.not. is_missing(record%h_qc )) call odbql_bind_int   (odb_stmt, col,      record%h_qc  )
+        col = col + 1; if (.not. is_missing(record%h_cr )) call odbql_bind_double(odb_stmt, col, dble(record%h_cr ))
+        col = col + 1; if (.not. is_missing(record%ta   )) call odbql_bind_double(odb_stmt, col, dble(record%ta   ))
+        col = col + 1; if (.not. is_missing(record%ta_qc)) call odbql_bind_int   (odb_stmt, col,      record%ta_qc )
         col = col + 1; if (.not. is_missing(record%ta_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ta_cr))
-        col = col + 1; if (.not. is_missing(record%sh))    call odbql_bind_double(odb_stmt, col, dble(record%sh))
-        col = col + 1; if (.not. is_missing(record%sh_qc)) call odbql_bind_double(odb_stmt, col, dble(record%sh_qc))
+        col = col + 1; if (.not. is_missing(record%sh   )) call odbql_bind_double(odb_stmt, col, dble(record%sh   ))
+        col = col + 1; if (.not. is_missing(record%sh_qc)) call odbql_bind_int   (odb_stmt, col,      record%sh_qc )
         col = col + 1; if (.not. is_missing(record%sh_cr)) call odbql_bind_double(odb_stmt, col, dble(record%sh_cr))
-        col = col + 1; if (.not. is_missing(record%ua))    call odbql_bind_double(odb_stmt, col, dble(record%ua))
-        col = col + 1; if (.not. is_missing(record%ua_qc)) call odbql_bind_double(odb_stmt, col, dble(record%ua_qc))
+        col = col + 1; if (.not. is_missing(record%ua   )) call odbql_bind_double(odb_stmt, col, dble(record%ua   ))
+        col = col + 1; if (.not. is_missing(record%ua_qc)) call odbql_bind_int   (odb_stmt, col,      record%ua_qc )
         col = col + 1; if (.not. is_missing(record%ua_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ua_cr))
-        col = col + 1; if (.not. is_missing(record%va))    call odbql_bind_double(odb_stmt, col, dble(record%va))
-        col = col + 1; if (.not. is_missing(record%va_qc)) call odbql_bind_double(odb_stmt, col, dble(record%va_qc))
+        col = col + 1; if (.not. is_missing(record%va   )) call odbql_bind_double(odb_stmt, col, dble(record%va   ))
+        col = col + 1; if (.not. is_missing(record%va_qc)) call odbql_bind_int   (odb_stmt, col,      record%va_qc )
         col = col + 1; if (.not. is_missing(record%va_cr)) call odbql_bind_double(odb_stmt, col, dble(record%va_cr))
-        col = col + 1; if (.not. is_missing(record%turb))  call odbql_bind_double(odb_stmt, col, dble(record%turb))
+        col = col + 1; if (.not. is_missing(record%trb  )) call odbql_bind_double(odb_stmt, col, dble(record%trb  ))
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
       class default

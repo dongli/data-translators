@@ -42,18 +42,18 @@ contains
       'ta REAL, '              // &
       'ta_qc INTEGER, '        // &
       'ta_cr REAL, '           // &
+      'p REAL, '               // &
+      'p_qc INTEGER, '         // &
+      'p_cr REAL, '            // &
       'td REAL, '              // &
       'rh REAL, '              // &
       'rh_qc INTEGER, '        // &
       'ua REAL, '              // &
-      'va REAL, '              // &
       'ua_qc INTEGER, '        // &
-      'va_qc INTEGER, '        // &
       'ua_cr REAL, '           // &
-      'va_cr REAL, '           // &
-      'p REAL, '               // &
-      'p_qc INTEGER, '         // &
-      'p_cr REAL'              // &
+      'va REAL, '              // &
+      'va_qc INTEGER, '        // &
+      'va_cr REAL'             // &
       ') ON "' // trim(file_path) // '";', -1, odb_stmt, odb_unparsed_sql)
     call odbql_prepare_v2(odb_db, 'INSERT INTO synop (' // &
       'platform_id, '          // &
@@ -67,19 +67,19 @@ contains
       'ta, '                   // &
       'ta_qc, '                // &
       'ta_cr, '                // &
+      'p, '                    // &
+      'p_qc, '                 // &
+      'p_cr, '                 // &
       'td, '                   // &
       'rh, '                   // &
       'rh_qc, '                // &
       'ua, '                   // &
-      'va, '                   // &
       'ua_qc, '                // &
-      'va_qc, '                // &
       'ua_cr, '                // &
-      'va_cr, '                // &
-      'p, '                    // &
-      'p_qc, '                 // &
-      'p_cr'                   // &
-      ') VALUES (' // odb_values_placeholder(22) // ');', -1, odb_stmt, odb_unparsed_sql)
+      'va, '                   // &
+      'va_qc, '                // &
+      'va_cr'                  // &
+      ') VALUES (' // odb_values_placeholder(23) // ');', -1, odb_stmt, odb_unparsed_sql)
 
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
@@ -94,21 +94,21 @@ contains
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
         col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
-        col = col + 1; if (.not. is_missing(record%ta))      call odbql_bind_double(odb_stmt, col, dble(record%ta))
-        col = col + 1; if (.not. is_missing(record%ta_qc))   call odbql_bind_int   (odb_stmt, col, record%ta_qc)
-        col = col + 1; if (.not. is_missing(record%ta_cr))   call odbql_bind_double(odb_stmt, col, dble(record%ta_cr))
-        col = col + 1; if (.not. is_missing(record%td))      call odbql_bind_double(odb_stmt, col, dble(record%td))
-        col = col + 1; if (.not. is_missing(record%rh))      call odbql_bind_double(odb_stmt, col, dble(record%rh))
-        col = col + 1; if (.not. is_missing(record%rh_qc))   call odbql_bind_int   (odb_stmt, col, record%rh_qc)
-        col = col + 1; if (.not. is_missing(record%ua))      call odbql_bind_double(odb_stmt, col, dble(record%ua))
-        col = col + 1; if (.not. is_missing(record%va))      call odbql_bind_double(odb_stmt, col, dble(record%va))
-        col = col + 1; if (.not. is_missing(record%ua_qc))   call odbql_bind_int   (odb_stmt, col, record%ua_qc)
-        col = col + 1; if (.not. is_missing(record%va_qc))   call odbql_bind_int   (odb_stmt, col, record%va_qc)
-        col = col + 1; if (.not. is_missing(record%ua_cr))   call odbql_bind_double(odb_stmt, col, dble(record%ua_cr))
-        col = col + 1; if (.not. is_missing(record%va_cr))   call odbql_bind_double(odb_stmt, col, dble(record%va_cr))
-        col = col + 1; if (.not. is_missing(record%p))       call odbql_bind_double(odb_stmt, col, dble(record%p))
-        col = col + 1; if (.not. is_missing(record%p_qc))    call odbql_bind_int   (odb_stmt, col, record%p_qc)
-        col = col + 1; if (.not. is_missing(record%p_cr))    call odbql_bind_double(odb_stmt, col, dble(record%p_cr))
+        col = col + 1; if (.not. is_missing(record%ta))    call odbql_bind_double(odb_stmt, col, dble(record%ta   ))
+        col = col + 1; if (.not. is_missing(record%ta_qc)) call odbql_bind_int   (odb_stmt, col,      record%ta_qc )
+        col = col + 1; if (.not. is_missing(record%ta_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ta_cr))
+        col = col + 1; if (.not. is_missing(record%p))     call odbql_bind_double(odb_stmt, col, dble(record%p    ))
+        col = col + 1; if (.not. is_missing(record%p_qc))  call odbql_bind_int   (odb_stmt, col,      record%p_qc  )
+        col = col + 1; if (.not. is_missing(record%p_cr))  call odbql_bind_double(odb_stmt, col, dble(record%p_cr ))
+        col = col + 1; if (.not. is_missing(record%td))    call odbql_bind_double(odb_stmt, col, dble(record%td   ))
+        col = col + 1; if (.not. is_missing(record%rh))    call odbql_bind_double(odb_stmt, col, dble(record%rh   ))
+        col = col + 1; if (.not. is_missing(record%rh_qc)) call odbql_bind_int   (odb_stmt, col,      record%rh_qc )
+        col = col + 1; if (.not. is_missing(record%ua))    call odbql_bind_double(odb_stmt, col, dble(record%ua   ))
+        col = col + 1; if (.not. is_missing(record%ua_qc)) call odbql_bind_int   (odb_stmt, col,      record%ua_qc )
+        col = col + 1; if (.not. is_missing(record%ua_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ua_cr))
+        col = col + 1; if (.not. is_missing(record%va))    call odbql_bind_double(odb_stmt, col, dble(record%va   ))
+        col = col + 1; if (.not. is_missing(record%va_qc)) call odbql_bind_int   (odb_stmt, col,      record%va_qc )
+        col = col + 1; if (.not. is_missing(record%va_cr)) call odbql_bind_double(odb_stmt, col, dble(record%va_cr))
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
       class default

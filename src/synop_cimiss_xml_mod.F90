@@ -67,8 +67,8 @@ contains
     integer year, month, day, hour, minute
     type(datetime_type) time
     real p, p_qc
-    real T, T_qc
-    real Td, sh
+    real ta, ta_qc
+    real td, sh
     real rh, rh_qc
     real wd, wd_qc
     real ws, ws_qc
@@ -111,7 +111,7 @@ contains
         case ('PRS')
           read(value, *) p
         case ('TEM')
-          read(value, *) T
+          read(value, *) ta
         case ('RHU')
           read(value, *) rh
         case ('WIN_D_Avg_1mi')
@@ -121,7 +121,7 @@ contains
         case ('Q_PRS')
           read(value, *) p_qc
         case ('Q_TEM')
-          read(value, *) T_qc
+          read(value, *) ta_qc
         case ('Q_RHU')
           read(value, *) rh_qc
         case ('Q_WIN_D_Avg_1mi')
@@ -132,10 +132,10 @@ contains
       end do
       time = create_datetime(year, month, day, hour, minute)
       p  = merge(real_missing_value, p,  is_missing(p,  src='cimiss'))
-      T  = merge(real_missing_value, T,  is_missing(T,  src='cimiss'))
+      ta = merge(real_missing_value, ta, is_missing(ta, src='cimiss'))
       rh = merge(real_missing_value, rh, is_missing(rh, src='cimiss'))
-      sh = specific_humidity_from_relative_humidity(p, T, rh)
-      Td = dewpoint(p, sh)
+      sh = specific_humidity_from_relative_humidity(p, ta, rh)
+      td = dewpoint(p, sh)
       wd = merge(real_missing_value, wd, is_missing(wd, src='cimiss'))
       ws = merge(real_missing_value, ws, is_missing(ws, src='cimiss'))
       ! Create station and record.
@@ -154,9 +154,9 @@ contains
       record%station => station
       record%time = time
       ! Set record.
-      record%p     = multiply(p, 100.0)
-      record%ta    = T
-      record%td    = Td
+      record%p     = p
+      record%ta    = td
+      record%td    = td
       record%rh    = rh
       record%sh    = sh
       record%wd    = wd
@@ -164,7 +164,7 @@ contains
       record%ua    = wind_u_component(ws, wd)
       record%va    = wind_v_component(ws, wd)
       record%p_qc  = merge(2, 3, p_qc  == 0)
-      record%ta_qc = merge(2, 3, T_qc  == 0)
+      record%ta_qc = merge(2, 3, ta_qc == 0)
       record%rh_qc = merge(2, 3, rh_qc == 0)
       record%sh_qc = merge(2, 3, rh_qc == 0)
       record%wd_qc = merge(2, 3, wd_qc == 0)

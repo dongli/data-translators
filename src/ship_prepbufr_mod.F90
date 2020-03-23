@@ -77,7 +77,7 @@ contains
         if (.not. (hdr(5) == 180 .or. hdr(5) == 183 .or. hdr(5) == 280 .or. hdr(5) == 282 .or. hdr(5) == 284)) then
           cycle
         end if
-        time = base_time + timedelta(hours=hdr(6))
+        time = base_time + create_timedelta(hours=hdr(6))
         lon = hdr(2)
         if (lon > 180) lon = lon - 360
         lat = hdr(3)
@@ -115,8 +115,6 @@ contains
 
         if (is_missing(record%p)) then
           call prepbufr_raw(obs(p_idx,1,:), record%p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%p_qc)
-          ! Convert pressure from hPa to Pa.
-          record%p = multiply(record%p, 100.0)
         end if
         if (is_missing(record%ta)) then
           call prepbufr_raw(obs(ta_idx,1,:), record%ta, stack_qc=qc(ta_idx,1,:), stack_pc=pc(ta_idx,1,:), qc=record%ta_qc)

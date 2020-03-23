@@ -23,8 +23,9 @@ contains
     type(linked_list_type), intent(inout) :: records
 
     type(linked_list_iterator_type) record_iterator
-    real ta, td
+    real ta, td, p
     integer i
+    character(20) date_char
 
     if (file_path == '') file_path = 'ship.littler'
 
@@ -37,6 +38,8 @@ contains
       type is (ship_record_type)
         ta = add(record%ta, freezing_point)
         td = add(record%td, freezing_point)
+        p  = multiply(record%p, 100.0)
+        date_char = adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20))
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%lat)                            ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%lon)                            ! longitude
@@ -55,7 +58,7 @@ contains
         write(10, '(L10)',   advance='no') .false.                                              ! discard
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                         ! obs_time
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                         ! julian_day
-        write(10, '(A20)',   advance='no') adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20)) ! date_char
+        write(10, '(A20)',   advance='no') date_char
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                        ! slp
         write(10, '(I7)',    advance='no') 0                                                    ! slp QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                        ! ref_pres
@@ -84,7 +87,7 @@ contains
         write(10, '(I7)',    advance='no') 0                                                    ! celing QC
         write(10, *)
         ! Record
-        write(10, '(F13.5)', advance='no') littler_value(record%p)                              ! pressure (Pa)
+        write(10, '(F13.5)', advance='no') littler_value(p)                                     ! pressure (Pa)
         write(10, '(I7)',    advance='no') 0                                                    ! pressure QC
         write(10, '(F13.5)', advance='no') 0.0                                                  ! height
         write(10, '(I7)',    advance='no') 0                                                    ! height QC

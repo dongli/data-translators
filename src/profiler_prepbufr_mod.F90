@@ -80,7 +80,7 @@ contains
         station_name = transfer(hdr(1), station_name)
         ! Filter out non-profiler observations.
         if (hdr(5) /= 223 .and. hdr(5) /= 227 .and. hdr(5) /= 228 .and. hdr(5) /= 229) cycle
-        time = base_time + timedelta(hours=hdr(6))
+        time = base_time + create_timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (profiler_station_type)

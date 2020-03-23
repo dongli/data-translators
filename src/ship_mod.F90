@@ -16,7 +16,7 @@ module ship_mod
 
   type, extends(obs_drift_record_base_type) :: ship_record_type
     type(ship_type), pointer :: ship
-    real    :: ps  = real_missing_value ! Pressure (Pa)
+    real    :: ps  = real_missing_value ! Pressure (hPa)
     real    :: ta  = real_missing_value ! Air temperature (degC)
     real    :: sst = real_missing_value ! Sea temperature / SST (degC)
     real    :: td  = real_missing_value ! Dewpoint temperature (degC)

@@ -20,18 +20,18 @@ module metar_prepbufr_mod
   integer, parameter :: max_num_event = 10
 
   integer, parameter :: p_idx     = 1
-  integer, parameter :: T_idx     = 2
-  integer, parameter :: Q_idx     = 3
-  integer, parameter :: Td_idx    = 4
-  integer, parameter :: u_idx     = 5
-  integer, parameter :: v_idx     = 6
+  integer, parameter :: ta_idx    = 2
+  integer, parameter :: sh_idx    = 3
+  integer, parameter :: td_idx    = 4
+  integer, parameter :: ua_idx    = 5
+  integer, parameter :: va_idx    = 6
   integer, parameter :: wd_idx    = 7
   integer, parameter :: ws_idx    = 8
-  integer, parameter :: TP01_idx  = 9
-  integer, parameter :: TP03_idx  = 10
-  integer, parameter :: TP06_idx  = 11
-  integer, parameter :: TP12_idx  = 12
-  integer, parameter :: TP24_idx  = 13
+  integer, parameter :: tp01_idx  = 9
+  integer, parameter :: tp03_idx  = 10
+  integer, parameter :: tp06_idx  = 11
+  integer, parameter :: tp12_idx  = 12
+  integer, parameter :: tp24_idx  = 13
 
 contains
 
@@ -81,7 +81,7 @@ contains
         station_name = transfer(hdr(1), station_name)
         station_name = station_name(1:5)
         if (hdr(5) /= 187 .and. hdr(5) /= 287) cycle
-        time = base_time + timedelta(hours=hdr(6))
+        time = base_time + create_timedelta(hours=hdr(6))
         if (stations%hashed(station_name)) then
           select type (value => stations%value(station_name))
           type is (metar_station_type)
@@ -119,27 +119,26 @@ contains
 
         if (is_missing(record%p)) then
           call prepbufr_raw(obs(p_idx,1,:), record%p, stack_qc=qc(p_idx,1,:), stack_pc=pc(p_idx,1,:), qc=record%p_qc)
-          record%p = multiply(record%p, 100.0) ! Convert p from hPa to Pa.
-          record%p_cr = multiply(prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:)), 100.0)
+          record%p_cr = prepbufr_correct(obs(p_idx,1,:), qc(p_idx,1,:), pc(p_idx,1,:))
         end if
         if (is_missing(record%ta)) then
-          call prepbufr_raw(obs(T_idx,1,:), record%ta, stack_qc=qc(T_idx,1,:), stack_pc=pc(T_idx,1,:), qc=record%ta_qc)
-          record%ta_cr = prepbufr_correct(obs(T_idx,1,:), qc(T_idx,1,:), pc(T_idx,1,:))
+          call prepbufr_raw(obs(ta_idx,1,:), record%ta, stack_qc=qc(ta_idx,1,:), stack_pc=pc(ta_idx,1,:), qc=record%ta_qc)
+          record%ta_cr = prepbufr_correct(obs(ta_idx,1,:), qc(ta_idx,1,:), pc(ta_idx,1,:))
         end if
         if (is_missing(record%sh)) then
-          call prepbufr_raw(obs(Q_idx,1,:), record%sh, stack_qc=qc(Q_idx,1,:), stack_pc=pc(Q_idx,1,:), qc=record%sh_qc)
-          record%sh_cr = prepbufr_correct(obs(Q_idx,1,:), qc(Q_idx,1,:), pc(Q_idx,1,:))
+          call prepbufr_raw(obs(sh_idx,1,:), record%sh, stack_qc=qc(sh_idx,1,:), stack_pc=pc(sh_idx,1,:), qc=record%sh_qc)
+          record%sh_cr = prepbufr_correct(obs(sh_idx,1,:), qc(sh_idx,1,:), pc(sh_idx,1,:))
         end if
         if (is_missing(record%td)) then
-          call prepbufr_raw(obs(Td_idx,1,:), record%td)
+          call prepbufr_raw(obs(td_idx,1,:), record%td)
         end if
         if (is_missing(record%ua)) then
-          call prepbufr_raw(obs(u_idx,1,:), record%ua, stack_qc=qc(u_idx,1,:), stack_pc=pc(u_idx,1,:), qc=record%ua_qc)
-          record%ua_cr = prepbufr_correct(obs(u_idx,1,:), qc(u_idx,1,:), pc(u_idx,1,:))
+          call prepbufr_raw(obs(ua_idx,1,:), record%ua, stack_qc=qc(ua_idx,1,:), stack_pc=pc(ua_idx,1,:), qc=record%ua_qc)
+          record%ua_cr = prepbufr_correct(obs(ua_idx,1,:), qc(ua_idx,1,:), pc(ua_idx,1,:))
         end if
         if (is_missing(record%va)) then
-          call prepbufr_raw(obs(v_idx,1,:), record%va, stack_qc=qc(v_idx,1,:), stack_pc=pc(v_idx,1,:), qc=record%va_qc)
-          record%va_cr = prepbufr_correct(obs(v_idx,1,:), qc(v_idx,1,:), pc(v_idx,1,:))
+          call prepbufr_raw(obs(va_idx,1,:), record%va, stack_qc=qc(va_idx,1,:), stack_pc=pc(va_idx,1,:), qc=record%va_qc)
+          record%va_cr = prepbufr_correct(obs(va_idx,1,:), qc(va_idx,1,:), pc(va_idx,1,:))
         end if
         if (is_missing(record%wd)) then
           call prepbufr_raw(obs(wd_idx,1,:), record%wd, stack_qc=qc(wd_idx,1,:), stack_pc=pc(wd_idx,1,:), qc=record%wd_qc)
@@ -149,11 +148,11 @@ contains
           call prepbufr_raw(obs(ws_idx,1,:), record%ws, stack_qc=qc(ws_idx,1,:), stack_pc=pc(ws_idx,1,:), qc=record%ws_qc)
           record%ws_cr = prepbufr_correct(obs(ws_idx,1,:), qc(ws_idx,1,:), pc(ws_idx,1,:))
         end if
-        if (is_missing(record%r01h)) call prepbufr_raw(obs(TP01_idx,1,:), record%r01h)
-        if (is_missing(record%r03h)) call prepbufr_raw(obs(TP03_idx,1,:), record%r03h)
-        if (is_missing(record%r06h)) call prepbufr_raw(obs(TP06_idx,1,:), record%r06h)
-        if (is_missing(record%r12h)) call prepbufr_raw(obs(TP12_idx,1,:), record%r12h)
-        if (is_missing(record%r24h)) call prepbufr_raw(obs(TP24_idx,1,:), record%r24h)
+        if (is_missing(record%r01h)) call prepbufr_raw(obs(tp01_idx,1,:), record%r01h)
+        if (is_missing(record%r03h)) call prepbufr_raw(obs(tp03_idx,1,:), record%r03h)
+        if (is_missing(record%r06h)) call prepbufr_raw(obs(tp06_idx,1,:), record%r06h)
+        if (is_missing(record%r12h)) call prepbufr_raw(obs(tp12_idx,1,:), record%r12h)
+        if (is_missing(record%r24h)) call prepbufr_raw(obs(tp24_idx,1,:), record%r24h)
 
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
@@ -162,29 +161,29 @@ contains
           if (hdr(5) == 187) then
             print *, 'PrepBUFR stacks (mass):'
             print *, 'T:'
-            print *, obs(T_idx,1,:4)
-            print *, qc(T_idx,1,:4)
-            print *, pc(T_idx,1,:4)
+            print *, obs(ta_idx,1,:4)
+            print *, qc(ta_idx,1,:4)
+            print *, pc(ta_idx,1,:4)
             print *, 'p:'
             print *, obs(p_idx,1,:4)
             print *, qc(p_idx,1,:4)
             print *, pc(p_idx,1,:4)
             print *, 'Td:'
-            print *, obs(Td_idx,1,:4)
+            print *, obs(td_idx,1,:4)
             print *, 'Q:'
-            print *, obs(Q_idx,1,:4)
-            print *, qc(Q_idx,1,:4)
-            print *, pc(Q_idx,1,:4)
+            print *, obs(sh_idx,1,:4)
+            print *, qc(sh_idx,1,:4)
+            print *, pc(sh_idx,1,:4)
           else if (hdr(5) == 287) then
             print *, 'PrepBUFR stacks (wind):'
             print *, 'u:'
-            print *, obs(u_idx,1,:4)
-            print *, qc(u_idx,1,:4)
-            print *, pc(u_idx,1,:4)
+            print *, obs(ua_idx,1,:4)
+            print *, qc(ua_idx,1,:4)
+            print *, pc(ua_idx,1,:4)
             print *, 'v:'
-            print *, obs(v_idx,1,:4)
-            print *, qc(v_idx,1,:4)
-            print *, pc(v_idx,1,:4)
+            print *, obs(va_idx,1,:4)
+            print *, qc(va_idx,1,:4)
+            print *, pc(va_idx,1,:4)
             print *, 'wd:'
             print *, obs(wd_idx,1,:4)
             print *, qc(wd_idx,1,:4)

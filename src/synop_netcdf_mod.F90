@@ -33,8 +33,8 @@ contains
     integer lat_varid
     integer alt_varid
     integer p_varid
-    integer T_varid
-    integer Td_varid
+    integer ta_varid
+    integer td_varid
     integer rh_varid
     integer wd_varid
     integer ws_varid
@@ -50,8 +50,8 @@ contains
     real, allocatable :: lat(:)
     real, allocatable :: alt(:)
     real, allocatable :: p(:)
-    real, allocatable :: T(:)
-    real, allocatable :: Td(:)
+    real, allocatable :: ta(:)
+    real, allocatable :: td(:)
     real, allocatable :: rh(:)
     real, allocatable :: wd(:)
     real, allocatable :: ws(:)
@@ -125,25 +125,25 @@ contains
     ierr = nf90_put_att(ncid, p_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, p_varid, 'units', 'Pa')
+    ierr = nf90_put_att(ncid, p_varid, 'units', 'hPa')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'ta', nf90_float, [record_dimid], T_varid)
+    ierr = nf90_def_var(ncid, 'ta', nf90_float, [record_dimid], ta_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, T_varid, '_FillValue', real_missing_value)
+    ierr = nf90_put_att(ncid, ta_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, T_varid, 'units', 'K')
+    ierr = nf90_put_att(ncid, ta_varid, 'units', 'degC')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_def_var(ncid, 'td', nf90_float, [record_dimid], Td_varid)
+    ierr = nf90_def_var(ncid, 'td', nf90_float, [record_dimid], td_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, Td_varid, '_FillValue', real_missing_value)
+    ierr = nf90_put_att(ncid, td_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, Td_varid, 'units', 'K')
+    ierr = nf90_put_att(ncid, td_varid, 'units', 'degC')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'rh', nf90_float, [record_dimid], rh_varid)
@@ -161,7 +161,7 @@ contains
     ierr = nf90_put_att(ncid, wd_varid, '_FillValue', real_missing_value)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_att(ncid, wd_varid, 'units', 'degree')
+    ierr = nf90_put_att(ncid, wd_varid, 'units', 'deg')
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_def_var(ncid, 'ws', nf90_float, [record_dimid], ws_varid)
@@ -192,12 +192,12 @@ contains
     allocate(lon(stations%size))
     allocate(lat(stations%size))
     allocate(alt(stations%size))
-    allocate(p(records%size))
-    allocate(T(records%size))
-    allocate(Td(records%size))
-    allocate(rh(records%size))
-    allocate(wd(records%size))
-    allocate(ws(records%size))
+    allocate(p  (records%size))
+    allocate(ta (records%size))
+    allocate(td (records%size))
+    allocate(rh (records%size))
+    allocate(wd (records%size))
+    allocate(ws (records%size))
     allocate(r01(records%size))
 
     record_idx = -1
@@ -230,8 +230,8 @@ contains
         end if
         record_idx(j,platform_idx(i)+1) = record%seq_id
         p  (i) = record%p
-        T  (i) = record%ta
-        Td (i) = record%td
+        ta (i) = record%ta
+        td (i) = record%td
         rh (i) = record%rh
         wd (i) = record%wd
         ws (i) = record%ws
@@ -265,10 +265,10 @@ contains
     ierr = nf90_put_var(ncid, p_varid, p)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_var(ncid, T_varid, T)
+    ierr = nf90_put_var(ncid, ta_varid, ta)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
-    ierr = nf90_put_var(ncid, Td_varid, Td)
+    ierr = nf90_put_var(ncid, td_varid, td)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
 
     ierr = nf90_put_var(ncid, rh_varid, rh)
@@ -294,8 +294,8 @@ contains
     deallocate(lat)
     deallocate(alt)
     deallocate(p)
-    deallocate(T)
-    deallocate(Td)
+    deallocate(ta)
+    deallocate(td)
     deallocate(rh)
     deallocate(wd)
     deallocate(ws)

@@ -24,6 +24,7 @@ contains
 
     type(linked_list_iterator_type) record_iterator
     integer i, j, k
+    character(20) date_char
 
     if (file_path == '') file_path = 'profiler.littler'
 
@@ -35,6 +36,7 @@ contains
       j = 0
       select type (record => record_iterator%value)
       type is (profiler_record_type)
+        date_char = adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20))
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%station%lat)                  ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%station%lon)                  ! longitude
@@ -53,7 +55,7 @@ contains
         write(10, '(L10)',   advance='no') .false.                                            ! discard
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! obs_time
         write(10, '(I10)',   advance='no') int_missing_value_in_littler                       ! julian_day
-        write(10, '(A20)',   advance='no') adjustr(pad_string(record%time%format('%Y%m%d%H%M%S'), 20)) ! date_char
+        write(10, '(A20)',   advance='no') date_char
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! slp
         write(10, '(I7)',    advance='no') 0                                                  ! slp QC
         write(10, '(F13.5)', advance='no') real_missing_value_in_littler                      ! ref_pres
@@ -83,7 +85,7 @@ contains
         write(10, *)
         ! Records
         do k = 1, record%pro%num_level
-          write(10, '(F13.5)', advance='no') littler_value(record%pro%p(k))
+          write(10, '(F13.5)', advance='no') littler_value(multiply(record%pro%p(k), 100.0))
           write(10, '(I7)', advance='no') 0
           write(10, '(F13.5)', advance='no') littler_value(record%pro%h(k))
           write(10, '(I7)', advance='no') 0
