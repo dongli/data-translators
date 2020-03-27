@@ -3,9 +3,8 @@ module anem_nrg_txt_mod
   use anem_nrg_mod
   use datetime
   use string
-  use timedelta_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use params_mod
   use utils_mod
@@ -60,13 +59,10 @@ contains
     real h(10)
     integer i, j, k, n, iostat
 
-    towers = hash_table(chunk_size=1000, max_load_factor=0.9)
-    call records%clear()
-
     file_paths = split_string(file_path_list, ',')
 
     do k = 1, size(file_paths)
-      write(*, *) '[Notice]: Reading ' // trim(file_paths(k)%value) // ' ...'
+      call log_notice('Reading ' // trim(file_paths(k)%value) // ' ...')
       open(10, file=file_paths(k)%value, status='old')
       ! Read header.
       do while (.true.)
@@ -104,8 +100,7 @@ contains
       loop_labels: do i = 2, size(labels)
         matches = regex_search(labels(i)%value, '(\d+\.\d+)m')
         if (size(matches) == 0) then
-          write(*, *) '[Error]: Failed to find height from column label ' // trim(labels(i)%value) // '!'
-          stop 1
+          call log_error('Failed to find height from column label ' // trim(labels(i)%value) // '!')
         end if
         read(matches(1)%match(2)%str, *) h(n+1)
         deallocate(matches)
@@ -242,7 +237,7 @@ contains
       call dummy_record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Tower size is ' // trim(to_string(towers%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Tower size is ' // trim(to_string(towers%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine anem_nrg_txt_read
 

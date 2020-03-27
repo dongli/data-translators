@@ -1,9 +1,9 @@
 module raob_odb_mod
 
-  use hash_table_mod
-  use linked_list_mod
-  use raob_mod
   use odbql_wrappers
+  use container
+  use flogger
+  use raob_mod
   use utils_mod
 
   implicit none

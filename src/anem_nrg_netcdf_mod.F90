@@ -4,8 +4,7 @@ module anem_nrg_netcdf_mod
   use string
   use datetime
   use anem_nrg_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
   use params_mod
   use utils_mod
   use qsort_mod

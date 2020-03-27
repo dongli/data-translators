@@ -1,15 +1,14 @@
 module synop_cimiss_xml_mod
 
-  use synop_mod
   use datetime
   use string
-  use timedelta_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use fox_sax
   use params_mod
   use utils_mod
+  use synop_mod
 
   implicit none
 
@@ -31,13 +30,10 @@ contains
     type(xml_t) xml
     integer i, iostat
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     dummy_stations => stations
     dummy_records => records
 
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
 
     call open_xml_file(xml, file_path, iostat)
 
@@ -47,7 +43,7 @@ contains
 
     call close_xml_t(xml)
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine synop_cimiss_xml_read
 

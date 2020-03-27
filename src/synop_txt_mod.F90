@@ -1,13 +1,12 @@
 module synop_txt_mod
 
-  use synop_mod
-  use datetime_mod
-  use timedelta_mod
-  use hash_table_mod
-  use linked_list_mod
+  use datetime
   use string
+  use container
+  use flogger
   use params_mod
   use utils_mod
+  use synop_mod
 
   implicit none
 
@@ -30,12 +29,9 @@ contains
     real ta, p, wd, ws, r01, lon, lat, z
     integer iostat
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     call load_cma_synop_stations(stations)
 
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
 
     time = create_datetime(basename(file_path, ext='.txt'), '%Y%m%d%H')
 
@@ -76,7 +72,7 @@ contains
     end do
     close(10)
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine synop_txt_read
 

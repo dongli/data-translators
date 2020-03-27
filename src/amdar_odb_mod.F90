@@ -1,7 +1,7 @@
 module amdar_odb_mod
 
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use amdar_mod
   use odbql_wrappers
   use utils_mod
@@ -127,15 +127,15 @@ contains
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
       class default
-        write(*, *) '[Error]: Unknown record in the list!'
-        stop 1
+        call log_error('Unknown record in the list!', __FILE__, __LINE__)
       end select
       call record_iterator%next()
     end do
 
     call odbql_finalize(odb_stmt)
     call odbql_close(odb_db)
-    write(*, *) '[Notice]: ODB file is written.'
+
+    call log_notice('ODB file is written.')
 
   end subroutine amdar_odb_write
 

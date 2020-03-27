@@ -1,9 +1,8 @@
 module metar_mod
 
+  use container
   use obs_base_mod
   use params_mod
-  use hash_table_mod
-  use linked_list_mod
 
   implicit none
 

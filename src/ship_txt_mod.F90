@@ -2,12 +2,12 @@ module ship_txt_mod
 
   use datetime
   use string
-  use ship_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use params_mod
   use utils_mod
+  use ship_mod
 
   implicit none
 
@@ -68,10 +68,7 @@ contains
     integer enc_qc
     integer wind_qc ! FIXME: Merge wind_*_qc into one QC mark.
  
-    ships = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
 
     open(10, file=file_path, action='read', form='formatted')
     ! Header line
@@ -211,7 +208,7 @@ contains
     end do
     close(10)
 
-    write(*, *) '[Notice]: Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine ship_txt_read
 

@@ -1,12 +1,12 @@
 module ship_cimiss_txt_mod
 
   use datetime
-  use ship_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use params_mod
   use utils_mod
+  use ship_mod
 
   implicit none
 
@@ -42,19 +42,14 @@ contains
     type(ship_type), pointer :: ship
     type(ship_record_type), pointer :: record
 
-    ships = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     open(10, file=file_path, action='read', form='formatted')
     ! Header line
     read(10, '(A)') line
     res = regex_search(line, 'returnMessage="([^"]*)"')
     if (size(res) /= 1) then
-      write(*, *) '[Error]: Bad CIMISS text file without matched returnMessage token!'
-      stop 1
+      call log_error('Bad CIMISS text file without matched returnMessage token!')
     else if (res(1)%match(2)%str /= 'Query Succeed') then
-      write(*, *) '[Error]: Failed CIMISS query! ' // trim(res(1)%match(2)%str)
-      stop 1
+      call log_error('Failed CIMISS query! ' // trim(res(1)%match(2)%str))
     end if
     ! Elements line
     read(10, '(A)') line
@@ -65,8 +60,7 @@ contains
         elements(i) = res(i)%match(1)%str
       end do
     else
-      write(*, *) '[Error]: Bad CIMISS text file without matched elements line!'
-      stop 1
+      call log_error('Bad CIMISS text file without matched elements line!')
     end if
     ! Record line
     do while (.true.)
@@ -200,7 +194,6 @@ contains
       if (new_record) then
         call records%insert(ship_name // '@' // time%isoformat(), record)
       end if
-      ! if (ship_name == '40718') call record%print()
     end do
     close(10)
 

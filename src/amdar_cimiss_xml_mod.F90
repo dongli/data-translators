@@ -3,8 +3,8 @@ module amdar_cimiss_xml_mod
   use amdar_mod
   use datetime
   use string
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use fox_sax
   use params_mod
@@ -30,13 +30,10 @@ contains
     type(xml_t) xml
     integer i, iostat
 
-    flights = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     dummy_flights => flights
     dummy_records => records
 
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
 
     call open_xml_file(xml, file_path, iostat)
 
@@ -46,7 +43,7 @@ contains
 
     call close_xml_t(xml)
 
-    write(*, *) '[Notice]: Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine amdar_cimiss_xml_read
 
@@ -83,8 +80,7 @@ contains
         case ('requestParams')
           res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&')
           if (size(res) /= 1 .or. res(1)%match(2)%str /= 'UPAR_ARD_G_MUL_MUT_TAB') then
-            write(*, *) '[Error]: Input file is not CIMISS UPAR_ARD_G_MUL_MUT_TAB!'
-            stop 1
+            call log_error('Input file is not CIMISS UPAR_ARD_G_MUL_MUT_TAB!')
           end if 
         end select
       end do

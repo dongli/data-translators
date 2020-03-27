@@ -2,8 +2,8 @@ module amdar_prepbufr_mod
 
   use datetime
   use amdar_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use params_mod
   use cli_mod
   use utils_mod
@@ -52,10 +52,7 @@ contains
     ! BUFRLIB functions
     integer ireadmg, ireadsb
 
-    flights = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -173,7 +170,7 @@ contains
     end do
     call closbf(10)
 
-    write(*, *) '[Notice]: Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine amdar_prepbufr_read
 

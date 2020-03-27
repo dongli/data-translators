@@ -1,15 +1,14 @@
 module ship_cimiss_xml_mod
 
-  use ship_mod
-  use datetime_mod
+  use datetime
   use string
-  use timedelta_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use fox_sax
   use params_mod
   use utils_mod
+  use ship_mod
 
   implicit none
 
@@ -31,13 +30,10 @@ contains
     type(xml_t) xml
     integer i, iostat
 
-    ships = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     dummy_ships => ships
     dummy_records => records
 
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
 
     call open_xml_file(xml, file_path, iostat)
 
@@ -47,7 +43,7 @@ contains
 
     call close_xml_t(xml)
 
-    write(*, *) '[Notice]: Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine ship_cimiss_xml_read
 
@@ -89,8 +85,7 @@ contains
         case ('requestParams')
           res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&')
           if (size(res) /= 1 .or. res(1)%match(2)%str /= 'OCEN_GLB_SHB') then
-            write(*, *) '[Error]: Input file is not CIMISS OCEN_GLB_SHB!'
-            stop 1
+            call log_error('Input file is not CIMISS OCEN_GLB_SHB!')
           end if 
         end select
       end do
@@ -194,19 +189,19 @@ contains
       if (.not. is_missing(ta) .and. ta > 200) then
         ta = ta - freezing_point
         if (ta > 100) then
-          write(*, *) '[Warning]: Bad temperature value ', ta, 'for ', trim(ship_name), '!'
+          call log_warning('Bad temperature value ' // to_string(ta, 10) // 'for ' // trim(ship_name) // '!')
           ta = real_missing_value
         else
-          write(*, *) '[Warning]: Convert temperature units from K to degC for ', trim(ship_name), '.'
+          call log_warning('Convert temperature units from K to degC for ' // trim(ship_name) // '.')
         end if
       end if
       if (.not. is_missing(td) .and. td > 200) then
         td = td - freezing_point
         if (td > 100) then
-          write(*, *) '[Warning]: Bad dewpoint value ', td, 'for ', trim(ship_name), '!'
+          call log_warning('Bad dewpoint value ' // to_string(td, 10) // 'for ' // trim(ship_name) // '!')
           td = real_missing_value
         else
-          write(*, *) '[Warning]: Convert dewpoint units from K to degC for ', trim(ship_name), '.'
+          call log_warning('Convert dewpoint units from K to degC for ' // trim(ship_name) // '.')
         end if
       end if
       ! Create ship and record.

@@ -3,8 +3,8 @@ module metar_littler_mod
   use datetime
   use string
   use metar_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use params_mod
   use utils_mod
 

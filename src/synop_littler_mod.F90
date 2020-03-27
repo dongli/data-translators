@@ -2,11 +2,11 @@ module synop_littler_mod
 
   use datetime
   use string
-  use synop_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use params_mod
   use utils_mod
+  use synop_mod
 
   implicit none
 

@@ -1,12 +1,12 @@
 module synop_ftm_txt_mod
 
-  use synop_mod
   use datetime
   use string
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use cli_mod
   use utils_mod
+  use synop_mod
 
   implicit none
 
@@ -39,15 +39,12 @@ contains
     integer k, year, month, day, iostat
     logical new_record
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     dummy_records = hash_table(chunk_size=500000, max_load_factor=0.9)
 
     file_paths = split_string(file_path_list, ',')
 
     do k = 1, size(file_paths)
-      write(*, *) '[Notice]: Reading ' // trim(file_paths(k)%value) // ' ...'
+      call log_notice('Reading ' // trim(file_paths(k)%value) // ' ...')
       open(10, file=file_paths(k)%value, status='old')
       if (count_string(file_paths(k)%value, 'TEM') > 0) then
         do while (.true.)
@@ -56,8 +53,7 @@ contains
           if (iostat < 0) then
             exit
           else if (iostat > 0) then
-            write(*, *) '[Error]: Failed to read ' // trim(file_paths(k)%value) // '!'
-            stop 1
+            call log_error('Failed to read ' // trim(file_paths(k)%value) // '!')
           end if
 
           station => create_station(stations, station_name, lon, lat, z)
@@ -94,8 +90,7 @@ contains
           if (iostat < 0) then
             exit
           else if (iostat > 0) then
-            write(*, *) '[Error]: Failed to read ' // trim(file_paths(k)%value) // '!'
-            stop 1
+            call log_error('Failed to read ' // trim(file_paths(k)%value) // '!')
           end if
 
           station => create_station(stations, station_name, lon, lat, z)
@@ -150,7 +145,7 @@ contains
       call dummy_record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine synop_ftm_txt_read
 

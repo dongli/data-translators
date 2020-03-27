@@ -2,11 +2,11 @@ module ship_littler_mod
 
   use datetime
   use string
-  use ship_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use params_mod
   use utils_mod
+  use ship_mod
 
   implicit none
 

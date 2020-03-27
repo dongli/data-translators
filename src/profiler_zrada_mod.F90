@@ -1,12 +1,12 @@
 module profiler_zrada_mod
 
-  use profiler_mod
   use datetime
   use string
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use params_mod
   use utils_mod
+  use profiler_mod
 
   implicit none
 
@@ -38,10 +38,6 @@ contains
     type(profiler_record_type), pointer :: record
     type(linked_list_iterator_type) record_iterator
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-    nullify(record)
-
     offset_s = 1
     do while (.true.)
       offset_e = index(file_paths(offset_s:len_trim(file_paths)), ',')
@@ -50,15 +46,15 @@ contains
       else
         file_path = file_paths(offset_s:len_trim(file_paths))
       end if
-      write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+      call log_notice('Reading ' // trim(file_path) // ' ...')
       open(10, file=file_path)
       read(10, *)
       read(10, *) station_name, lon, lat, z, device_type, date_time_str
       time = create_datetime(date_time_str, '%Y%m%d%H%M%S')
       read(10, *) data_type
       if (data_type /= 'ROBS') then
-        write(*, *) '[Warning]: Currently, only ROBS wind profiler are supported!'
-        return
+        call log_warning('Currently, only ROBS wind profiler are supported!')
+        cycle
       end if
       if (stations%hashed(station_name)) then
         select type (value => stations%value(station_name))
@@ -120,14 +116,11 @@ contains
         call record%pro%init(record%pro_hash%h%size)
         call record%pro%set_from_hash(record%pro_hash)
         call record%station%records%insert(record)
-        ! if (record%station%name == '54511') then
-        !   call record%print()
-        ! end if
       end select
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine profiler_zrada_read
 

@@ -1,7 +1,7 @@
 module utils_mod
 
-  use params_mod
-  use hash_table_mod
+  use string
+  use container
   use synop_mod
 #ifdef HAS_LIB_ECCODES
   use eccodes
@@ -12,7 +12,7 @@ module utils_mod
 #ifdef HAS_LIB_ODB_API
   use odbql_wrappers
 #endif
-  use string
+  use params_mod
   use missing_value_mod
   use atm_formula_mod
 

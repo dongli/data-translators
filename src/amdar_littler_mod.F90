@@ -3,8 +3,7 @@ module amdar_littler_mod
   use datetime
   use string
   use amdar_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
   use params_mod
   use utils_mod
 

@@ -1,14 +1,13 @@
 module profiler_prepbufr_mod
 
-  use cli_mod
-  use profiler_mod
   use datetime
-  use hash_table_mod
-  use linked_list_mod
+  use string
+  use container
+  use flogger
   use params_mod
   use utils_mod
   use cli_mod
-  use string
+  use profiler_mod
 
   implicit none
 
@@ -56,11 +55,7 @@ contains
     ! BUFRLIB functions
     integer ireadmg, ireadsb
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-    nullify(record)
-
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -202,7 +197,7 @@ contains
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // to_string(stations%size) // ', record size is ' // to_string(records%size) // '.'
+    call log_notice('Station size is ' // to_string(stations%size) // ', record size is ' // to_string(records%size) // '.')
 
   end subroutine profiler_prepbufr_read
 

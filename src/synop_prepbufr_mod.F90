@@ -1,12 +1,12 @@
 module synop_prepbufr_mod
 
   use datetime
-  use synop_mod
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use params_mod
   use cli_mod
   use utils_mod
+  use synop_mod
 
   implicit none
 
@@ -58,10 +58,7 @@ contains
     ! BUFRLIB functions
     integer ireadmg, ireadsb
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -200,7 +197,7 @@ contains
     end do
     call closbf(10)
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine synop_prepbufr_read
 
@@ -223,7 +220,7 @@ contains
     hdr = 0.0
     obs = 0.0
 
-    write(*, *) '[Notice]: Writing ' // trim(file_path) // ' ...'
+    call log_notice('Writing ' // trim(file_path) // ' ...')
     open(10, file=file_path, action='write', form='unformatted')
     open(11, file='../notes/prepobs_prep.bufrtable')
     call openbf(10, 'OUT', 11)

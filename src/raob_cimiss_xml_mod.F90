@@ -3,8 +3,8 @@ module raob_cimiss_xml_mod
   use raob_mod
   use datetime
   use string
-  use hash_table_mod
-  use linked_list_mod
+  use container
+  use flogger
   use regex
   use fox_sax
   use params_mod
@@ -31,13 +31,10 @@ contains
     integer i, iostat
     type(hash_table_iterator_type) record_iterator
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     dummy_stations => stations
     dummy_records = hash_table(chunk_size=50000, max_load_factor=0.9)
 
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
 
     call open_xml_file(xml, file_path, iostat)
 
@@ -69,7 +66,7 @@ contains
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.'
+    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine raob_cimiss_xml_read
 
@@ -107,8 +104,7 @@ contains
         case ('requestParams')
           res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&')
           if (size(res) /= 1 .or. res(1)%match(2)%str /= 'UPAR_CHN_MUL_FTM') then
-            write(*, *) '[Error]: Input file is not CIMISS UPAR_CHN_MUL_FTM!'
-            stop 1
+            call log_error('Input file is not CIMISS UPAR_CHN_MUL_FTM!')
           end if 
         end select
       end do
@@ -308,8 +304,7 @@ contains
       case (16384, 4096) ! Unknown levels
         return
       case default
-        write(*, *) '[Error]: Unknown raob level type!', obs_type
-        stop 1
+        call log_error('Unknown raob level type!')
       end select
       if (new_record) then
         call dummy_records%insert(record_key, record)

@@ -1,10 +1,10 @@
 module synop_odb_mod
 
-  use hash_table_mod
-  use linked_list_mod
-  use synop_mod
   use odbql_wrappers
+  use container
+  use flogger
   use utils_mod
+  use synop_mod
 
   private
 
@@ -112,8 +112,7 @@ contains
         call odbql_step(odb_stmt)
         call odb_all_bind_null(odb_stmt, col)
       class default
-        write(*, *) '[Error]: Unknown record in the list!'
-        stop 1
+        call log_error('Unknown record in the list!')
       end select
       call record_iterator%next()
     end do

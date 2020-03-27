@@ -31,9 +31,6 @@ contains
     type(amdar_flight_type), pointer :: flight
     type(amdar_record_type), pointer :: record
 
-    flights = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-
     call codes_open_file(file_id, file_path, 'r')
 
     call codes_bufr_new_from_file(file_id, bufr_id, ret)

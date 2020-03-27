@@ -1,6 +1,7 @@
 module cli_mod
 
   use datetime
+  use flogger
 
   implicit none
 
@@ -10,6 +11,7 @@ module cli_mod
   public cli_reader_type
   public cli_writer_type
   public cli_input_file_path
+  public cli_input_list_file_path
   public cli_output_file_path
   public cli_first_file_path
   public cli_second_file_path
@@ -20,6 +22,7 @@ module cli_mod
   character(30) :: cli_reader_type = ''
   character(30) :: cli_writer_type = ''
   character(4096) :: cli_input_file_path = ''
+  character(4096) :: cli_input_list_file_path = ''
   character(256) :: cli_output_file_path = ''
   character(256) :: cli_first_file_path = ''
   character(256) :: cli_second_file_path = ''
@@ -48,6 +51,9 @@ contains
       case ('-i', '--input')
         i = i + 1
         call get_command_argument(i, cli_input_file_path)
+      case ('-l', '--input-list')
+        i = i + 1
+        call get_command_argument(i, cli_input_list_file_path)
       case ('-o', '--output')
         i = i + 1
         call get_command_argument(i, cli_output_file_path)
@@ -72,31 +78,28 @@ contains
       i = i + 1
     end do
 
+    if (cli_input_list_file_path /= '') then
+      inquire(file=cli_input_list_file_path, exist=file_exist)
+      if (.not. file_exist) then
+        call log_error('Input list file ' // trim(cli_input_list_file_path) // ' does not exist!')
+      end if
+    end if
     if (cli_input_file_path /= '') then
-      ! inquire(file=cli_input_file_path, exist=file_exist)
-      ! if (file_exist) then
-      !   return
-      ! else
-      !   write(*, *) '[Error]: Input file ' // trim(cli_input_file_path) // ' does not exist!'
-      !   stop 1
-      ! end if
+      inquire(file=cli_input_file_path, exist=file_exist)
+      if (.not. file_exist) then
+        call log_error('Input file ' // trim(cli_input_file_path) // ' does not exist!')
+      end if
     end if
     if (cli_first_file_path /= '') then
       inquire(file=cli_first_file_path, exist=file_exist)
-      if (file_exist) then
-        return
-      else
-        write(*, *) '[Error]: First input file ' // trim(cli_first_file_path) // ' does not exist!'
-        stop 1
+      if (.not. file_exist) then
+        call log_error('First input file ' // trim(cli_first_file_path) // ' does not exist!')
       end if
     end if
     if (cli_second_file_path /= '') then
       inquire(file=cli_second_file_path, exist=file_exist)
-      if (file_exist) then
-        return
-      else
-        write(*, *) '[Error]: Second input file ' // trim(cli_second_file_path) // ' does not exist!'
-        stop 1
+      if (.not. file_exist) then
+        call log_error('Second input file ' // trim(cli_second_file_path) // ' does not exist!')
       end if
     end if
 

@@ -1,9 +1,8 @@
 module profiler_mod
 
+  use container
   use obs_base_mod
   use params_mod
-  use hash_table_mod
-  use linked_list_mod
   use missing_value_mod
 
   implicit none

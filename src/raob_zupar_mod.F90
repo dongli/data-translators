@@ -2,13 +2,12 @@
 
 module raob_zupar_mod
 
-  use raob_mod
-  use datetime_mod
-  use hash_table_mod
-  use linked_list_mod
+  use datetime
+  use container
+  use flogger
   use params_mod
   use utils_mod
-  use odbql_wrappers
+  use raob_mod
 
   implicit none
 

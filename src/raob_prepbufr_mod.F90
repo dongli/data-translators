@@ -1,13 +1,13 @@
 module raob_prepbufr_mod
 
-  use raob_mod
   use datetime
-  use hash_table_mod
-  use linked_list_mod
+  use string
+  use container
+  use flogger
   use params_mod
   use utils_mod
   use cli_mod
-  use string
+  use raob_mod
 
   implicit none
 
@@ -59,11 +59,7 @@ contains
     ! BUFRLIB functions
     integer ireadmg, ireadsb
 
-    stations = hash_table(chunk_size=50000, max_load_factor=0.9)
-    call records%clear()
-    nullify(record)
-
-    write(*, *) '[Notice]: Reading ' // trim(file_path) // ' ...'
+    call log_notice('Reading ' // trim(file_path) // ' ...')
     open(10, file=file_path, action='read', form='unformatted')
     call openbf(10, 'IN', 10)
     call datelen(10) ! This call causes idate to be in format YYYYMMDDHH.
@@ -189,7 +185,7 @@ contains
               record%wss = knot_to_meter_per_second(record%wss)
             end if
           case default
-            write(*, *) '[Warning]: Unknown category ' // to_string(int(obs(cat_idx,i,1))) // ' for station ' // trim(station_name) // '!'
+            call log_warning('Unknown category ' // to_string(int(obs(cat_idx,i,1))) // ' for station ' // trim(station_name) // '!')
           end select
 
           if (associated(profile_hash)) then
@@ -294,7 +290,7 @@ contains
       call record_iterator%next()
     end do
 
-    write(*, *) '[Notice]: Station size is ' // to_string(stations%size) // ', level size is ' // to_string(num_level) // '.'
+    call log_notice('Station size is ' // to_string(stations%size) // ', level size is ' // to_string(num_level) // '.')
 
   end subroutine raob_prepbufr_read
 
