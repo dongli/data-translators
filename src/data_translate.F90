@@ -64,12 +64,13 @@ program data_translate
   platforms = hash_table(chunk_size=50000, max_load_factor=0.9)
 
   if (cli_input_list_file_path /= '') then
-    open(10, file=cli_input_list_file_path, status='old')
+    open(20, file=cli_input_list_file_path, status='old')
     do while (.true.)
-      read(10, '(a)', iostat=iostat) cli_input_file_path
+      read(20, '(A)', iostat=iostat) cli_input_file_path
       if (iostat /= 0) exit
       call input_one_file()
     end do
+    close(20)
   else
     call input_one_file()
   end if

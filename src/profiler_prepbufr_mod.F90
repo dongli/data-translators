@@ -155,29 +155,6 @@ contains
         if (new_record) then
           call records%insert(station_name // '@' // time%isoformat(), record)
         end if
-        ! if (station_name == cli_verbose_platform) then
-        !   write(*, *) 'P:'
-        !   do i = 1, num_level
-        !     write(*, *) i
-        !     write(*, *) obs(p_idx,i,:4)
-        !     write(*, *) qc(p_idx,i,:4)
-        !     write(*, *) pc(p_idx,i,:4)
-        !   end do
-        !   write(*, *) 'U:'
-        !   do i = 1, num_level
-        !     write(*, *) i
-        !     write(*, *) obs(ua_idx,i,:4)
-        !     write(*, *) qc(ua_idx,i,:4)
-        !     write(*, *) pc(ua_idx,i,:4)
-        !   end do
-        !   write(*, *) 'V:'
-        !   do i = 1, num_level
-        !     write(*, *) i
-        !     write(*, *) obs(va_idx,i,:4)
-        !     write(*, *) qc(va_idx,i,:4)
-        !     write(*, *) pc(va_idx,i,:4)
-        !   end do
-        ! end if
       end do
     end do
     call closbf(10)
@@ -188,10 +165,12 @@ contains
       select type (record => record_iterator%value)
       type is (profiler_record_type)
         call record%pro%init(record%pro_hash%p%size)
-        call record%pro%set_from_hash(record%pro_hash)
-        call record%station%records%insert(record)
-        if (record%station%name == cli_verbose_platform) then
-          call record%print()
+        if (associated(record%pro_hash)) then
+          call record%pro%set_from_hash(record%pro_hash)
+          call record%station%records%insert(record)
+          if (record%station%name == cli_verbose_platform) then
+            call record%print()
+          end if
         end if
       end select
       call record_iterator%next()

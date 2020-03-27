@@ -277,15 +277,17 @@ contains
         call record%sigt%init(record%sigt_hash%p%size)
         call record%sigw%init(record%sigw_hash%p%size)
         call record%trop%init(record%trop_hash%p%size)
-        call record%man %set_from_hash(record%man_hash)
-        call record%sigt%set_from_hash(record%sigt_hash)
-        call record%sigw%set_from_hash(record%sigw_hash)
-        call record%trop%set_from_hash(record%trop_hash)
-        call record%station%records%insert(record)
-        if (record%station%name == cli_verbose_platform) then
-          call record%print()
+        if (associated(record%man_hash)) then
+          call record%man %set_from_hash(record%man_hash)
+          call record%sigt%set_from_hash(record%sigt_hash)
+          call record%sigw%set_from_hash(record%sigw_hash)
+          call record%trop%set_from_hash(record%trop_hash)
+          call record%station%records%insert(record)
+          if (record%station%name == cli_verbose_platform) then
+            call record%print()
+          end if
+          num_level = num_level + record%man%num_level + record%sigt%num_level + record%sigw%num_level + record%trop%num_level
         end if
-        num_level = num_level + record%man%num_level + record%sigt%num_level + record%sigw%num_level + record%trop%num_level
       end select
       call record_iterator%next()
     end do

@@ -29,9 +29,9 @@ contains
     character(2) device_type
     character(14) date_time_str
     character(100) line
-    character(10) segment
     character(20) key
-    real lon, lat, z, p, h, ua, va, wa, wd, ws
+    integer h
+    real lon, lat, z, p, ua, va, wa, wd, ws
     integer wnd_h_qc, wnd_v_qc
     type(datetime_type) time
     type(profiler_station_type), pointer :: station
@@ -74,27 +74,25 @@ contains
       do while (.true.)
         read(10, '(A)') line
         if (line == 'NNNN') exit
-        read(line(1:5), *) h
-        read(line(7:11), *) segment
-        if (segment == '/////') then
+        read(line(1:5), '(I5)') h
+        if (line(7:11) == '/////') then
           wd = real_missing_value
           ws = real_missing_value
         else
-          read(line(7:11), *) wd
-          read(line(13:17), *) ws
-          read(line(26:28), *) wnd_h_qc
+          read(line( 7:11), '(F5.1)') wd
+          read(line(13:17), '(F5.1)') ws
+          read(line(26:28), '(I3)') wnd_h_qc
           ua = wind_u_component(ws, wd)
           va = wind_v_component(ws, wd)
         end if
-        read(line(19:24), *) segment
-        if (segment == '//////') then
+        if (line(19:24) == '//////') then
           wa = real_missing_value
         else
-          read(segment, *) wa
-          read(line(30:32), *) wnd_v_qc
+          read(line(19:24), '(F5.1)') wa
+          read(line(30:32), '(I3)') wnd_v_qc
         end if
-        key = to_string(int(h))
-        if (.not. is_missing(h )) call record%pro_hash%h %insert(key, h)
+        key = to_string(h)
+        if (.not. is_missing(h )) call record%pro_hash%h %insert(key, real(h))
         if (.not. is_missing(ua)) call record%pro_hash%ua%insert(key, ua)
         if (.not. is_missing(va)) call record%pro_hash%va%insert(key, va)
         if (.not. is_missing(wd)) call record%pro_hash%wd%insert(key, wd)
@@ -113,9 +111,11 @@ contains
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
       type is (profiler_record_type)
-        call record%pro%init(record%pro_hash%h%size)
-        call record%pro%set_from_hash(record%pro_hash)
-        call record%station%records%insert(record)
+        if (associated(record%pro_hash)) then
+          call record%pro%init(record%pro_hash%h%size)
+          call record%pro%set_from_hash(record%pro_hash)
+          call record%station%records%insert(record)
+        end if
       end select
       call record_iterator%next()
     end do

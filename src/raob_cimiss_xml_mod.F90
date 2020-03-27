@@ -53,15 +53,14 @@ contains
         call record%sigt%init(record%sigt_hash%p%size)
         call record%sigw%init(record%sigw_hash%p%size)
         call record%trop%init(record%trop_hash%p%size)
-        call record%man %set_from_hash(record%man_hash)
-        call record%sigt%set_from_hash(record%sigt_hash)
-        call record%sigw%set_from_hash(record%sigw_hash)
-        call record%trop%set_from_hash(record%trop_hash)
-        call record%station%records%insert(record)
-        ! if (record%station%name == '54511') then
-        !   call record%print()
-        ! end if
-        call records%insert(record%station%name // '@' // record%time%isoformat(), record)
+        if (associated(record%man_hash)) then
+          call record%man %set_from_hash(record%man_hash)
+          call record%sigt%set_from_hash(record%sigt_hash)
+          call record%sigw%set_from_hash(record%sigw_hash)
+          call record%trop%set_from_hash(record%trop_hash)
+          call record%station%records%insert(record)
+          call records%insert(record%station%name // '@' // record%time%isoformat(), record)
+        end if
       end select
       call record_iterator%next()
     end do
