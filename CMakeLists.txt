@@ -191,7 +191,7 @@ if (HAS_LIB_MONGO)
 endif ()
 
 add_library(data_translators ${sources})
-target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex fortran_string)
+target_link_libraries(data_translators fortran_datetime fortran_container fortran_regex fortran_string flogger)
 if (HAS_LIB_FIONA AND HAS_LIB_NETCDF)
   target_link_libraries(data_translators fiona)
 endif ()
