@@ -101,9 +101,11 @@ contains
       do i = 1, getLength(attributes)
         select case (getQName(attributes, i))
         case ('requestParams')
-          res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&')
-          if (size(res) /= 1 .or. res(1)%match(2)%str /= 'UPAR_CHN_MUL_FTM') then
-            call log_error('Input file is not CIMISS UPAR_CHN_MUL_FTM!')
+          res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&?')
+          if (size(res) /= 1) then
+            if (res(1)%match(2)%str /= 'UPAR_CHN_MUL_FTM') then
+              call log_error('Input file is not CIMISS UPAR_CHN_MUL_FTM!')
+            end if
           end if 
         end select
       end do
@@ -300,10 +302,8 @@ contains
         if (.not. record%sigw_hash%va%hashed(level_key) .and. .not. is_missing(va)) then
           call record%sigw_hash%va%insert(level_key, va)
         end if
-      case (16384, 4096) ! Unknown levels
-        return
       case default
-        call log_error('Unknown raob level type!')
+        call log_warning('Unknown raob level type ' // to_string(obs_type) // ' at station ' // trim(station%name) // '!')
       end select
       if (new_record) then
         call dummy_records%insert(record_key, record)

@@ -126,10 +126,6 @@ contains
       call log_error('Unknown reader type!')
     end select
   
-    if (cli_output_file_path /= '') then
-      call log_notice('Data ' // trim(cli_output_file_path) // ' is created.')
-    end if
-
   end subroutine input_one_file
 
   subroutine output_one_file()
