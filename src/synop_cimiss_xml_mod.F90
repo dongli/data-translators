@@ -75,7 +75,7 @@ contains
       do i = 1, getLength(attributes)
         select case (getQName(attributes, i))
         case ('requestParams')
-          res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&')
+          res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&?')
           if (size(res) /= 1 .or. res(1)%match(2)%str /= 'SURF_CHN_MAIN_MIN') then
             write(*, *) '[Error]: Input file is not CIMISS SURF_CHN_MAIN_MIN!'
             stop 1
