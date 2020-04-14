@@ -84,9 +84,10 @@ contains
         select case (getQName(attributes, i))
         case ('requestParams')
           res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&?')
-          if (size(res) /= 1 .or. res(1)%match(2)%str /= 'OCEN_GLB_SHB') then
-            call log_error('Input file is not CIMISS OCEN_GLB_SHB!')
-          end if 
+          if (size(res) == 1) then
+            if (res(1)%match(2)%str == 'OCEN_GLB_SHB') exit
+          end if
+          call log_error('Input file is not CIMISS OCEN_GLB_SHB!')
         end select
       end do
     case ('R')

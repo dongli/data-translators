@@ -76,10 +76,10 @@ contains
         select case (getQName(attributes, i))
         case ('requestParams')
           res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&?')
-          if (size(res) /= 1 .or. res(1)%match(2)%str /= 'SURF_CHN_MAIN_MIN') then
-            write(*, *) '[Error]: Input file is not CIMISS SURF_CHN_MAIN_MIN!'
-            stop 1
-          end if 
+          if (size(res) == 1) then
+            if (res(1)%match(2)%str == 'SURF_CHN_MAIN_MIN') exit
+          end if
+          call log_error('Input file is not CIMISS SURF_CHN_MAIN_MIN!')
         end select
       end do
     case ('R')

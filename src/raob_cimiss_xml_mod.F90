@@ -102,11 +102,10 @@ contains
         select case (getQName(attributes, i))
         case ('requestParams')
           res = regex_search(getValue(attributes, i), 'datacode=([^&]*)&?')
-          if (size(res) /= 1) then
-            if (res(1)%match(2)%str /= 'UPAR_CHN_MUL_FTM') then
-              call log_error('Input file is not CIMISS UPAR_CHN_MUL_FTM!')
-            end if
+          if (size(res) == 1) then
+            if (res(1)%match(2)%str == 'UPAR_CHN_MUL_FTM') exit
           end if 
+          call log_error('Input file is not CIMISS UPAR_CHN_MUL_FTM!')
         end select
       end do
     case ('R')
@@ -163,7 +162,7 @@ contains
       end do
       time = create_datetime(year, month, day, hour, minute)
       h  = merge(h1, h2, is_missing(h1, src='cimiss'))
-      p  = multiply(merge(real_missing_value, p, is_missing(p, src='cimiss')), 100.0)
+      p  = merge(real_missing_value, p, is_missing(p, src='cimiss'))
       ta = merge(real_missing_value, ta, is_missing(ta, src='cimiss'))
       td = merge(real_missing_value, td, is_missing(td, src='cimiss'))
       sh = specific_humidity_from_dewpoint(p, ta, td)
@@ -303,7 +302,7 @@ contains
           call record%sigw_hash%va%insert(level_key, va)
         end if
       case default
-        call log_warning('Unknown raob level type ' // to_string(obs_type) // ' at station ' // trim(station%name) // '!')
+        !call log_warning('Unknown raob level type ' // to_string(obs_type) // ' at station ' // trim(station%name) // '!')
       end select
       if (new_record) then
         call dummy_records%insert(record_key, record)
