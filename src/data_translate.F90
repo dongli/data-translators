@@ -31,6 +31,7 @@ program data_translate
 #ifdef HAS_LIB_NETCDF
   use synop_netcdf_mod
   use ship_netcdf_mod
+  use anem_nrg_netcdf_mod
 #endif
 #ifdef HAS_LIB_MONGO
   use anem_nrg_mongo_mod
@@ -38,6 +39,7 @@ program data_translate
   use synop_txt_mod
   use synop_littler_mod
   use synop_ftm_txt_mod
+  use synop_a_txt_mod
   use metar_littler_mod
   use amdar_littler_mod
   use raob_littler_mod
@@ -48,7 +50,6 @@ program data_translate
   use ship_littler_mod
   use anem_nrg_txt_mod
   use anem_nrg_littler_mod
-  use anem_nrg_netcdf_mod
   use cli_mod
 
   implicit none
@@ -114,6 +115,8 @@ contains
 #endif
     case ('synop_ftm_txt')
       call synop_ftm_txt_read(cli_input_file_path, platforms, records)
+    case ('synop_a_txt')
+      call synop_a_txt_read(cli_input_file_path, platforms, records)
     case ('profiler_zrada')
       call profiler_zrada_read(cli_input_file_path, platforms, records)
     case ('ship_txt')

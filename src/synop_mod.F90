@@ -30,6 +30,7 @@ module synop_mod
     real :: r12h = real_missing_value ! 12h accumulated total precipitation (mm)
     real :: r24h = real_missing_value ! 24h accumulated total precipitation (mm)
     real :: clc  = real_missing_value ! Cloud amount (???)
+    real :: vis  = real_missing_value ! Visibility (km)
 
     integer :: type  = int_missing_value
     integer :: ta_qc = int_missing_value

@@ -2,6 +2,7 @@ module utils_mod
 
   use string
   use container
+  use flogger
   use synop_mod
 #ifdef HAS_LIB_ECCODES
   use eccodes
@@ -484,5 +485,24 @@ contains
 
   end function findloc
 #endif
+
+  integer function unique_file_number() result(fu)
+
+    integer, parameter :: start_number = 10
+    integer, parameter :: end_number = 1000
+
+    integer i
+    logical opened
+
+    do i = start_number, end_number
+      inquire(i, opened=opened)
+      if (.not. opened) then
+        fu = i
+        return
+      end if
+    end do
+    call log_error('File numbers are run out! (' // to_string(start_number) // '-' // to_string(end_number) // '!')
+
+  end function unique_file_number
 
 end module utils_mod

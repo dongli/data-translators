@@ -126,6 +126,7 @@ set(sources
   src/synop_littler_mod.F90
   src/synop_ftm_txt_mod.F90
   src/synop_txt_mod.F90
+  src/synop_a_txt_mod.F90
   src/metar_mod.F90
   src/metar_littler_mod.F90
   src/ship_mod.F90
@@ -135,7 +136,6 @@ set(sources
   src/anem_nrg_mod.F90
   src/anem_nrg_txt_mod.F90
   src/anem_nrg_littler_mod.F90
-  src/anem_nrg_netcdf_mod.F90
   src/radar_mod.F90
   src/cli_mod.F90
   src/params_mod.F90
@@ -172,6 +172,7 @@ if (HAS_LIB_NETCDF)
   list(APPEND sources
     src/synop_netcdf_mod.F90
     src/ship_netcdf_mod.F90
+    src/anem_nrg_netcdf_mod.F90
   )
 endif ()
 if (HAS_LIB_ODB_API)
