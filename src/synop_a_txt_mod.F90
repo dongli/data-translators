@@ -73,25 +73,28 @@ contains
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
           read(fu, '(12(A4, 1X))') data_str(1:12)
           do j = 1, 12
-            if (data_str(j) /= '////') then
-              time = time + hour
+            time = time + hour
+            if ( data_str(j) /= '////') then
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%p; record%p = record%p * 0.1
             end if
           end do
           read(fu, '(12(A4, 1X))') data_str(1:12) ! There are four more data.
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%p; record%p = record%p * 0.1
             end if
           end do
         end do
-        ! Sea level pressure
-        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-          read(fu, *)
-        end do
+        read(fu, '(A)', advance='no') head(1:1)
+        if ( head(1:1) /= '=' ) then
+          ! Sea level pressure , 4 times / day
+          do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+            read(fu, *)
+          end do
+        end if
       case ('D')
       end select
     end if
@@ -105,18 +108,18 @@ contains
       case ('8')
       case ('B')
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-          read(fu, *) data_str(1:12)
+          read(fu, '(12(A4, 1X))') data_str(1:12)
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%ta; record%ta = record%ta * 0.1
             end if
           end do
-          read(fu, *) data_str(1:12) ! There are four more data.
+          read(fu, '(12(A4, 1X))') data_str(1:12) ! There are four more data.
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%ta; record%ta = record%ta * 0.1
             end if
@@ -140,10 +143,10 @@ contains
         ! Dewpoint temperature
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
           do j = 1, 2
-            read(fu, *) data_str(1:12)
+            read(fu, '(12(A4, 1X))') data_str(1:12)
             do k = 1, 12
+              time = time + hour
               if (data_str(k) /= '////') then
-                time = time + hour
                 record => get_record(local_records, time, station)
                 read(data_str(k)(1:4), *) record%td; record%td = record%td * 0.1
               end if
@@ -179,10 +182,10 @@ contains
       case ('A')
       case ('B')
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-          read(fu, *) data_str(1:12)
+          read(fu, '(12(A2, 1X))') data_str(1:12)
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               if (data_str(j) == '%%') then
                 record%rh = 100
@@ -191,10 +194,10 @@ contains
               end if
             end if
           end do
-          read(fu, *) data_str(1:12) ! There are two more data.
+          read(fu, '(12(A2, 1X))') data_str(1:12) ! There are two more data.
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               if (data_str(j) == '%%') then
                 record%rh = 100
@@ -248,18 +251,18 @@ contains
       case ('A')
       case ('B')
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-          read(fu, *) data_str(1:12)
+          read(fu, '(12(A4, 1X))') data_str(1:12)
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%vis; record%vis = record%vis * 0.001
             end if
           end do
-          read(fu, *) data_str(1:12) ! There are two more data.
+          read(fu, '(12(A4, 1X))') data_str(1:12) ! There are two more data.
           do j = 1, 12
+            time = time + hour
             if (data_str(j) /= '////') then
-              time = time + hour
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%vis; record%vis = record%vis * 0.001
             end if
@@ -275,15 +278,26 @@ contains
       case ('0')
       case ('2')
       case ('6')
-        read(fu, *) head
-        if (head /= '=') then
-          call log_error('Handle R6.', __FILE__, __LINE__)
+        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+          ! 20-08, 08-20, 20-20
+          read(fu, *)
+        end do
+        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+          do j = 1, 2
+            read(fu, '(12(A4, 1X))') data_str(1:12)
+            time = time + hour
+            if (data_str(j) /= '////') then
+              record => get_record(local_records, time, station)
+              read(data_str(j), *) record%r01h; record%r01h = record%r01h * 0.1
+            end if
+          end do
+        end do
+        read(fu, '(A)', advance='no') head(1:1)
+        if ( head(1:1) /= '=' ) then
+          ! connect values ?
+          read(fu, *)
         end if
-        read(fu, *) head
-        if (head /= '=') then
-          call log_error('Handle R6.', __FILE__, __LINE__)
-        end if
-        read(fu, *) head ! 0000 ////////// 00000=
+
       end select
     end if
     ! Weather (W)
@@ -330,15 +344,14 @@ contains
       case ('H')
       case ('K')
       case ('N')
-        ! 2-minute average
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
           do j = 1, 4
-            read(fu, *) data_str(1:6)
+            read(fu, '(6(A6, 1X))') data_str(1:6)
             do k = 1, 6
+              time = time + hour
               if (data_str(k) /= '////') then
-                time = time + hour
                 record => get_record(local_records, time, station)
-                if (data_str(k)(1:3) /= 'PPC') then ! Calm wind
+                if (data_str(k)(1:3) /= 'PPC') then
                   read(data_str(k)(1:3), *) record%wd
                 end if
                 read(data_str(k)(4:6), *) record%ws; record%ws = record%ws * 0.1
@@ -348,7 +361,6 @@ contains
             end do
           end do
         end do
-        ! 10-minute average
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
           do j = 1, 4
             read(fu, *) data_str(1:6)
