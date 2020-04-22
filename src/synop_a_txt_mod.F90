@@ -62,6 +62,7 @@ contains
     ! Pressure (P)
     read(fu, '(A)') head
     if (head(2:2) /= '=' .and. head(3:3) /= '=') then
+      time = base_time - create_timedelta(hours=4)
       select case (head(2:2))
       case ('3')
       case ('4')
@@ -69,6 +70,28 @@ contains
       case ('8')
       case ('B')
       case ('C')
+        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+          read(fu, '(12(A4, 1X))') data_str(1:12)
+          do j = 1, 12
+            if (data_str(j) /= '////') then
+              time = time + hour
+              record => get_record(local_records, time, station)
+              read(data_str(j), *) record%p; record%p = record%p * 0.1
+            end if
+          end do
+          read(fu, '(12(A4, 1X))') data_str(1:12) ! There are four more data.
+          do j = 1, 12
+            if (data_str(j) /= '////') then
+              time = time + hour
+              record => get_record(local_records, time, station)
+              read(data_str(j), *) record%p; record%p = record%p * 0.1
+            end if
+          end do
+        end do
+        ! Sea level pressure
+        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+          read(fu, *)
+        end do
       case ('D')
       end select
     end if
@@ -307,6 +330,7 @@ contains
       case ('H')
       case ('K')
       case ('N')
+        ! 2-minute average
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
           do j = 1, 4
             read(fu, *) data_str(1:6)
@@ -314,7 +338,7 @@ contains
               if (data_str(k) /= '////') then
                 time = time + hour
                 record => get_record(local_records, time, station)
-                if (data_str(k)(1:3) /= 'PPC') then
+                if (data_str(k)(1:3) /= 'PPC') then ! Calm wind
                   read(data_str(k)(1:3), *) record%wd
                 end if
                 read(data_str(k)(4:6), *) record%ws; record%ws = record%ws * 0.1
@@ -324,6 +348,7 @@ contains
             end do
           end do
         end do
+        ! 10-minute average
         do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
           do j = 1, 4
             read(fu, *) data_str(1:6)
