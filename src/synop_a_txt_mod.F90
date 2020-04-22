@@ -74,7 +74,7 @@ contains
           read(fu, '(12(A4, 1X))') data_str(1:12)
           do j = 1, 12
             time = time + hour
-            if (data_str(j) /= '////') then
+            if ( data_str(j) /= '////') then
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%p; record%p = record%p * 0.1
             end if
@@ -89,11 +89,14 @@ contains
           end do
         end do
         read(fu, '(A)', advance='no') head(1:1)
-        if (head(1:1) /= '=') then
+        backspace(fu)
+        if (head(1:1) /= '=' ) then
           ! Sea level pressure , 4 times / day
           do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-            read(fu, *)
+            read(fu, *) data_str(1:4)
           end do
+        else
+          read(fu, *)
         end if
       case ('D')
       end select
@@ -278,25 +281,34 @@ contains
       case ('0')
       case ('2')
       case ('6')
-        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-          ! 20-08, 08-20, 20-20
-          read(fu, *)
-        end do
-        do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
-          do j = 1, 2
-            read(fu, '(12(A4, 1X))') data_str(1:12)
-            time = time + hour
-            if (data_str(j) /= '////') then
-              record => get_record(local_records, time, station)
-              read(data_str(j), *) record%r01h; record%r01h = record%r01h * 0.1
-            end if
-          end do
-        end do
         read(fu, '(A)', advance='no') head(1:1)
+        backspace(fu)
         if (head(1:1) /= '=') then
-          ! connect values ?
+          do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+            ! 20-08, 08-20, 20-20
+            read(fu, '(3(A4, 1X))') data_str(1:3)
+          end do
+        else
           read(fu, *)
         end if
+        read(fu, '(A)', advance='no') head(1:1)
+        backspace(fu)
+        if (head(1:1) /= '=' ) then
+          do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
+            do j = 1, 2
+              read(fu, '(12(A4, 1X))') data_str(1:12)
+              time = time + hour
+              if (data_str(j) /= '////') then
+                record => get_record(local_records, time, station)
+                read(data_str(j), *) record%r01h; record%r01h = record%r01h * 0.1
+              end if
+            end do
+          end do
+        else
+          read(fu, '(A)') head(1:1)
+        end if
+        read(fu, *)
+        
       end select
     end if
     ! Weather (W)
@@ -309,11 +321,20 @@ contains
     end if
     ! Evaporation (L)
     read(fu, '(A)') head
-    if (head(2:2) /= '=' .and. head(3:3) /= '=') then
+    if (head(2:2) /= '=') then
       time = base_time - create_timedelta(hours=4)
       select case (head(2:2))
       case ('0')
       case ('A')
+        read(fu,'(A)') head(1:1)
+        backspace(fu)
+        if (head(1:1) /= '=') then
+          print*, 'Need parse LA'
+          stop
+        else
+          read(fu,*)
+          read(fu,*)
+        end if
       case ('B')
       end select
     end if
@@ -373,6 +394,10 @@ contains
     end if
     ! Shallow surface skin temperature (D)
     read(fu, '(A)') head
+    if (head(1:2) /= 'DB') then
+      print*, 'Program exit. This is DB position, but now is: ', head(1:2)
+      stop
+    end if
     if (head(2:2) /= '=' .and. head(3:3) /= '=') then
       time = base_time - create_timedelta(hours=4)
       select case (head(2:2))
