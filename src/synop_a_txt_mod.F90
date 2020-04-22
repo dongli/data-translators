@@ -74,7 +74,7 @@ contains
           read(fu, '(12(A4, 1X))') data_str(1:12)
           do j = 1, 12
             time = time + hour
-            if ( data_str(j) /= '////') then
+            if (data_str(j) /= '////') then
               record => get_record(local_records, time, station)
               read(data_str(j), *) record%p; record%p = record%p * 0.1
             end if
@@ -89,7 +89,7 @@ contains
           end do
         end do
         read(fu, '(A)', advance='no') head(1:1)
-        if ( head(1:1) /= '=' ) then
+        if (head(1:1) /= '=') then
           ! Sea level pressure , 4 times / day
           do i = 1, days_of_month(year, month, datetime_gregorian_calendar)
             read(fu, *)
@@ -293,11 +293,10 @@ contains
           end do
         end do
         read(fu, '(A)', advance='no') head(1:1)
-        if ( head(1:1) /= '=' ) then
+        if (head(1:1) /= '=') then
           ! connect values ?
           read(fu, *)
         end if
-
       end select
     end if
     ! Weather (W)
@@ -349,7 +348,7 @@ contains
             read(fu, '(6(A6, 1X))') data_str(1:6)
             do k = 1, 6
               time = time + hour
-              if (data_str(k) /= '////') then
+              if (data_str(k) /= '//////') then
                 record => get_record(local_records, time, station)
                 if (data_str(k)(1:3) /= 'PPC') then
                   read(data_str(k)(1:3), *) record%wd
