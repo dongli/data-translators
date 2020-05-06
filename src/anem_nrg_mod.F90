@@ -34,6 +34,7 @@ module anem_nrg_mod
     real, allocatable :: p_std(:)
     real, allocatable :: p_min(:)
     real, allocatable :: p_max(:)
+    real, allocatable :: rh(:)     ! Relative humidity (%)
   contains
     procedure :: init => anem_nrg_record_init
     final :: anem_nrg_record_final

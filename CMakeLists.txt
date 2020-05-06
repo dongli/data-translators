@@ -136,6 +136,7 @@ set(sources
   src/anem_nrg_mod.F90
   src/anem_nrg_txt_mod.F90
   src/anem_nrg_littler_mod.F90
+  src/anem_txt_mod.F90
   src/radar_mod.F90
   src/cli_mod.F90
   src/params_mod.F90

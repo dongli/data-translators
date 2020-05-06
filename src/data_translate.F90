@@ -50,6 +50,7 @@ program data_translate
   use ship_littler_mod
   use anem_nrg_txt_mod
   use anem_nrg_littler_mod
+  use anem_txt_mod
   use cli_mod
 
   implicit none
@@ -125,6 +126,8 @@ contains
       call synop_txt_read(cli_input_file_path, platforms, records)
     case ('anem_nrg_txt')
       call anem_nrg_txt_read(cli_input_file_path, platforms, records)
+    case ('anem_txt')
+      call anem_txt_read(cli_input_file_path, platforms, records)
     case default
       call log_error('Unknown reader type!')
     end select
@@ -211,6 +214,11 @@ contains
       case ('netcdf')
         call anem_nrg_netcdf_write(cli_output_file_path, platforms, records)
 #endif
+      end select
+    else if (index(cli_reader_type, 'anem') == 1) then
+      select case (cli_writer_type)
+      case ('littler')
+        call  anem_nrg_littler_write(cli_output_file_path, platforms, records)
       end select
     end if
 
