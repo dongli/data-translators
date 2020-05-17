@@ -38,6 +38,8 @@ contains
     logical file_exist
     integer i
 
+    cli_start_time%year = 0
+
     i = 1
     do while (i <= command_argument_count())
       call get_command_argument(i, res)

@@ -239,7 +239,7 @@ contains
       i = i + 1
       if (arg == '-h' .or. arg == '--help') then
         write(*, *)
-        write(*, *) ' ./data_translate.exe -r <obs_type>_<input_format> -w <output_format> -i <input_obs_file> -o <output_obs_file>'
+        write(*, *) ' ./data_translate.exe -r <obs_type>_<input_format> -w <output_format> -i <input_obs_file> -o <output_obs_file> -t1 <start_time> -t2 <end_time>'
         write(*, *)
         stop 0
       end if
