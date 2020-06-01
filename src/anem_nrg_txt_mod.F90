@@ -1,6 +1,6 @@
 module anem_nrg_txt_mod
 
-  use anem_nrg_mod
+  use anem_mod
   use datetime
   use string
   use container
@@ -27,8 +27,8 @@ contains
     type(string_type), allocatable :: file_paths(:)
     type(linked_list_type) dummy_records
     type(linked_list_iterator_type) dummy_record_iterator
-    type(anem_nrg_tower_type), pointer :: tower
-    type(anem_nrg_record_type), pointer :: record
+    type(anem_tower_type), pointer :: tower
+    type(anem_record_type), pointer :: record
     type(string_type), allocatable :: labels(:)
     type(string_type), allocatable :: fields(:)
     type(reg_matches), allocatable :: matches(:)
@@ -87,7 +87,7 @@ contains
       end do
       if (towers%hashed(tower_name)) then
         select type (value => towers%value(tower_name))
-        type is (anem_nrg_tower_type)
+        type is (anem_tower_type)
           tower => value
         end select
       else
@@ -229,7 +229,7 @@ contains
     dummy_record_iterator = linked_list_iterator(dummy_records)
     do while (.not. dummy_record_iterator%ended())
       select type (record => dummy_record_iterator%value)
-      type is (anem_nrg_record_type)
+      type is (anem_record_type)
         if (cli_start_time%year == 0 .or. (cli_start_time <= record%time .and. record%time <= cli_end_time)) then
           call records%insert(record)
         end if

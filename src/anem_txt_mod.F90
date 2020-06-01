@@ -1,6 +1,6 @@
 module anem_txt_mod
 
-  use anem_nrg_mod
+  use anem_mod
   use datetime
   use string
   use container
@@ -16,7 +16,7 @@ module anem_txt_mod
 
   public anem_txt_read
 
-  character(5), allocatable :: tower_names(:)
+  character(6), allocatable :: tower_names(:)
   real, allocatable :: tower_lons(:)
   real, allocatable :: tower_lats(:)
   real, allocatable :: tower_alts(:)
@@ -30,8 +30,8 @@ contains
     type(hash_table_type), intent(inout), target :: towers
     type(linked_list_type), intent(inout), target :: records
 
-    type(anem_nrg_tower_type), pointer :: tower
-    type(anem_nrg_record_type), pointer :: record
+    type(anem_tower_type), pointer :: tower
+    type(anem_record_type), pointer :: record
     type(hash_table_type) local_records
     type(hash_table_iterator_type) record_iterator
     type(datetime_type) time
@@ -55,7 +55,7 @@ contains
       ! Create tower object if needed.
       if (towers%hashed(tower_name)) then
         select type (value => towers%value(tower_name))
-        type is (anem_nrg_tower_type)
+        type is (anem_tower_type)
           tower => value
         end select
       else
@@ -87,7 +87,7 @@ contains
     record_iterator = hash_table_iterator(local_records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
-      type is (anem_nrg_record_type)
+      type is (anem_record_type)
         if (cli_start_time%year == 0 .or. (cli_start_time <= record%time .and. record%time <= cli_end_time)) then
           call records%insert(record)
         end if
@@ -105,9 +105,9 @@ contains
 
     use netcdf
 
-    integer ncid, tower_dimid, max_obs_heights_dimid
-    integer name_varid, lon_varid, lat_varid, alt_varid, w_hgt_varid, ierr
-    integer num_tower, max_obs_heights
+    integer ncid, tower_dimid, max_obs_hgts_dimid
+    integer sid_varid, lon_varid, lat_varid, alt_varid, w_hgt_varid, ierr
+    integer num_tower, max_obs_hgts
 
     ierr = NF90_OPEN('/data/home/longrun/dongli/tower_info.nc', NF90_NOWRITE, ncid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
@@ -115,11 +115,11 @@ contains
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
     ierr = NF90_INQUIRE_DIMENSION(ncid, tower_dimid, len=num_tower)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
-    ierr = NF90_INQ_DIMID(ncid, 'max_obs_heights', max_obs_heights_dimid)
+    ierr = NF90_INQ_DIMID(ncid, 'max_obs_hgts', max_obs_hgts_dimid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
-    ierr = NF90_INQUIRE_DIMENSION(ncid, max_obs_heights_dimid, len=max_obs_heights)
+    ierr = NF90_INQUIRE_DIMENSION(ncid, max_obs_hgts_dimid, len=max_obs_hgts)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
-    ierr = NF90_INQ_VARID(ncid, 'name', name_varid)
+    ierr = NF90_INQ_VARID(ncid, 'sid', sid_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
     ierr = NF90_INQ_VARID(ncid, 'lon', lon_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
@@ -127,14 +127,14 @@ contains
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
     ierr = NF90_INQ_VARID(ncid, 'alt', alt_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
-    ierr = NF90_INQ_VARID(ncid, 'wspd_height', w_hgt_varid)
+    ierr = NF90_INQ_VARID(ncid, 'ws_hgt', w_hgt_varid)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
     allocate(tower_names(num_tower))
     allocate(tower_lons(num_tower))
     allocate(tower_lats(num_tower))
     allocate(tower_alts(num_tower))
-    allocate(tower_w_hgt(max_obs_heights,num_tower))
-    ierr = NF90_GET_VAR(ncid, name_varid, tower_names)
+    allocate(tower_w_hgt(max_obs_hgts,num_tower))
+    ierr = NF90_GET_VAR(ncid, sid_varid, tower_names)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
     ierr = NF90_GET_VAR(ncid, lon_varid, tower_lons)
     call handle_netcdf_error(ierr, __FILE__, __LINE__)
@@ -168,10 +168,8 @@ contains
     character(5) s
     integer i
 
-    write(s, '(I5.5)') to_integer(tower_name)
-
     do i = 1, size(tower_names)
-      if (trim(tower_names(i)) == s .or. trim(tower_names(i)) == trim(tower_name)) then
+      if (trim(tower_names(i)) == trim(tower_name)) then
         lon = tower_lons(i)
         lat = tower_lats(i)
         alt = tower_alts(i)
@@ -187,9 +185,9 @@ contains
 
     type(hash_table_type), intent(inout) :: records
     type(datetime_type), intent(in) :: time
-    type(anem_nrg_tower_type), intent(in), target :: tower
+    type(anem_tower_type), intent(in), target :: tower
     integer, intent(in) :: num_level
-    type(anem_nrg_record_type), pointer :: res
+    type(anem_record_type), pointer :: res
 
     if (.not. records%hashed(time%isoformat())) then
       allocate(res)
@@ -199,7 +197,7 @@ contains
       call records%insert(time%isoformat(), res)
     end if
     select type (value => records%value(time%isoformat()))
-    type is (anem_nrg_record_type)
+    type is (anem_record_type)
       res => value
     class default
       call log_error('Internal error!', __FILE__, __LINE__)

@@ -133,9 +133,9 @@ set(sources
   src/ship_littler_mod.F90
   src/ship_cimiss_txt_mod.F90
   src/ship_txt_mod.F90
-  src/anem_nrg_mod.F90
+  src/anem_mod.F90
   src/anem_nrg_txt_mod.F90
-  src/anem_nrg_littler_mod.F90
+  src/anem_littler_mod.F90
   src/anem_txt_mod.F90
   src/radar_mod.F90
   src/cli_mod.F90
@@ -173,7 +173,7 @@ if (HAS_LIB_NETCDF)
   list(APPEND sources
     src/synop_netcdf_mod.F90
     src/ship_netcdf_mod.F90
-    src/anem_nrg_netcdf_mod.F90
+    src/anem_netcdf_mod.F90
   )
 endif ()
 if (HAS_LIB_ODB_API)
@@ -184,11 +184,12 @@ if (HAS_LIB_ODB_API)
     src/synop_odb_mod.F90
     src/metar_odb_mod.F90
     src/ship_odb_mod.F90
+    src/anem_odb_mod.F90
   )
 endif ()
 if (HAS_LIB_MONGO)
   list(APPEND sources
-    src/anem_nrg_mongo_mod.F90
+    src/anem_mongo_mod.F90
   )
 endif ()
 

@@ -1,8 +1,8 @@
-module anem_nrg_littler_mod
+module anem_littler_mod
 
   use datetime
   use string
-  use anem_nrg_mod
+  use anem_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
@@ -12,11 +12,11 @@ module anem_nrg_littler_mod
 
   private
 
-  public anem_nrg_littler_write
+  public anem_littler_write
 
 contains
 
-  subroutine anem_nrg_littler_write(file_path, towers, records)
+  subroutine anem_littler_write(file_path, towers, records)
 
     character(*), intent(inout) :: file_path
     type(hash_table_type), intent(in) :: towers
@@ -25,7 +25,7 @@ contains
     type(linked_list_iterator_type) record_iterator
     integer i, k
 
-    if (file_path == '') file_path = 'anem_nrg.littler'
+    if (file_path == '') file_path = 'anem.littler'
 
     open(10, file=file_path, form='formatted')
 
@@ -33,7 +33,7 @@ contains
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
-      type is (anem_nrg_record_type)
+      type is (anem_record_type)
         ! Header
         write(10, '(F20.5)', advance='no') littler_value(record%tower%lat)     ! latitude
         write(10, '(F20.5)', advance='no') littler_value(record%tower%lon)     ! longitude
@@ -134,6 +134,6 @@ contains
 
     close(10)
 
-  end subroutine anem_nrg_littler_write
+  end subroutine anem_littler_write
 
-end module anem_nrg_littler_mod
+end module anem_littler_mod

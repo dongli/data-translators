@@ -21,6 +21,7 @@ program data_translate
   use raob_odb_mod
   use profiler_odb_mod
   use ship_odb_mod
+  use anem_odb_mod
 #endif
 #ifdef HAS_LIB_FOX
   use synop_cimiss_xml_mod
@@ -31,10 +32,10 @@ program data_translate
 #ifdef HAS_LIB_NETCDF
   use synop_netcdf_mod
   use ship_netcdf_mod
-  use anem_nrg_netcdf_mod
+  use anem_netcdf_mod
 #endif
 #ifdef HAS_LIB_MONGO
-  use anem_nrg_mongo_mod
+  use anem_mongo_mod
 #endif
   use synop_txt_mod
   use synop_littler_mod
@@ -49,7 +50,7 @@ program data_translate
   use ship_txt_mod
   use ship_littler_mod
   use anem_nrg_txt_mod
-  use anem_nrg_littler_mod
+  use anem_littler_mod
   use anem_txt_mod
   use cli_mod
 
@@ -128,6 +129,8 @@ contains
       call anem_nrg_txt_read(cli_input_file_path, platforms, records)
     case ('anem_txt')
       call anem_txt_read(cli_input_file_path, platforms, records)
+    case ('anem_odb')
+      call anem_odb_read(cli_input_file_path, platforms, records)
     case default
       call log_error('Unknown reader type!')
     end select
@@ -202,23 +205,22 @@ contains
         call ship_netcdf_write(cli_output_file_path, platforms, records)
 #endif
       end select
-    else if (index(cli_reader_type, 'anem_nrg') == 1) then
-      select case (cli_writer_type)
-      case ('littler')
-        call anem_nrg_littler_write(cli_output_file_path, platforms, records)
-#ifdef HAS_LIB_MONGO
-      case ('mongo')
-        call anem_nrg_mongo_write(cli_output_file_path, platforms, records)
-#endif
-#ifdef HAS_LIB_NETCDF
-      case ('netcdf')
-        call anem_nrg_netcdf_write(cli_output_file_path, platforms, records)
-#endif
-      end select
     else if (index(cli_reader_type, 'anem') == 1) then
       select case (cli_writer_type)
       case ('littler')
-        call  anem_nrg_littler_write(cli_output_file_path, platforms, records)
+        call anem_littler_write(cli_output_file_path, platforms, records)
+#ifdef HAS_LIB_MONGO
+      case ('mongo')
+        call anem_mongo_write(cli_output_file_path, platforms, records)
+#endif
+#ifdef HAS_LIB_NETCDF
+      case ('netcdf')
+        call anem_netcdf_write(cli_output_file_path, platforms, records)
+#endif
+#ifdef HAS_LIB_ODB_API
+      case ('odb')
+        call anem_odb_write(cli_output_file_path, platforms, records)
+#endif
       end select
     end if
 

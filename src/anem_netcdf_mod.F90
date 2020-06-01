@@ -1,9 +1,9 @@
-module anem_nrg_netcdf_mod
+module anem_netcdf_mod
 
   use netcdf
   use string
   use datetime
-  use anem_nrg_mod
+  use anem_mod
   use container
   use params_mod
   use utils_mod
@@ -13,11 +13,11 @@ module anem_nrg_netcdf_mod
 
   private
 
-  public anem_nrg_netcdf_write
+  public anem_netcdf_write
 
 contains
 
-  subroutine anem_nrg_netcdf_write(file_path, towers, records)
+  subroutine anem_netcdf_write(file_path, towers, records)
 
     character(*), intent(inout) :: file_path
     type(hash_table_type), intent(in) :: towers
@@ -53,16 +53,16 @@ contains
     integer wd_avg_varid, wd_std_varid, wd_min_varid, wd_max_varid
     integer ta_avg_varid, ta_std_varid, ta_min_varid, ta_max_varid
 
-    if (file_path == '') file_path = 'anem_nrg.nc'
+    if (file_path == '') file_path = 'anem.nc'
 
     heights = hash_table(100)
 
     tower_iterator = hash_table_iterator(towers)
     do while (.not. tower_iterator%ended())
       select type (tower => tower_iterator%value)
-      type is (anem_nrg_tower_type)
+      type is (anem_tower_type)
         select type (record => tower%records%first_value())
-        type is (anem_nrg_record_type)
+        type is (anem_record_type)
           do i = 1, size(record%h)
             if (.not. heights%hashed(to_string(int(record%h(i))))) then
               call heights%insert(to_string(int(record%h(i))), record%h(i))
@@ -115,7 +115,7 @@ contains
     tower_iterator = hash_table_iterator(towers)
     do while (.not. tower_iterator%ended())
       select type (tower => tower_iterator%value)
-      type is (anem_nrg_tower_type)
+      type is (anem_tower_type)
         tower_names(i) = tower%name
         lon(i) = tower%lon
         lat(i) = tower%lat
@@ -129,7 +129,7 @@ contains
     record_iterator = linked_list_iterator(records)
     do while (.not. record_iterator%ended())
       select type (record => record_iterator%value)
-      type is (anem_nrg_record_type)
+      type is (anem_record_type)
         time(i) = record%time%timestamp(timezone=0) / 3600.0
         idx = findloc(tower_names, record%tower%name)
         record_tower_idx(i) = idx(1)
@@ -484,6 +484,6 @@ contains
     deallocate(ta_min)
     deallocate(ta_max)
 
-  end subroutine anem_nrg_netcdf_write
+  end subroutine anem_netcdf_write
 
-end module anem_nrg_netcdf_mod
+end module anem_netcdf_mod
