@@ -134,15 +134,13 @@ contains
         call write_profile(odb_stmt, record, record%sigw, 'sigw')
         call write_profile(odb_stmt, record, record%trop, 'trop')
       class default
-        write(*, *) '[Error]: Unknown record in the list!'
-        stop 1
+        call log_error('Unknown record in the list!')
       end select
       call record_iterator%next()
     end do
 
     call odbql_finalize(odb_stmt)
     call odbql_close(odb_db)
-    write(*, *) '[Notice]: ODB file is written.'
 
   end subroutine raob_odb_write
 
@@ -155,7 +153,7 @@ contains
 
     integer k, col
 
-    do k = 1, record%trop%num_level
+    do k = 1, profile%num_level
       col = 0
       col = col + 1; call odbql_bind_text  (odb_stmt, col, record%station%name, len_trim(record%station%name))
       col = col + 1; call odbql_bind_text  (odb_stmt, col, record%platform_type, len_trim(record%platform_type))

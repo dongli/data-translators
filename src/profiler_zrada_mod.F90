@@ -23,7 +23,7 @@ contains
     type(linked_list_type), intent(inout) :: records
 
     character(8) station_name
-    integer offset_s, offset_e
+    integer iostat, offset_s, offset_e
     character(255) file_path
     character(10) data_type
     character(2) device_type
@@ -48,7 +48,13 @@ contains
       end if
       call log_notice('Reading ' // trim(file_path) // ' ...')
       open(10, file=file_path)
-      read(10, *)
+      read(10, '(A)', iostat=iostat)
+      if (iostat /= 0) then
+        call log_warning('File ' // trim(file_path) // ' is empty!')
+        if (offset_e == 0) exit
+        offset_s = offset_e + 1
+        cycle
+      end if
       read(10, *) station_name, lon, lat, z, device_type, date_time_str
       time = create_datetime(date_time_str, '%Y%m%d%H%M%S')
       read(10, *) data_type
