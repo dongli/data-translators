@@ -85,17 +85,22 @@ contains
           wd = real_missing_value
           ws = real_missing_value
         else
-          read(line( 7:11), '(F5.1)') wd
-          read(line(13:17), '(F5.1)') ws
-          read(line(26:28), '(I3)') wnd_h_qc
+          read(line( 7:11), '(F5.1)', iostat=iostat) wd
+          if (iostat /= 0) wd = real_missing_value
+          read(line(13:17), '(F5.1)', iostat=iostat) ws
+          if (iostat /= 0) ws = real_missing_value
+          read(line(26:28), '(I3)', iostat=iostat) wnd_h_qc
+          if (iostat /= 0) wnd_h_qc = int_missing_value
           ua = wind_u_component(ws, wd)
           va = wind_v_component(ws, wd)
         end if
         if (line(19:24) == '//////') then
           wa = real_missing_value
         else
-          read(line(19:24), '(F5.1)') wa
-          read(line(30:32), '(I3)') wnd_v_qc
+          read(line(19:24), '(F5.1)', iostat=iostat) wa
+          if (iostat /= 0) wa = real_missing_value
+          read(line(30:32), '(I3)', iostat=iostat) wnd_v_qc
+          if (iostat /= 0) wnd_v_qc = int_missing_value
         end if
         key = to_string(h)
         if (.not. is_missing(h )) call record%pro_hash%h %insert(key, real(h))
