@@ -129,8 +129,10 @@ contains
       call anem_nrg_txt_read(cli_input_file_path, platforms, records)
     case ('anem_txt')
       call anem_txt_read(cli_input_file_path, platforms, records)
+#ifdef HAS_LIB_ODB_API
     case ('anem_odb')
       call anem_odb_read(cli_input_file_path, platforms, records)
+#endif
     case default
       call log_error('Unknown reader type!')
     end select
