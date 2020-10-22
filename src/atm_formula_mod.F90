@@ -154,7 +154,7 @@ contains
 
     ! es(td) = e(ta)
 
-    if (is_missing(p) .or. is_missing(sh)) then
+    if (is_missing(p) .or. is_missing(sh) .or. sh == 0.0) then
       td = real_missing_value
     else
       e  = vapor_pressure(p, mixing_ratio(sh))

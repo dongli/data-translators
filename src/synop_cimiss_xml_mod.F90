@@ -151,7 +151,7 @@ contains
       record%time = time
       ! Set record.
       record%p     = p
-      record%ta    = td
+      record%ta    = ta
       record%td    = td
       record%rh    = rh
       record%sh    = sh
