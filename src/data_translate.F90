@@ -33,6 +33,7 @@ program data_translate
   use synop_netcdf_mod
   use ship_netcdf_mod
   use anem_netcdf_mod
+  use anem_txt_mod
 #endif
 #ifdef HAS_LIB_MONGO
   use anem_mongo_mod
@@ -51,7 +52,6 @@ program data_translate
   use ship_littler_mod
   use anem_nrg_txt_mod
   use anem_littler_mod
-  use anem_txt_mod
   use cli_mod
 
   implicit none
@@ -127,8 +127,10 @@ contains
       call synop_txt_read(cli_input_file_path, platforms, records)
     case ('anem_nrg_txt')
       call anem_nrg_txt_read(cli_input_file_path, platforms, records)
+#ifdef HAS_LIB_NETCDF
     case ('anem_txt')
       call anem_txt_read(cli_input_file_path, platforms, records)
+#endif
 #ifdef HAS_LIB_ODB_API
     case ('anem_odb')
       call anem_odb_read(cli_input_file_path, platforms, records)
