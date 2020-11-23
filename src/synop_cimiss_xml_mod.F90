@@ -21,11 +21,12 @@ module synop_cimiss_xml_mod
 
 contains
 
-  subroutine synop_cimiss_xml_read(file_path, stations, records)
+  subroutine synop_cimiss_xml_read(file_path, stations, records, mute)
 
     character(*), intent(in) :: file_path
     type(hash_table_type), intent(inout), target :: stations
     type(linked_list_type), intent(inout), target :: records
+    logical, intent(in), optional :: mute
 
     type(xml_t) xml
     integer i, iostat
@@ -33,7 +34,7 @@ contains
     dummy_stations => stations
     dummy_records => records
 
-    call log_notice('Reading ' // trim(file_path) // ' ...')
+    if (merge(.not. mute, .false., present(mute))) call log_notice('Reading ' // trim(file_path) // ' ...')
 
     call open_xml_file(xml, file_path, iostat)
 
@@ -43,7 +44,7 @@ contains
 
     call close_xml_t(xml)
 
-    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    if (merge(.not. mute, .false., present(mute))) call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
 
   end subroutine synop_cimiss_xml_read
 
