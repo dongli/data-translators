@@ -106,6 +106,7 @@ module raob_mod
     type(raob_profile_hash_type), pointer :: trop_hash => null()
   contains
     procedure :: init => raob_record_init
+    procedure :: init_with_size => raob_record_init_with_size
     procedure :: print => raob_record_print
   end type raob_record_type
 
@@ -418,6 +419,29 @@ contains
     end if
 
   end subroutine raob_record_init
+
+  subroutine raob_record_init_with_size(this, num_man_level, num_sigt_level, num_sigw_level, num_trop_level)
+
+    class(raob_record_type), intent(out) :: this
+    integer, intent(in), optional :: num_man_level
+    integer, intent(in), optional :: num_sigt_level
+    integer, intent(in), optional :: num_sigw_level
+    integer, intent(in), optional :: num_trop_level
+
+    if (present(num_man_level)) then
+      call this%man%init(num_man_level)
+    end if
+    if (present(num_sigt_level)) then
+      call this%sigt%init(num_sigt_level)
+    end if
+    if (present(num_sigw_level)) then
+      call this%sigw%init(num_sigw_level)
+    end if
+    if (present(num_trop_level)) then
+      call this%trop%init(num_trop_level)
+    end if
+
+  end subroutine raob_record_init_with_size
 
   subroutine raob_record_print(this)
 
