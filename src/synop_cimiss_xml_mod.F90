@@ -7,7 +7,7 @@ module synop_cimiss_xml_mod
   use regex
   use fox_sax
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use synop_mod
 
   implicit none
@@ -44,7 +44,7 @@ contains
 
     call close_xml_t(xml)
 
-    if (merge(.not. mute, .false., present(mute))) call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    if (merge(.not. mute, .false., present(mute))) call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine synop_cimiss_xml_read
 
@@ -170,7 +170,7 @@ contains
       !   print *, record%print()
       ! end if
       call dummy_records%insert(station_name // '@' // time%isoformat(), record)
-      call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+      call station%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
     end select
 
   end subroutine startElement_handler

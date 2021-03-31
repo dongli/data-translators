@@ -4,7 +4,7 @@ module profiler_odb_mod
   use container
   use flogger
   use profiler_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -89,8 +89,8 @@ contains
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
           col = col + 1; if (.not. is_missing(record%pro%p    (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%p   (k)))
           col = col + 1; if (.not. is_missing(record%pro%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      record%pro%p_qc(k))
           col = col + 1; if (.not. is_missing(record%pro%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(record%pro%p_cr(k)))

@@ -5,7 +5,7 @@ module profiler_littler_mod
   use container
   use profiler_mod
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 

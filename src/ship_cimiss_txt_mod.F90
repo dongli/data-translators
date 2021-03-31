@@ -5,7 +5,7 @@ module ship_cimiss_txt_mod
   use flogger
   use regex
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use ship_mod
 
   implicit none

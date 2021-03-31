@@ -8,7 +8,7 @@ module amdar_cimiss_xml_mod
   use regex
   use fox_sax
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -44,7 +44,7 @@ contains
 
     call close_xml_t(xml)
 
-    if (merge(.not. mute, .false., present(mute))) call log_notice('Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    if (merge(.not. mute, .false., present(mute))) call log_notice('Flight size is ' // trim(to_str(flights%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine amdar_cimiss_xml_read
 
@@ -174,7 +174,7 @@ contains
       record%va = wind_v_component(ws, wd)
       record%trb = trb
       call dummy_records%insert(flight_name // '@' // time%isoformat(), record)
-      call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+      call flight%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
     end select
 
   end subroutine startElement_handler

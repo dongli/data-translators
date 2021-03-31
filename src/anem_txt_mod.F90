@@ -7,7 +7,7 @@ module anem_txt_mod
   use flogger
   use regex
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use cli_mod
 
   implicit none
@@ -95,7 +95,7 @@ contains
       call record_iterator%next()
     end do
 
-    call log_notice('Tower size is ' // trim(to_string(towers%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Tower size is ' // trim(to_str(towers%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
     call free_tower_arrays()
 

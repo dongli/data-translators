@@ -6,7 +6,7 @@ module ship_txt_mod
   use flogger
   use regex
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use ship_mod
 
   implicit none
@@ -201,14 +201,14 @@ contains
         record%va_qc  = va_qc
         record%ice_qc = ice_qc
         call records%insert(site_name // '@' // time%isoformat(), record)
-        call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+        call ship%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
       else
         exit
       end if
     end do
     close(10)
 
-    call log_notice('Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Ship size is ' // trim(to_str(ships%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine ship_txt_read
 

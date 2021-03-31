@@ -6,7 +6,7 @@ module amdar_prepbufr_mod
   use flogger
   use params_mod
   use cli_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -165,12 +165,12 @@ contains
         if (flight_name == cli_verbose_platform) then
           call record%print()
         end if
-        call flight%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+        call flight%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
       end do
     end do
     call closbf(10)
 
-    call log_notice('Flight size is ' // trim(to_string(flights%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Flight size is ' // trim(to_str(flights%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine amdar_prepbufr_read
 

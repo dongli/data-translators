@@ -4,7 +4,7 @@ module raob_odb_mod
   use container
   use flogger
   use raob_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -106,8 +106,8 @@ contains
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
         col = col + 1; call odbql_bind_text  (odb_stmt, col, 'sfc', 3)
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
         col = col + 1; if (.not. is_missing(record%ps   ))  call odbql_bind_double(odb_stmt, col, dble(record%ps   ))
         col = col + 1; if (.not. is_missing(record%ps_qc))  call odbql_bind_int   (odb_stmt, col,      record%ps_qc)
         col = col + 1; if (.not. is_missing(record%ps_cr))  call odbql_bind_double(odb_stmt, col, dble(record%ps_cr))
@@ -162,8 +162,8 @@ contains
       col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
       col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
       col = col + 1; call odbql_bind_text  (odb_stmt, col, level_type, 4)
-      col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-      col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+      col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+      col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
       col = col + 1; if (.not. is_missing(profile%p    (k))) call odbql_bind_double(odb_stmt, col, dble(profile%p    (k)))
       col = col + 1; if (.not. is_missing(profile%p_qc (k))) call odbql_bind_int   (odb_stmt, col,      profile%p_qc (k))
       col = col + 1; if (.not. is_missing(profile%p_cr (k))) call odbql_bind_double(odb_stmt, col, dble(profile%p_cr (k)))

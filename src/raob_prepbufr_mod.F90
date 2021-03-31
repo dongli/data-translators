@@ -5,7 +5,7 @@ module raob_prepbufr_mod
   use container
   use flogger
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use cli_mod
   use raob_mod
 
@@ -133,7 +133,7 @@ contains
         do i = 1, num_level
           call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
-          key = to_string(int(p))
+          key = to_str(int(p))
 
           select case (int(obs(cat_idx,i,1)))
           case (1) ! Mandatory level
@@ -185,7 +185,7 @@ contains
               record%wss = knot_to_meter_per_second(record%wss)
             end if
           case default
-            call log_warning('Unknown category ' // to_string(int(obs(cat_idx,i,1))) // ' for station ' // trim(station_name) // '!')
+            call log_warning('Unknown category ' // to_str(int(obs(cat_idx,i,1))) // ' for station ' // trim(station_name) // '!')
           end select
 
           if (associated(profile_hash)) then
@@ -292,7 +292,7 @@ contains
       call record_iterator%next()
     end do
 
-    call log_notice('Station size is ' // to_string(stations%size) // ', level size is ' // to_string(num_level) // '.')
+    call log_notice('Station size is ' // to_str(stations%size) // ', level size is ' // to_str(num_level) // '.')
 
   end subroutine raob_prepbufr_read
 

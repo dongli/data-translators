@@ -5,7 +5,7 @@ module synop_txt_mod
   use container
   use flogger
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use synop_mod
 
   implicit none
@@ -67,12 +67,12 @@ contains
       record%va = wind_v_component(ws, wd)
       record%r01h = r01
       call records%insert(platform_id // '@' // time%isoformat(), record)
-      call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+      call station%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
       if (iostat /= 0) exit
     end do
     close(10)
 
-    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine synop_txt_read
 

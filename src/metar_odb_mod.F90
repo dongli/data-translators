@@ -4,7 +4,7 @@ module metar_odb_mod
   use container
   use flogger
   use metar_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   private
 
@@ -92,8 +92,8 @@ contains
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%lat))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%station%z))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
         col = col + 1; if (.not. is_missing(record%ta))    call odbql_bind_double(odb_stmt, col, dble(record%ta   ))
         col = col + 1; if (.not. is_missing(record%ta_qc)) call odbql_bind_int   (odb_stmt, col,      record%ta_qc )
         col = col + 1; if (.not. is_missing(record%ta_cr)) call odbql_bind_double(odb_stmt, col, dble(record%ta_cr))

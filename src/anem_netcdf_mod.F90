@@ -6,7 +6,7 @@ module anem_netcdf_mod
   use anem_mod
   use container
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use qsort_mod
 
   implicit none
@@ -64,8 +64,8 @@ contains
         select type (record => tower%records%first_value())
         type is (anem_record_type)
           do i = 1, size(record%h)
-            if (.not. heights%hashed(to_string(int(record%h(i))))) then
-              call heights%insert(to_string(int(record%h(i))), record%h(i))
+            if (.not. heights%hashed(to_str(int(record%h(i))))) then
+              call heights%insert(to_str(int(record%h(i))), record%h(i))
             end if
           end do
         end select

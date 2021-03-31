@@ -35,7 +35,7 @@ module missing_value_mod
 
 contains
 
-  logical function is_missing_str(x) result(res)
+  elemental logical function is_missing_str(x) result(res)
 
     character(*), intent(in) :: x
 
@@ -43,7 +43,7 @@ contains
 
   end function is_missing_str
 
-  logical function is_missing_i4(x, src) result(res)
+  elemental logical function is_missing_i4(x, src) result(res)
 
     integer, intent(in) :: x
     character(*), intent(in), optional :: src
@@ -53,7 +53,7 @@ contains
       case ('cimiss')
         res = x == int_missing_value_in_cimiss_1 .or. x == int_missing_value_in_cimiss_2 .or. x == int_missing_value_in_cimiss_3
       case default
-        write(*, *) '[Error]: is_missing: Unknown src ' // trim(src) // '!'
+        res = .true.
       end select
     else
       res = x == int_missing_value
@@ -61,7 +61,7 @@ contains
 
   end function is_missing_i4
 
-  logical function is_missing_r4(x, src) result(res)
+  elemental logical function is_missing_r4(x, src) result(res)
 
     real(4), intent(in) :: x
     character(*), intent(in), optional :: src
@@ -75,7 +75,7 @@ contains
       case ('txt')
         res = x == real_missing_value_in_txt
       case default
-        write(*, *) '[Error]: is_missing: Unknown src ' // trim(src) // '!'
+        res = .true.
       end select
     else
       res = x == real_missing_value
@@ -83,7 +83,7 @@ contains
 
   end function is_missing_r4
 
-  logical function is_missing_r8(x, src) result(res)
+  elemental logical function is_missing_r8(x, src) result(res)
 
     real(8), intent(in) :: x
     character(*), intent(in), optional :: src
@@ -97,7 +97,7 @@ contains
       case ('txt')
         res = x == real_missing_value_in_txt
       case default
-        write(*, *) '[Error]: is_missing: Unknown src ' // trim(src) // '!'
+        res = .true.
       end select
     else
       res = x == real_missing_value

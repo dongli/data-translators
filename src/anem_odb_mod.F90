@@ -3,7 +3,7 @@ module anem_odb_mod
   use odbql_wrappers
   use container
   use flogger
-  use utils_mod
+  use data_translators_utils_mod
   use cli_mod
   use anem_mod
 
@@ -81,8 +81,8 @@ contains
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%tower%lon))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%tower%lat))
           col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%tower%z))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+          col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
           col = col + 1; if (.not. is_missing(record%h     (k))) call odbql_bind_double(odb_stmt, col, dble(add(record%h(k), record%tower%z)))
           col = col + 1; if (.not. is_missing(record%ta_avg(k))) call odbql_bind_double(odb_stmt, col, dble(record%ta_avg(k)))
           col = col + 1; if (.not. is_missing(record%p_avg (k))) call odbql_bind_double(odb_stmt, col, dble(record%p_avg (k)))

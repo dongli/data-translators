@@ -6,7 +6,7 @@ module raob_zupar_mod
   use container
   use flogger
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use raob_mod
 
   implicit none

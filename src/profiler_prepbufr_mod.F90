@@ -5,7 +5,7 @@ module profiler_prepbufr_mod
   use container
   use flogger
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use cli_mod
   use profiler_mod
 
@@ -116,7 +116,7 @@ contains
           call prepbufr_raw(obs(p_idx,i,:), p, stack_qc=qc(p_idx,i,:), stack_pc=pc(p_idx,i,:), qc=p_qc)
           if (is_missing(p)) cycle
           p = p * 100 ! Convert units from hPa to Pa.
-          key = to_string(int(p))
+          key = to_str(int(p))
           if (.not. record%pro_hash%p%hashed(key) .and. .not. is_missing(p)) then
             call record%pro_hash%p%insert(key, p)
             call record%pro_hash%p_qc%insert(key, p_qc)
@@ -176,7 +176,7 @@ contains
       call record_iterator%next()
     end do
 
-    call log_notice('Station size is ' // to_string(stations%size) // ', record size is ' // to_string(records%size) // '.')
+    call log_notice('Station size is ' // to_str(stations%size) // ', record size is ' // to_str(records%size) // '.')
 
   end subroutine profiler_prepbufr_read
 

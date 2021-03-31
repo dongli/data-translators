@@ -1,4 +1,4 @@
-module utils_mod
+module data_translators_utils_mod
 
   use string
   use container
@@ -39,7 +39,7 @@ module utils_mod
 
 contains
 
-  real function add(a, b) result(res)
+  elemental real function add(a, b) result(res)
 
     real, intent(in) :: a
     real, intent(in) :: b
@@ -52,7 +52,7 @@ contains
 
   end function add
 
-  real function subtract(a, b) result(res)
+  elemental real function subtract(a, b) result(res)
 
     real, intent(in) :: a
     real, intent(in) :: b
@@ -357,7 +357,7 @@ contains
 
     if (ierr /= nf90_noerr) then
       if (present(file) .and. present(line)) then
-        write(*, *) '[Error]: ' // trim(file) // ':' // trim(to_string(line)) // ': ' // trim(nf90_strerror(ierr)) // '!'
+        write(*, *) '[Error]: ' // trim(file) // ':' // trim(to_str(line)) // ': ' // trim(nf90_strerror(ierr)) // '!'
       else
         write(*, *) '[Error]: ' // trim(nf90_strerror(ierr)) // '!'
       end if
@@ -425,7 +425,7 @@ contains
     end do
     close(10)
 
-    write(*, *) '[Notice]: Load ' // trim(to_string(stations%size)) // ' SYNOP stations.'
+    write(*, *) '[Notice]: Load ' // trim(to_str(stations%size)) // ' SYNOP stations.'
 
   end subroutine load_cma_synop_stations
 
@@ -501,8 +501,8 @@ contains
         return
       end if
     end do
-    call log_error('File numbers are run out! (' // to_string(start_number) // '-' // to_string(end_number) // '!')
+    call log_error('File numbers are run out! (' // to_str(start_number) // '-' // to_str(end_number) // '!')
 
   end function unique_file_number
 
-end module utils_mod
+end module data_translators_utils_mod

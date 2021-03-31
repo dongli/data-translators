@@ -3,7 +3,7 @@ module ship_odb_mod
   use odbql_wrappers
   use container
   use flogger
-  use utils_mod
+  use data_translators_utils_mod
   use ship_mod
 
   implicit none
@@ -127,8 +127,8 @@ contains
         col = col + 1; call odbql_bind_text  (odb_stmt, col, trim(record%source), len_trim(record%source))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
         col = col + 1; if (.not. is_missing(record%p     )) call odbql_bind_double(odb_stmt, col, dble(record%p    ))
         col = col + 1; if (.not. is_missing(record%p_qc  )) call odbql_bind_int   (odb_stmt, col,      record%p_qc  )
         col = col + 1; if (.not. is_missing(record%ta    )) call odbql_bind_double(odb_stmt, col, dble(record%ta   ))

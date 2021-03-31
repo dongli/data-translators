@@ -5,7 +5,7 @@ module synop_ftm_txt_mod
   use container
   use flogger
   use cli_mod
-  use utils_mod
+  use data_translators_utils_mod
   use synop_mod
 
   implicit none
@@ -145,7 +145,7 @@ contains
       call dummy_record_iterator%next()
     end do
 
-    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine synop_ftm_txt_read
 

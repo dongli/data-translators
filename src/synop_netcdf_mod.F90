@@ -2,7 +2,7 @@ module synop_netcdf_mod
 
   use netcdf
   use synop_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -225,7 +225,7 @@ contains
         platform_idx(i) = record%station%seq_id
         j = count(record_idx(:,platform_idx(i)+1) >= 0) + 1
         if (j > max_record_per_platform) then
-          write(*, *) '[Error]: Exceeds max_record_per_platform ' // trim(to_string(max_record_per_platform)) // '!'
+          write(*, *) '[Error]: Exceeds max_record_per_platform ' // trim(to_str(max_record_per_platform)) // '!'
           stop 1
         end if
         record_idx(j,platform_idx(i)+1) = record%seq_id

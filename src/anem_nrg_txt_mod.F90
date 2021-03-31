@@ -7,7 +7,7 @@ module anem_nrg_txt_mod
   use flogger
   use regex
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use cli_mod
 
   implicit none
@@ -116,7 +116,7 @@ contains
        p_avg_idx = 0;  p_std_idx = 0;  p_min_idx = 0;  p_max_idx = 0
       do j = 1, n
         do i = 2, size(labels)
-          if (index(labels(i)%value, to_string(int(h(j)))) == 0) cycle
+          if (index(labels(i)%value, to_str(int(h(j)))) == 0) cycle
           if (index(labels(i)%value, 'Avg_m/s') /= 0) then
             ws_avg_idx(j) = i
           else if (index(labels(i)%value, 'SD_m/s') /= 0) then
@@ -165,52 +165,52 @@ contains
         do i = 1, n
           record%h(i) = h(i)
           if (ws_avg_idx(i) /= 0 .and. ws_avg_idx(i) < size(fields)) then
-            if (fields(ws_avg_idx(i))%value /= '') record%ws_avg(i) = to_float(fields(ws_avg_idx(i))%value)
+            if (fields(ws_avg_idx(i))%value /= '') record%ws_avg(i) = to_r4(fields(ws_avg_idx(i))%value)
           end if
           if (ws_std_idx(i) /= 0 .and. ws_std_idx(i) < size(fields)) then
-            if (fields(ws_std_idx(i))%value /= '') record%ws_std(i) = to_float(fields(ws_std_idx(i))%value)
+            if (fields(ws_std_idx(i))%value /= '') record%ws_std(i) = to_r4(fields(ws_std_idx(i))%value)
           end if
           if (ws_min_idx(i) /= 0 .and. ws_min_idx(i) < size(fields)) then
-            if (fields(ws_min_idx(i))%value /= '') record%ws_min(i) = to_float(fields(ws_min_idx(i))%value)
+            if (fields(ws_min_idx(i))%value /= '') record%ws_min(i) = to_r4(fields(ws_min_idx(i))%value)
           end if
           if (ws_max_idx(i) /= 0 .and. ws_max_idx(i) < size(fields)) then
-            if (fields(ws_max_idx(i))%value /= '') record%ws_max(i) = to_float(fields(ws_max_idx(i))%value)
+            if (fields(ws_max_idx(i))%value /= '') record%ws_max(i) = to_r4(fields(ws_max_idx(i))%value)
           end if
           if (wd_avg_idx(i) /= 0 .and. wd_avg_idx(i) < size(fields)) then
-            if (fields(wd_avg_idx(i))%value /= '') record%wd_avg(i) = to_float(fields(wd_avg_idx(i))%value)
+            if (fields(wd_avg_idx(i))%value /= '') record%wd_avg(i) = to_r4(fields(wd_avg_idx(i))%value)
           end if
           if (wd_std_idx(i) /= 0 .and. wd_std_idx(i) < size(fields)) then
-            if (fields(wd_std_idx(i))%value /= '') record%wd_std(i) = to_float(fields(wd_std_idx(i))%value)
+            if (fields(wd_std_idx(i))%value /= '') record%wd_std(i) = to_r4(fields(wd_std_idx(i))%value)
           end if
           if (wd_min_idx(i) /= 0 .and. wd_min_idx(i) < size(fields)) then
-            if (fields(wd_min_idx(i))%value /= '') record%wd_min(i) = to_float(fields(wd_min_idx(i))%value)
+            if (fields(wd_min_idx(i))%value /= '') record%wd_min(i) = to_r4(fields(wd_min_idx(i))%value)
           end if
           if (wd_max_idx(i) /= 0 .and. wd_max_idx(i) < size(fields)) then
-            if (fields(wd_max_idx(i))%value /= '') record%wd_max(i) = to_float(fields(wd_max_idx(i))%value)
+            if (fields(wd_max_idx(i))%value /= '') record%wd_max(i) = to_r4(fields(wd_max_idx(i))%value)
           end if
           if (ta_avg_idx(i) /= 0 .and. ta_avg_idx(i) < size(fields)) then
-            if (fields(ta_avg_idx(i))%value /= '') record%ta_avg(i) = to_float(fields(ta_avg_idx(i))%value)
+            if (fields(ta_avg_idx(i))%value /= '') record%ta_avg(i) = to_r4(fields(ta_avg_idx(i))%value)
           end if
           if (ta_std_idx(i) /= 0 .and. ta_std_idx(i) < size(fields)) then
-            if (fields(ta_std_idx(i))%value /= '') record%ta_std(i) = to_float(fields(ta_std_idx(i))%value)
+            if (fields(ta_std_idx(i))%value /= '') record%ta_std(i) = to_r4(fields(ta_std_idx(i))%value)
           end if
           if (ta_min_idx(i) /= 0 .and. ta_min_idx(i) < size(fields)) then
-            if (fields(ta_min_idx(i))%value /= '') record%ta_min(i) = to_float(fields(ta_min_idx(i))%value)
+            if (fields(ta_min_idx(i))%value /= '') record%ta_min(i) = to_r4(fields(ta_min_idx(i))%value)
           end if
           if (ta_max_idx(i) /= 0 .and. ta_max_idx(i) < size(fields)) then
-            if (fields(ta_max_idx(i))%value /= '') record%ta_max(i) = to_float(fields(ta_max_idx(i))%value)
+            if (fields(ta_max_idx(i))%value /= '') record%ta_max(i) = to_r4(fields(ta_max_idx(i))%value)
           end if
           if (p_avg_idx(i)  /= 0 .and. p_avg_idx(i)  < size(fields)) then
-            if (fields(p_avg_idx (i))%value /= '') record%p_avg(i)  = multiply(to_float(fields(p_avg_idx (i))%value), 10.0)
+            if (fields(p_avg_idx (i))%value /= '') record%p_avg(i)  = multiply(to_r4(fields(p_avg_idx (i))%value), 10.0)
           end if
           if (p_std_idx(i)  /= 0 .and. p_std_idx(i)  < size(fields)) then
-            if (fields(p_std_idx (i))%value /= '') record%p_std(i)  = multiply(to_float(fields(p_std_idx (i))%value), 10.0)
+            if (fields(p_std_idx (i))%value /= '') record%p_std(i)  = multiply(to_r4(fields(p_std_idx (i))%value), 10.0)
           end if
           if (p_min_idx(i)  /= 0 .and. p_min_idx(i)  < size(fields)) then
-            if (fields(p_min_idx (i))%value /= '') record%p_min(i)  = multiply(to_float(fields(p_min_idx (i))%value), 10.0)
+            if (fields(p_min_idx (i))%value /= '') record%p_min(i)  = multiply(to_r4(fields(p_min_idx (i))%value), 10.0)
           end if
           if (p_max_idx(i)  /= 0 .and. p_max_idx(i)  < size(fields)) then
-            if (fields(p_max_idx (i))%value /= '') record%p_max(i)  = multiply(to_float(fields(p_max_idx (i))%value), 10.0)
+            if (fields(p_max_idx (i))%value /= '') record%p_max(i)  = multiply(to_r4(fields(p_max_idx (i))%value), 10.0)
           end if
           if (ws_avg_idx(i) /= 0 .and. wd_avg_idx(i) /= 0) then
             record%ua_avg(i) = wind_u_component(record%ws_avg(i), record%wd_avg(i))
@@ -218,7 +218,7 @@ contains
           end if
         end do
         call dummy_records%insert(tower_name // '@' // time%isoformat(), record)
-        call tower%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+        call tower%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
         deallocate(fields)
       end do
       close(10)
@@ -237,7 +237,7 @@ contains
       call dummy_record_iterator%next()
     end do
 
-    call log_notice('Tower size is ' // trim(to_string(towers%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Tower size is ' // trim(to_str(towers%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine anem_nrg_txt_read
 

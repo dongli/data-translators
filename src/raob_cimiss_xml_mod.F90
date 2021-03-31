@@ -8,7 +8,7 @@ module raob_cimiss_xml_mod
   use regex
   use fox_sax
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -66,7 +66,7 @@ contains
       call record_iterator%next()
     end do
 
-    if (merge(.not. mute, .false., present(mute))) call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    if (merge(.not. mute, .false., present(mute))) call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine raob_cimiss_xml_read
 
@@ -183,7 +183,7 @@ contains
         call station%init(station_name, lon, lat, z)
         call dummy_stations%insert(station_name, station)
       end if
-      record_key = trim(station_name) // '@' // time%isoformat() // '#' // to_string(obs_type)
+      record_key = trim(station_name) // '@' // time%isoformat() // '#' // to_str(obs_type)
       if (dummy_records%hashed(record_key)) then
         select type (value => dummy_records%value(record_key))
         type is (raob_record_type)
@@ -198,7 +198,7 @@ contains
         new_record = .true.
       end if
       ! Set record.
-      level_key = to_string(int(p))
+      level_key = to_str(int(p))
       select case (obs_type)
       case (131072) ! Surface
         record%ps  = p
@@ -303,7 +303,7 @@ contains
           call record%sigw_hash%va%insert(level_key, va)
         end if
       case default
-        !call log_warning('Unknown raob level type ' // to_string(obs_type) // ' at station ' // trim(station%name) // '!')
+        !call log_warning('Unknown raob level type ' // to_str(obs_type) // ' at station ' // trim(station%name) // '!')
       end select
       if (new_record) then
         call dummy_records%insert(record_key, record)

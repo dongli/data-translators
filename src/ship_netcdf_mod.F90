@@ -2,7 +2,7 @@ module ship_netcdf_mod
 
   use netcdf
   use ship_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -328,7 +328,7 @@ contains
         ship_idx(i) = record%ship%seq_id
         j = count(record_idx(:,ship_idx(i)+1) >= 0) + 1
         if (j > max_record_per_ship) then
-          write(*, *) '[Error]: Exceeds max_record_per_ship ' // trim(to_string(max_record_per_ship)) // '!'
+          write(*, *) '[Error]: Exceeds max_record_per_ship ' // trim(to_str(max_record_per_ship)) // '!'
           stop 1
         end if
         record_idx(j,ship_idx(i)+1) = record%seq_id

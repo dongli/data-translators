@@ -6,7 +6,7 @@ module metar_prepbufr_mod
   use metar_mod
   use params_mod
   use cli_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -192,12 +192,12 @@ contains
           end if
           call record%print()
         end if
-        call station%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+        call station%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
       end do
     end do
     call closbf(10)
 
-    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine metar_prepbufr_read
 

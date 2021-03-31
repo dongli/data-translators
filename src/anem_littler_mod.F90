@@ -6,7 +6,7 @@ module anem_littler_mod
   use hash_table_mod
   use linked_list_mod
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 

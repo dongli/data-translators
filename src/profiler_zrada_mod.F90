@@ -5,7 +5,7 @@ module profiler_zrada_mod
   use container
   use flogger
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use profiler_mod
 
   implicit none
@@ -102,7 +102,7 @@ contains
           read(line(30:32), '(I3)', iostat=iostat) wnd_v_qc
           if (iostat /= 0) wnd_v_qc = int_missing_value
         end if
-        key = to_string(h)
+        key = to_str(h)
         if (.not. is_missing(h )) call record%pro_hash%h %insert(key, real(h))
         if (.not. is_missing(ua)) call record%pro_hash%ua%insert(key, ua)
         if (.not. is_missing(va)) call record%pro_hash%va%insert(key, va)
@@ -131,7 +131,7 @@ contains
       call record_iterator%next()
     end do
 
-    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine profiler_zrada_read
 

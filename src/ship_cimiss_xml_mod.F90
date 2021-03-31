@@ -7,7 +7,7 @@ module ship_cimiss_xml_mod
   use regex
   use fox_sax
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use ship_mod
 
   implicit none
@@ -43,7 +43,7 @@ contains
 
     call close_xml_t(xml)
 
-    call log_notice('Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Ship size is ' // trim(to_str(ships%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine ship_cimiss_xml_read
 
@@ -190,7 +190,7 @@ contains
       if (.not. is_missing(ta) .and. ta > 200) then
         ta = ta - freezing_point
         if (ta > 100) then
-          call log_warning('Bad temperature value ' // to_string(ta, 10) // 'for ' // trim(ship_name) // '!')
+          call log_warning('Bad temperature value ' // to_str(ta, 10) // 'for ' // trim(ship_name) // '!')
           ta = real_missing_value
         else
           call log_warning('Convert temperature units from K to degC for ' // trim(ship_name) // '.')
@@ -199,7 +199,7 @@ contains
       if (.not. is_missing(td) .and. td > 200) then
         td = td - freezing_point
         if (td > 100) then
-          call log_warning('Bad dewpoint value ' // to_string(td, 10) // 'for ' // trim(ship_name) // '!')
+          call log_warning('Bad dewpoint value ' // to_str(td, 10) // 'for ' // trim(ship_name) // '!')
           td = real_missing_value
         else
           call log_warning('Convert dewpoint units from K to degC for ' // trim(ship_name) // '.')
@@ -257,7 +257,7 @@ contains
       record%vis_qc = vis_qc
       record%clc_qc = clc_qc
       call dummy_records%insert(ship_name // '@' // time%isoformat(), record)
-      call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+      call ship%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
     end select
 
   end subroutine startElement_handler

@@ -4,7 +4,7 @@ module amdar_odb_mod
   use flogger
   use amdar_mod
   use odbql_wrappers
-  use utils_mod
+  use data_translators_utils_mod
 
   implicit none
 
@@ -103,8 +103,8 @@ contains
         col = col + 1; call odbql_bind_text  (odb_stmt, col, record%flight%number, len_trim(record%flight%number))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lon))
         col = col + 1; call odbql_bind_double(odb_stmt, col, dble(record%lat))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%Y%m%d')))
-        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_integer(record%time%format('%H%M%S')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%Y%m%d')))
+        col = col + 1; call odbql_bind_int   (odb_stmt, col, to_int(record%time%format('%H%M%S')))
         col = col + 1; if (.not. is_missing(record%p    )) call odbql_bind_double(odb_stmt, col, dble(record%p    ))
         col = col + 1; if (.not. is_missing(record%p_qc )) call odbql_bind_int   (odb_stmt, col,      record%p_qc  )
         col = col + 1; if (.not. is_missing(record%p_cr )) call odbql_bind_double(odb_stmt, col, dble(record%p_cr ))

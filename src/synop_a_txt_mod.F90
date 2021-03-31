@@ -6,7 +6,7 @@ module synop_a_txt_mod
   use flogger
   use regex
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use synop_mod
 
   implicit none
@@ -458,7 +458,7 @@ contains
       call record_iterator%next()
     end do
 
-    call log_notice('Station size is ' // trim(to_string(stations%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+    call log_notice('Station size is ' // trim(to_str(stations%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
 
   end subroutine synop_a_txt_read
 

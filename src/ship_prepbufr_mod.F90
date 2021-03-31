@@ -4,7 +4,7 @@ module ship_prepbufr_mod
   use container
   use flogger
   use params_mod
-  use utils_mod
+  use data_translators_utils_mod
   use ship_mod
 
   implicit none
@@ -140,7 +140,7 @@ contains
         ! else
         !   call record%print()
         end if
-        call ship%records%insert(trim(to_string(record%seq_id)), record, nodup=.true.)
+        call ship%records%insert(trim(to_str(record%seq_id)), record, nodup=.true.)
       end do
     end do
     call closbf(10)
@@ -148,7 +148,7 @@ contains
     if (records%size == 0) then
       call log_warning('There is no SHIP data!')
     else
-      call log_notice('Ship size is ' // trim(to_string(ships%size)) // ', record size is ' // trim(to_string(records%size)) // '.')
+      call log_notice('Ship size is ' // trim(to_str(ships%size)) // ', record size is ' // trim(to_str(records%size)) // '.')
     end if
 
   end subroutine ship_prepbufr_read
