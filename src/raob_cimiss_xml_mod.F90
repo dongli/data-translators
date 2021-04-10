@@ -184,6 +184,7 @@ contains
         call dummy_stations%insert(station_name, station)
       end if
       record_key = trim(station_name) // '@' // time%isoformat() // '#' // to_str(obs_type)
+      new_record = .false.
       if (dummy_records%hashed(record_key)) then
         select type (value => dummy_records%value(record_key))
         type is (raob_record_type)
